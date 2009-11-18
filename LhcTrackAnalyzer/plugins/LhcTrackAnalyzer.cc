@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    LhcTrackAnalyzer
+// Package:    LhcTackAnalyzer
 // Class:      LhcTrackAnalyzer
 // 
 /**\class LhcTrackAnalyzer LhcTrackAnalyzer.cc MySub/LhcTrackAnalyzer/src/LhcTrackAnalyzer.cc
@@ -22,7 +22,7 @@
 
 
 // user include files
-#include "UserCode/LLhcTrackAnalyzer/interface/LhcTrackAnalyzer.h"
+#include "UserCode/LhcTrackAnalyzer/interface/LhcTrackAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
