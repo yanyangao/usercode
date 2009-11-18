@@ -34,7 +34,6 @@
    <use name=rootcintex>
    <use name=root>
    <use name=hepmc>
-   <use name=rootcintex>
    <use name=SimDataFormats/TrackingAnalysis>
    <use name=SimDataFormats/TrackingHit>
    <use name=FWCore/ServiceRegistry>
@@ -48,5 +47,4 @@
    <use name=TrackingTools/TransientTrack>
    <use name=DataFormats/BeamSpot>
    <use name=RecoVertex/PrimaryVertexProducer>
-   <lib name=UserCodeLhcTrackAnalyzer>
 </export>
