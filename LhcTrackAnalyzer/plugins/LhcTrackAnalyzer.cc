@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    LhcTackAnalyzer
+// Package:    LhcTrackAnalyzer
 // Class:      LhcTrackAnalyzer
 // 
 /**\class LhcTrackAnalyzer LhcTrackAnalyzer.cc MySub/LhcTrackAnalyzer/src/LhcTrackAnalyzer.cc
@@ -22,7 +22,7 @@
 
 
 // user include files
-#include "UserCode/LhcTrackAnalyzer/interface/LhcTrackAnalyzer.h"
+#include "UserCode/PVStudy/interface/LhcTrackAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -177,8 +177,10 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(!v->isFake() && v->isValid()) {
       nTracks_pvtx_[nVertices_] = v->tracksSize();	
       sumptsq_pvtx_[nVertices_] = sumPtSquared(*v); 
-      isValid_pvtx_[nVertices_] = v->isValid();
-      isFake_pvtx_[nVertices_] = v->isFake();	
+      isValid_pvtx_[nVertices_] = int(v->isValid());
+      cout<<"isValid_pvtx_ = "<<isValid_pvtx_<<endl;
+      isFake_pvtx_[nVertices_] =int(v->isFake());
+      cout<<"isFake_pvtx_ = "<< isFake_pvtx_<<endl; 
       recx_pvtx_[nVertices_] = v->x();
       recy_pvtx_[nVertices_] = v->y();
       recz_pvtx_[nVertices_] = v->z();
@@ -234,7 +236,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     zPCA_[nTracks_]     = tkref->vertex().z(); 
     
 
-    if(vertexColl->size()>0 && !vertexColl->begin()->isFake()) {                                                                       
+    if(vertexColl->size()>0 && !vertexColl->begin()->isFake()) {  
       if(debug_)
 	cout<<"TrackWeight in PrimaryVertexColl = "<< vertexColl->begin()->trackWeight(tkref)<<endl; 
       trkWeightpvtx_[nTracks_] =  vertexColl->begin()->trackWeight(tkref);
@@ -316,6 +318,7 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   rootTree_->Branch("dzErr",&dzErr_,"dzErr[nTracks]/D");
   rootTree_->Branch("dxy",&dxy_,"dxy[nTracks]/D");
   rootTree_->Branch("dxyErr",&dxyErr_,"dxyErr[nTracks]/D");
+  rootTree_->Branch("dxyCorr",&dxyCorr_,"dxyCorr[nTracks]/D");
   rootTree_->Branch("dzCorr",&dzCorr_,"dzCorr[nTracks]/D");
   rootTree_->Branch("dxyErr",&dxyErr_,"dxyErr[nTracks]/D");
   rootTree_->Branch("chi2",&chi2_,"chi2[nTracks]/D");
