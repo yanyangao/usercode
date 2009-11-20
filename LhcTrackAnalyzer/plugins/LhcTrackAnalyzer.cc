@@ -259,6 +259,11 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     ctf_yPCA_[ctf_n_]     = tkref->vertex().y();
     ctf_zPCA_[ctf_n_]     = tkref->vertex().z(); 
     
+    ctf_nLayers_[ctf_n_]   = int(tkref->hitPattern().trackerLayersWithMeasurement());
+    ctf_nPXBLayers_[ctf_n_] = int(tkref->hitPattern().pixelBarrelLayersWithMeasurement());
+    ctf_nPXFLayers_[ctf_n_] = int(tkref->hitPattern().pixelEndcapLayersWithMeasurement());
+
+    
     if(vertexColl->size()>0 && !vertexColl->begin()->isFake()) {  
       if(debug_)
 	cout<<"TrackWeight in PrimaryVertexColl = "<< vertexColl->begin()->trackWeight(tkref)<<endl; 
@@ -479,6 +484,11 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       sectrk_xPCA_[sectrk_n_]     = tkref->vertex().x();
       sectrk_yPCA_[sectrk_n_]     = tkref->vertex().y();
       sectrk_zPCA_[sectrk_n_]     = tkref->vertex().z(); 
+     
+      
+      sectrk_nLayers_[sectrk_n_]   = int(tkref->hitPattern().trackerLayersWithMeasurement());
+      sectrk_nPXBLayers_[sectrk_n_] = int(tkref->hitPattern().pixelBarrelLayersWithMeasurement());
+      sectrk_nPXFLayers_[sectrk_n_] = int(tkref->hitPattern().pixelEndcapLayersWithMeasurement());
       
       if(vertexColl->size()>0 && !vertexColl->begin()->isFake()) {  
 	if(debug_)
@@ -829,6 +839,9 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   rootTree_->Branch("ctf_xPCA",&ctf_xPCA_,"ctf_xPCA[ctf_n]/D");
   rootTree_->Branch("ctf_yPCA",&ctf_yPCA_,"ctf_yPCA[ctf_n]/D");
   rootTree_->Branch("ctf_zPCA",&ctf_zPCA_,"ctf_zPCA[ctf_n]/D");
+  rootTree_->Branch("ctf_nLayers",&ctf_nLayers_,"ctf_nLayers[ctf_n]/I");
+  rootTree_->Branch("ctf_nPXBLayers",&ctf_nPXBLayers_,"ctf_nPXBLayers[ctf_n]/I");
+  rootTree_->Branch("ctf_nPXFLayers",&ctf_nPXFLayers_,"ctf_nPXFLayers[ctf_n]/I");
   rootTree_->Branch("ctf_trkWeightpvtx",&ctf_trkWeightpvtx_,"ctf_trkWeightpvtx[ctf_n]/D");
   // CTF Track Hits
   rootTree_->Branch("ctf_nHit",&ctf_nHit_,"ctf_nHit[ctf_n]/I");
@@ -903,7 +916,10 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
     rootTree_->Branch("sectrk_isHighPurity",&sectrk_isHighPurity_,"sectrk_isHighPurity[sectrk_n]/I");
     rootTree_->Branch("sectrk_xPCA",&sectrk_xPCA_,"sectrk_xPCA[sectrk_n]/D");
     rootTree_->Branch("sectrk_yPCA",&sectrk_yPCA_,"sectrk_yPCA[sectrk_n]/D");
-    rootTree_->Branch("sectrk_zPCA",&sectrk_zPCA_,"sectrk_zPCA[sectrk_n]/D");
+    rootTree_->Branch("sectrk_zPCA",&sectrk_zPCA_,"sectrk_zPCA[sectrk_n]/D"); 
+    rootTree_->Branch("sectrk_nLayers",&sectrk_nLayers_,"sectrk_nLayers[sectrk_n]/I");
+    rootTree_->Branch("sectrk_nPXBLayers",&sectrk_nPXBLayers_,"sectrk_nPXBLayers[sectrk_n]/I");
+    rootTree_->Branch("sectrk_nPXFLayers",&sectrk_nPXFLayers_,"sectrk_nPXFLayers[sectrk_n]/I");
     rootTree_->Branch("sectrk_trkWeightpvtx",&sectrk_trkWeightpvtx_,"sectrk_trkWeightpvtx[sectrk_n]/D");
     // SECTRK Track Hits
     rootTree_->Branch("sectrk_nHit",&sectrk_nHit_,"sectrk_nHit[sectrk_n]/I");
@@ -1035,8 +1051,11 @@ void LhcTrackAnalyzer::SetRootVar() {
     ctf_isLoose_[i]         = 0;
     ctf_xPCA_[i]        = 0;
     ctf_yPCA_[i]        = 0;
-    ctf_zPCA_[i]        = 0;
-    ctf_trkWeightpvtx_[i] = -999;
+    ctf_zPCA_[i]        = 0;  
+    ctf_nLayers_[i]     = 0;
+    ctf_nPXBLayers_[i]  = 0;
+    ctf_nPXFLayers_[i]  = 0;
+    ctf_trkWeightpvtx_[i] = -1;
     // Hits
     ctf_nHit_[i]      = 0;
     ctf_nStripHit_[i] = 0;
@@ -1112,7 +1131,10 @@ void LhcTrackAnalyzer::SetRootVar() {
     sectrk_isLoose_[i]         = 0;
     sectrk_xPCA_[i]        = 0;
     sectrk_yPCA_[i]        = 0;
-    sectrk_zPCA_[i]        = 0;
+    sectrk_zPCA_[i]        = 0; 
+    sectrk_nLayers_[i]     = 0;
+    sectrk_nPXBLayers_[i]  = 0;
+    sectrk_nPXFLayers_[i]  = 0;
     sectrk_trkWeightpvtx_[i] = -999;
     // Hits
     sectrk_nHit_[i]      = 0;

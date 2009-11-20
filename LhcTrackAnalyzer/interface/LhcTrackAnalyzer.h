@@ -100,7 +100,6 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   std::vector<SiStripRecHit2D*> getRecHitComponents(const TrackingRecHit* rechit);
   uint16_t ClusterCharge(const SiStripRecHit2D* hit);
 
-
   // ----------member data ---------------------------
   edm::InputTag bsSrc;
   edm::InputTag  ctfTrackCollectionTag_;
@@ -172,6 +171,9 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double ctf_xPCA_[nMaxCTFtracks_];
   double ctf_yPCA_[nMaxCTFtracks_];
   double ctf_zPCA_[nMaxCTFtracks_];
+  int    ctf_nLayers_[nMaxCTFtracks_];
+  int    ctf_nPXBLayers_[nMaxCTFtracks_];
+  int    ctf_nPXFLayers_[nMaxCTFtracks_];
   double ctf_trkWeightpvtx_[nMaxCTFtracks_]; 
   //Hits
   int ctf_nHit_[nMaxCTFtracks_];            //======= Hit Total ============
@@ -246,7 +248,10 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int    sectrk_isHighPurity_[nMaxSECTRKtracks_];
   double sectrk_xPCA_[nMaxSECTRKtracks_];
   double sectrk_yPCA_[nMaxSECTRKtracks_];
-  double sectrk_zPCA_[nMaxSECTRKtracks_];
+  double sectrk_zPCA_[nMaxSECTRKtracks_]; 
+  int    sectrk_nLayers_[nMaxSECTRKtracks_];
+  int    sectrk_nPXBLayers_[nMaxSECTRKtracks_];
+  int    sectrk_nPXFLayers_[nMaxSECTRKtracks_];
   double sectrk_trkWeightpvtx_[nMaxSECTRKtracks_]; 
   //Hits
   int sectrk_nHit_[nMaxSECTRKtracks_];            //======= Hit Total ============
