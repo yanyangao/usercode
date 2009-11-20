@@ -6,7 +6,7 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+#process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #======================================
 # Global Tag
@@ -19,7 +19,7 @@ process.prefer("GlobalTag")
 # Input
 #======================================
 process.load("UserCode.LhcTrackAnalyzer.Zee_Summer09_MC_31X_V3_cff")
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(1000) )
 
 #======================================
 # TrackTupleMaker
@@ -27,6 +27,8 @@ process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(10000) )
 process.load("UserCode.LhcTrackAnalyzer.LhcTrackAnalyzer_cff")
 process.trackana = process.LhcTrackAnalyzer.clone()
 process.trackana.Debug = False
+process.trackana.runSecTrackColl = True
+process.trackana.secTrackCollectionTag = "generalTracks"
 process.trackana.OutputFileName = cms.string("work/LhcTrackAnalyzer.root")
 
 #======================================
