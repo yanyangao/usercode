@@ -176,7 +176,8 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int    ctf_nPXFLayers_[nMaxCTFtracks_];
   double ctf_trkWeightpvtx_[nMaxCTFtracks_]; 
   //Hits
-  int ctf_nHit_[nMaxCTFtracks_];            //======= Hit Total ============
+  int ctf_nHit_[nMaxCTFtracks_];            //======= ValidHit Total ============
+  int ctf_nLostHit_[nMaxCTFtracks_];            //======= LostHit Total ============
   int ctf_nStripHit_[nMaxCTFtracks_];
   int ctf_nPixelHit_[nMaxCTFtracks_];
   int ctf_nTIBhit_[nMaxCTFtracks_];         //======= TIB ==================
@@ -254,7 +255,8 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int    sectrk_nPXFLayers_[nMaxSECTRKtracks_];
   double sectrk_trkWeightpvtx_[nMaxSECTRKtracks_]; 
   //Hits
-  int sectrk_nHit_[nMaxSECTRKtracks_];            //======= Hit Total ============
+  int sectrk_nHit_[nMaxSECTRKtracks_];            //======= ValidHit Total ============
+  int sectrk_nLostHit_[nMaxSECTRKtracks_];            //======= LostHit Total ============
   int sectrk_nStripHit_[nMaxSECTRKtracks_];
   int sectrk_nPixelHit_[nMaxSECTRKtracks_];
   int sectrk_nTIBhit_[nMaxSECTRKtracks_];         //======= TIB ==================

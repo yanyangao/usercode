@@ -263,6 +263,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     ctf_nPXBLayers_[ctf_n_] = int(tkref->hitPattern().pixelBarrelLayersWithMeasurement());
     ctf_nPXFLayers_[ctf_n_] = int(tkref->hitPattern().pixelEndcapLayersWithMeasurement());
 
+    ctf_nLostHit_[ctf_n_]   = int(tkref->hitPattern().numberOfLostHits());
     
     if(vertexColl->size()>0 && !vertexColl->begin()->isFake()) {  
       if(debug_)
@@ -489,6 +490,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       sectrk_nLayers_[sectrk_n_]   = int(tkref->hitPattern().trackerLayersWithMeasurement());
       sectrk_nPXBLayers_[sectrk_n_] = int(tkref->hitPattern().pixelBarrelLayersWithMeasurement());
       sectrk_nPXFLayers_[sectrk_n_] = int(tkref->hitPattern().pixelEndcapLayersWithMeasurement());
+      sectrk_nLostHit_[sectrk_n_]   = int(tkref->hitPattern().numberOfLostHits());
       
       if(vertexColl->size()>0 && !vertexColl->begin()->isFake()) {  
 	if(debug_)
@@ -845,6 +847,7 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   rootTree_->Branch("ctf_trkWeightpvtx",&ctf_trkWeightpvtx_,"ctf_trkWeightpvtx[ctf_n]/D");
   // CTF Track Hits
   rootTree_->Branch("ctf_nHit",&ctf_nHit_,"ctf_nHit[ctf_n]/I");
+  rootTree_->Branch("ctf_nLostHit",&ctf_nLostHit_,"ctf_nLostHit[ctf_n]/I");
   rootTree_->Branch("ctf_nStripHit",&ctf_nStripHit_,"ctf_nStripHit[ctf_n]/I");
   rootTree_->Branch("ctf_nPixelHit",&ctf_nPixelHit_,"ctf_nPixelHit[ctf_n]/I");
   rootTree_->Branch("ctf_nPXBhit",&ctf_nPXBhit_,"ctf_nPXBhit[ctf_n]/I");
@@ -923,6 +926,7 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
     rootTree_->Branch("sectrk_trkWeightpvtx",&sectrk_trkWeightpvtx_,"sectrk_trkWeightpvtx[sectrk_n]/D");
     // SECTRK Track Hits
     rootTree_->Branch("sectrk_nHit",&sectrk_nHit_,"sectrk_nHit[sectrk_n]/I");
+    rootTree_->Branch("sectrk_nLostHit",&sectrk_nLostHit_,"sectrk_nLostHit[sectrk_n]/I");
     rootTree_->Branch("sectrk_nStripHit",&sectrk_nStripHit_,"sectrk_nStripHit[sectrk_n]/I");
     rootTree_->Branch("sectrk_nPixelHit",&sectrk_nPixelHit_,"sectrk_nPixelHit[sectrk_n]/I");
     rootTree_->Branch("sectrk_nPXBhit",&sectrk_nPXBhit_,"sectrk_nPXBhit[sectrk_n]/I");
@@ -1058,6 +1062,7 @@ void LhcTrackAnalyzer::SetRootVar() {
     ctf_trkWeightpvtx_[i] = -1;
     // Hits
     ctf_nHit_[i]      = 0;
+    ctf_nLostHit_[i]      = 0;
     ctf_nStripHit_[i] = 0;
     ctf_nPixelHit_[i] = 0;
     ctf_nTIBhit_[i]   = 0;
@@ -1138,6 +1143,7 @@ void LhcTrackAnalyzer::SetRootVar() {
     sectrk_trkWeightpvtx_[i] = -999;
     // Hits
     sectrk_nHit_[i]      = 0;
+    sectrk_nLostHit_[i]      = 0;
     sectrk_nStripHit_[i] = 0;
     sectrk_nPixelHit_[i] = 0;
     sectrk_nTIBhit_[i]   = 0;

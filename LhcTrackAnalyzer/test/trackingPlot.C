@@ -14,6 +14,7 @@ void SAMPLE()
 
   createPlot(canvas, file, "n", 301, -0.5, 300.5, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "nHit", 40, -0.5, 39.5, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "nLostHit", 10, -0.5, 9.5, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "nPXBhit", 21, -0.5, 20.5, runSecTrackColl, te,"UU",0.55,0.70,false,false,true,normScale);
   createPlot(canvas, file, "nPXFhit", 21, -0.5, 20.5, runSecTrackColl, te,"UU",0.55,0.70,false,false,true,normScale);
   createPlot(canvas, file, "nTIBhit", 21, -0.5, 20.5, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
@@ -73,6 +74,7 @@ void createPlot(TCanvas *canvas, TFile *file,  TString name, int nbins, double x
   }
   
   if( name.Contains("nHit",TString::kExact) )  x_title = "Number of Valid Hits per Track" ;
+  if( name.Contains("nLostHit",TString::kExact) )  x_title = "Number of Lost Hits per Track" ; 
   if( name.Contains("nPXBhit",TString::kExact) )  x_title = "Number of PixelBarrel Hits per Track" ;
   if( name.Contains("nPXFhit",TString::kExact) )  x_title = "Number of PixEndcap Hits per Track" ;
   if( name.Contains("nTIBhit",TString::kExact) )  x_title = "Number of TIB Hits per Track" ;
