@@ -21,9 +21,6 @@ set samples=("ttbar" "minbias")
 set GlobalTag="MC_31X_V3"
 set Events=1000
 set cfg="trackana_cfg.py"
-set TrackCollection="generalTracks" #default TrackCollection
-set runSecTrackColl="false" # switch on if there is second TrackCollection
-set secTrackCollection="generalTracks" #secondTrackCollection 
 
 # Set work directory
 set workdir="/uscms_data/d2/ygao/LhcTrackAnalyzer/$Release"
@@ -49,7 +46,9 @@ if ($1 == 1) then
 
 echo "you chose option 1: prepare cfg files "  
 
-mkdir -p $cfgfiledir
+set TrackCollection="generalTracks" #default TrackCollection
+set runSecTrackColl="False"
+set secTrackCollection="generalTracks" #secondTrackCollection   
 
 foreach sample($samples)
     echo "for " $sample
@@ -58,14 +57,9 @@ foreach sample($samples)
     case "ttbar":
         set dataset="TTbar_Summer09_MC_31X_V3"
     breaksw
-    case "ttbar_156BxPU":
-        set dataset="TTbar_Summer09_MC_31X_V3_156BxLumiPileUp"
-    breaksw
+
     case "minbias":
     set dataset="MinBias_Summer09_MC_31X_V3"
-    breaksw
-    case "qcd_pt_30":
-        set dataset="QCD_Pt_30_Summer09_MC_31X_V3"
     breaksw
 
     default:
@@ -114,7 +108,11 @@ else if ($1 == 3) then
       continue
  endif       
 
-  foreach sample($samples)
+set TrackCollection="generalTracks" #default TrackCollection  
+set runSecTrackColl="false"
+set secTrackCollection="generalTracks" #secondTrackCollection 
+
+ foreach sample($samples)
 
    echo "run trackingPlot root macro for " $sample 
 
