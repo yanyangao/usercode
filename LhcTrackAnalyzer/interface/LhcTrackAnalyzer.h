@@ -110,6 +110,10 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   bool afterRefitting_;
   bool saveAllClusters_;
   bool runSecTrackColl_;
+  bool selTechBit_;
+  int  techBitToSelect_;
+  bool selNonFakePvtx_;
+  
 
   // Output
   std::string filename_;     
@@ -137,9 +141,11 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int nphysbits_;
   int technical_bits_[nMaxbits_];
   int physics_bits_[nMaxbits_];
-  
+  int isTechBit40_; // boolean to see if TechBit40 is fired
+ 
   // PrimaryVertices
   static const int nMaxPVs_ = 50;
+  int hasGoodPvtx_;
   int nVertices_;
   int nTracks_pvtx_[nMaxPVs_]; // Number of tracks in the pvtx  
   double sumptsq_pvtx_[nMaxPVs_];

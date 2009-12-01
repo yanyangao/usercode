@@ -125,6 +125,9 @@ LhcTrackAnalyzer::LhcTrackAnalyzer(const edm::ParameterSet& iConfig)
   afterRefitting_           = iConfig.getParameter<bool> ("afterRefitting");  
   runSecTrackColl_          = iConfig.getParameter<bool> ("runSecTrackColl");
   saveAllClusters_          = iConfig.getParameter<bool> ("saveAllClusters");
+  selTechBit_              = iConfig.getParameter<bool> ("selTechBit");
+  techBitToSelect_         = iConfig.getParameter<int>("techBitToSelect");
+  selNonFakePvtx_          = iConfig.getParameter<bool>("selNonFakePvtx");
 }
    
 // Destructor
@@ -138,7 +141,7 @@ LhcTrackAnalyzer::~LhcTrackAnalyzer()
 
 
 //
-// member functions
+// Member functions
 //
 
 // ------------ method called to for each event  ------------
@@ -154,10 +157,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   glob_runno_ = iEvent.id().run();
   glob_evtno_ = iEvent.id().event();
-  
-  cout<<"glob_runno = "<<glob_runno_<<endl;
-  cout<<"glob_evtno = "<<glob_evtno_<<endl;
- 
+   
   //=======================================================
   // BeamSpot accessors
   //=======================================================
@@ -187,8 +187,6 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   //const TrackerGeometry &tracker_geometry(*tracker);
-  
- 
     
   //=======================================================
   // CTF Track accessors
@@ -227,23 +225,24 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   if(debug_)
     cout<<"LhcTrackAnalyzer::analyze() looping over "<< vertexCollectionHandle->size()<< "primaryVertices." << endl;    
+
+  bool nonFakePvtx = true;
+  if(selNonFakePvtx_) nonFakePvtx = false;
   nVertices_ = 0; 
   for(reco::VertexCollection::const_iterator v=vertexColl->begin(); 
       v!=vertexColl->end(); ++v, ++nVertices_) {
-    //if(!v->isFake() && v->isValid()) {
     nTracks_pvtx_[nVertices_] = v->tracksSize();	
     sumptsq_pvtx_[nVertices_] = sumPtSquared(*v);
     isValid_pvtx_[nVertices_] = int(v->isValid());
     isFake_pvtx_[nVertices_] =  int(v->isFake());
-    //cout<<"v->isValid() = "<<v->isValid()
-    //  <<"v->isFake() = "<<v->isFake()<<endl;
+    if(!v->isFake()) hasGoodPvtx_ = 1; 
+    if(selNonFakePvtx_ && !v->isFake()) nonFakePvtx = true;
     recx_pvtx_[nVertices_] = v->x();
     recy_pvtx_[nVertices_] = v->y();
     recz_pvtx_[nVertices_] = v->z();
     recx_err_pvtx_[nVertices_] = v->xError();
     recy_err_pvtx_[nVertices_] = v->yError();
     recz_err_pvtx_[nVertices_] = v->zError();
-    //}
   }
   
   //=======================================================
@@ -809,6 +808,10 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   } // endif save clusters
 
   // Trigger Bits
+  bool techBitPass;
+  if(!selTechBit_) techBitPass = true;
+  else techBitPass = false;
+  
   edm::ESHandle<L1GtTriggerMenu> menuRcd;
   iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
   const L1GtTriggerMenu* menu = menuRcd.product();
@@ -836,12 +839,19 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if ( tw[i] ) {
 	//cout<<"technical number "<<i<<"  "<<endl;
 	technical_bits_[ntechbits_]=i;
+	if (i == 40) isTechBit40_  = 1; 
+	if( selTechBit_) {
+	  if ( i == techBitToSelect_) { 
+	    techBitPass = true;
+	    if(debug_) cout<<"Selecting Technical Bit "<<i<<endl;
+	  }
+	}
 	ntechbits_++;
       }
     }
   }
-  
-  rootTree_->Fill();
+  if( techBitPass && nonFakePvtx ) // select on the event based on techBit and nonFakePvtx
+    rootTree_->Fill();
 } 
 
 
@@ -874,13 +884,15 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   rootTree_->Branch("recx_err_pvtx",&recx_err_pvtx_,"recx_err_pvtx[nVertices]/D"); 
   rootTree_->Branch("recy_err_pvtx",&recy_err_pvtx_,"recy_err_pvtx[nVertices]/D"); 
   rootTree_->Branch("recz_err_pvtx",&recz_err_pvtx_,"recz_err_pvtx[nVertices]/D");
+  rootTree_->Branch("hasGoodPvtx",&hasGoodPvtx_,"hasGoodPvtx/I");  
 
   // Trigger bits
   rootTree_->Branch("ntechbits",&ntechbits_,"ntechbits/I");
   rootTree_->Branch("nphysbits",&nphysbits_,"nphysbits/I");
   rootTree_->Branch("technical_bits",&technical_bits_,"technical_bits[ntechbits]/I");
   rootTree_->Branch("physics_bits",&physics_bits_,"physics_bits[nphysbits]/I");
-  
+  rootTree_->Branch("isTechBit40",&isTechBit40_,"isTechBit40/I"); 
+
   // CTF Track
   rootTree_->Branch("ctf_n",&ctf_n_,"ctf_n/I");
   rootTree_->Branch("ctf_pt",&ctf_pt_,"ctf_pt[ctf_n]/D");
@@ -1081,6 +1093,7 @@ void LhcTrackAnalyzer::SetRootVar() {
   bsDydz_ = 0;
   
   // Trigger bits
+  isTechBit40_=0;
   ntechbits_=0;
   nphysbits_=0;
   for ( int i=0; i<nMaxbits_; ++i ) {
@@ -1091,6 +1104,7 @@ void LhcTrackAnalyzer::SetRootVar() {
   }
   
   //PrimaryVertex
+  hasGoodPvtx_ = 0;
   nVertices_ = 0;
   for ( int i=0; i<nMaxPVs_; ++i ) {
     nTracks_pvtx_[nMaxPVs_] = 0; // Number of tracks in the pvtx  
