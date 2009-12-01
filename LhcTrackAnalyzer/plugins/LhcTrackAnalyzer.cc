@@ -79,6 +79,28 @@
 
 // BeamSpot 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+// Trigger
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
+
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
+
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
+
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoTechTrigRcd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
+
 typedef math::XYZTLorentzVectorF LorentzVector;
 typedef math::XYZPoint Point;
 
@@ -129,6 +151,12 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //=======================================================
 
   SetRootVar();
+  
+  glob_runno_ = iEvent.id().run();
+  glob_evtno_ = iEvent.id().event();
+  
+  cout<<"glob_runno = "<<glob_runno_<<endl;
+  cout<<"glob_evtno = "<<glob_evtno_<<endl;
  
   //=======================================================
   // BeamSpot accessors
@@ -779,7 +807,39 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     } // end loop over all Stereo RecHits
     
   } // endif save clusters
+
+  // Trigger Bits
+  edm::ESHandle<L1GtTriggerMenu> menuRcd;
+  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
+  const L1GtTriggerMenu* menu = menuRcd.product();
+  edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
+  iEvent.getByLabel( edm::InputTag("gtDigis"), gtRecord);
   
+  // Get dWord after masking disabled bits
+  DecisionWord dWord = gtRecord->decisionWord();
+  if ( ! dWord.empty() ) { // if board not there this is zero
+    // loop over dec. bit to get total rate (no overlap)
+    for ( int i = 0; i < 128; ++i ) {
+      if ( dWord[i] ) {
+	//cout<<"physics number "<<i<<"  "<<endl;
+	physics_bits_[nphysbits_]=i;
+	nphysbits_++;
+	//cout<<"physics bits number "<< physics_bits_[i]<<"  "<<endl;
+      }
+    }
+  }
+  
+  TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
+  if ( ! tw.empty() ) {
+    // loop over dec. bit to get total rate (no overlap)
+    for ( int i = 0; i < 64; ++i ) {
+      if ( tw[i] ) {
+	//cout<<"technical number "<<i<<"  "<<endl;
+	technical_bits_[ntechbits_]=i;
+	ntechbits_++;
+      }
+    }
+  }
   
   rootTree_->Fill();
 } 
@@ -815,6 +875,12 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   rootTree_->Branch("recy_err_pvtx",&recy_err_pvtx_,"recy_err_pvtx[nVertices]/D"); 
   rootTree_->Branch("recz_err_pvtx",&recz_err_pvtx_,"recz_err_pvtx[nVertices]/D");
 
+  // Trigger bits
+  rootTree_->Branch("ntechbits",&ntechbits_,"ntechbits/I");
+  rootTree_->Branch("nphysbits",&nphysbits_,"nphysbits/I");
+  rootTree_->Branch("technical_bits",&technical_bits_,"technical_bits[ntechbits]/I");
+  rootTree_->Branch("physics_bits",&physics_bits_,"physics_bits[nphysbits]/I");
+  
   // CTF Track
   rootTree_->Branch("ctf_n",&ctf_n_,"ctf_n/I");
   rootTree_->Branch("ctf_pt",&ctf_pt_,"ctf_pt[ctf_n]/D");
@@ -1013,6 +1079,16 @@ void LhcTrackAnalyzer::SetRootVar() {
   bsZ0_ = 0;
   bsDxdz_ = 0;
   bsDydz_ = 0;
+  
+  // Trigger bits
+  ntechbits_=0;
+  nphysbits_=0;
+  for ( int i=0; i<nMaxbits_; ++i ) {
+    technical_bits_[i]= 0;
+  }
+  for ( int i=0; i<nMaxbits_; ++i ) {
+    physics_bits_[i]= 0;
+  }
   
   //PrimaryVertex
   nVertices_ = 0;

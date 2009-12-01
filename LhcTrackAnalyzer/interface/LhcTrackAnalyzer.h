@@ -130,6 +130,14 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double bsDxdz_;
   double bsDydz_;
 
+
+  // Trigger Bits
+  static const int nMaxbits_ = 50;
+  int ntechbits_;
+  int nphysbits_;
+  int technical_bits_[nMaxbits_];
+  int physics_bits_[nMaxbits_];
+  
   // PrimaryVertices
   static const int nMaxPVs_ = 50;
   int nVertices_;
