@@ -1,3 +1,4 @@
+<use name=CondFormats/L1TObjects>	
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
