@@ -157,7 +157,8 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   glob_runno_ = iEvent.id().run();
   glob_evtno_ = iEvent.id().event();
-   
+  glob_ls_   = iEvent.luminosityBlock();
+ 
   //=======================================================
   // BeamSpot accessors
   //=======================================================
@@ -866,6 +867,9 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   // Global
   rootTree_->Branch("glob_runno",&glob_runno_,"glob_runno/I");
   rootTree_->Branch("glob_evtno",&glob_evtno_,"glob_evtno/I");
+  rootTree_->Branch("glob_ls",&glob_ls_,"glob_ls/I");
+  
+
   // BeamSpot
   rootTree_->Branch("bsX0",&bsX0_,"bsX0/D");
   rootTree_->Branch("bsY0",&bsY0_,"bsY0/D");
@@ -1088,6 +1092,11 @@ void LhcTrackAnalyzer::endJob()
 
 void LhcTrackAnalyzer::SetRootVar() {
   
+  // Global
+  glob_evtno_ = 0;
+  glob_runno_ = 0;
+  glob_ls_ = 0;
+
   //BeamSpot
   bsX0_ = 0;
   bsY0_ = 0;

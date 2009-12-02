@@ -122,6 +122,8 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   
   int glob_runno_;
   int glob_evtno_;
+  int glob_ls_;
+ 
   // Root-Tuple variables :
   //=======================
   void SetRootVar();  
