@@ -136,7 +136,7 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
 
 
   // Trigger Bits
-  static const int nMaxbits_ = 50;
+  static const int nMaxbits_ = 128;
   int ntechbits_;
   int nphysbits_;
   int technical_bits_[nMaxbits_];
@@ -158,8 +158,8 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double recy_err_pvtx_[nMaxPVs_];
   double recz_err_pvtx_[nMaxPVs_];
 
-  // Track
-  static const int nMaxCTFtracks_ = 1000;
+  // ctf Tracks 
+  static const int nMaxCTFtracks_ = 10000;
   int ctf_n_;
   double ctf_pt_[nMaxCTFtracks_];       
   double ctf_eta_[nMaxCTFtracks_];
@@ -188,7 +188,9 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int    ctf_nLayers_[nMaxCTFtracks_];
   int    ctf_nPXBLayers_[nMaxCTFtracks_];
   int    ctf_nPXFLayers_[nMaxCTFtracks_];
-  double ctf_trkWeightpvtx_[nMaxCTFtracks_]; 
+  double ctf_trkWeightpvtx_[nMaxCTFtracks_];
+  int ctf_pvtx_no_[nMaxCTFtracks_];
+
   //Hits
   int ctf_nHit_[nMaxCTFtracks_];            //======= ValidHit Total ============
   int ctf_nLostHit_[nMaxCTFtracks_];            //======= LostHit Total ============
@@ -238,7 +240,7 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double ctfcluster_z_[nMaxCTFclusters_];
 
   // second track Collection
-  static const int nMaxSECTRKtracks_ = 1000;
+  static const int nMaxSECTRKtracks_ = 10000;
   int sectrk_n_;
   double sectrk_pt_[nMaxSECTRKtracks_];       
   double sectrk_eta_[nMaxSECTRKtracks_];
@@ -267,8 +269,8 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int    sectrk_nLayers_[nMaxSECTRKtracks_];
   int    sectrk_nPXBLayers_[nMaxSECTRKtracks_];
   int    sectrk_nPXFLayers_[nMaxSECTRKtracks_];
-  double sectrk_trkWeightpvtx_[nMaxSECTRKtracks_]; 
-  //Hits
+  
+   //Hits
   int sectrk_nHit_[nMaxSECTRKtracks_];            //======= ValidHit Total ============
   int sectrk_nLostHit_[nMaxSECTRKtracks_];            //======= LostHit Total ============
   int sectrk_nStripHit_[nMaxSECTRKtracks_];
