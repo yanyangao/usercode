@@ -128,6 +128,7 @@ LhcTrackAnalyzer::LhcTrackAnalyzer(const edm::ParameterSet& iConfig)
   selTechBit_              = iConfig.getParameter<bool> ("selTechBit");
   techBitToSelect_         = iConfig.getParameter<int>("techBitToSelect");
   selNonFakePvtx_          = iConfig.getParameter<bool>("selNonFakePvtx");
+  pixelVertexCollectionTag_      = iConfig.getParameter<edm::InputTag>("pixelVertexCollectionTag"); 
 }
    
 // Destructor
@@ -158,7 +159,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   glob_runno_ = iEvent.id().run();
   glob_evtno_ = iEvent.id().event();
   glob_ls_   = iEvent.luminosityBlock();
- 
+
   //=======================================================
   // BeamSpot accessors
   //=======================================================
@@ -182,6 +183,19 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     cout << "vertexCollection cannot be found -> using empty collection of same type. Run/Event: " << glob_runno_ << "/" << glob_evtno_ << endl;
   } 
        
+  //=======================================================
+  // GET pixelVertices
+  //=======================================================
+  static const reco::VertexCollection s_empty_pixelVertexColl;
+  const reco::VertexCollection *pixelVertexColl = &s_empty_pixelVertexColl;
+  edm::Handle<reco::VertexCollection>  pixelVertexCollectionHandle;
+  iEvent.getByLabel(pixelVertexCollectionTag_, pixelVertexCollectionHandle);
+  if( iEvent.getByLabel(pixelVertexCollectionTag_, pixelVertexCollectionHandle)) {
+    pixelVertexColl = pixelVertexCollectionHandle.product();
+  } else {
+    cout << "pixelVertexCollection cannot be found. -> using empty collection of same type." <<endl;
+  }
+  
   //=======================================================
   // Tracker Geometry
   //=======================================================
@@ -223,7 +237,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //=======================================================
   // Retrieve the PrimaryVertex information
   //======================================================= 
-
+  
   if(debug_)
     cout<<"LhcTrackAnalyzer::analyze() looping over "<< vertexCollectionHandle->size()<< "primaryVertices." << endl;    
 
@@ -245,6 +259,25 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     recy_err_pvtx_[nVertices_] = v->yError();
     recz_err_pvtx_[nVertices_] = v->zError();
   }
+  
+
+  //=======================================================
+  // Retrieve the PrimaryVertex information
+  //======================================================= 
+
+  if(debug_)
+    cout<<"LhcTrackAnalyzer::analyze() looping over "<< pixelVertexCollectionHandle->size()<< "pixelVertices." << endl;    
+  
+  nPixelVertices_ = 0; 
+  for(reco::VertexCollection::const_iterator v=pixelVertexColl->begin(); 
+      v!=pixelVertexColl->end(); ++v, ++nPixelVertices_) {
+    nTracks_pxlpvtx_[nPixelVertices_] = v->tracksSize();
+    isFake_pxlpvtx_[nPixelVertices_] =  int(v->isFake());
+    if(!v->isFake()) hasGoodPxlPvtx_ = 1;
+    recz_pxlpvtx_[nPixelVertices_] = v->z();
+    recz_err_pxlpvtx_[nPixelVertices_] = v->zError();
+  }
+  
   
   //=======================================================
   // Retrieve the Track information: CTF
@@ -891,6 +924,15 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   rootTree_->Branch("recz_err_pvtx",&recz_err_pvtx_,"recz_err_pvtx[nVertices]/D");
   rootTree_->Branch("hasGoodPvtx",&hasGoodPvtx_,"hasGoodPvtx/I");  
 
+  // PixelVertices
+  rootTree_->Branch("nPixelVertices",&nPixelVertices_,"nPixelVertices/I"); 
+  rootTree_->Branch("nTracks_pxlpvtx",&nTracks_pxlpvtx_,"nTracks_pxlpvtx[nPixelVertices]/I"); 
+  rootTree_->Branch("isFake_pxlpvtx",&isFake_pxlpvtx_,"isFake_pxlpvtx[nPixelVertices]/I"); 
+  rootTree_->Branch("recz_pxlpvtx",&recz_pxlpvtx_,"recz_pxlpvtx[nPixelVertices]/D");
+  rootTree_->Branch("recz_err_pxlpvtx",&recz_err_pxlpvtx_,"recz_err_pxlpvtx[nPixelVertices]/D"); 
+  rootTree_->Branch("hasGoodPxlPvtx",&hasGoodPxlPvtx_,"hasGoodPxlPvtx/I"); 
+  
+
   // Trigger bits
   rootTree_->Branch("ntechbits",&ntechbits_,"ntechbits/I");
   rootTree_->Branch("nphysbits",&nphysbits_,"nphysbits/I");
@@ -1115,7 +1157,7 @@ void LhcTrackAnalyzer::SetRootVar() {
     physics_bits_[i]= 0;
   }
   
-  //PrimaryVertex
+  // PrimaryVertex
   hasGoodPvtx_ = 0;
   nVertices_ = 0;
   for ( int i=0; i<nMaxPVs_; ++i ) {
@@ -1129,6 +1171,16 @@ void LhcTrackAnalyzer::SetRootVar() {
     recx_err_pvtx_[nMaxPVs_] = 0;
     recy_err_pvtx_[nMaxPVs_] = 0;
     recz_err_pvtx_[nMaxPVs_] = 0;
+  }
+  
+  // PixelVertices
+  hasGoodPxlPvtx_ = 0;
+  nPixelVertices_ = 0;
+  for ( int i=0; i<nMaxPixelPVs_; ++i ) { 
+    nTracks_pxlpvtx_[nMaxPixelPVs_] = 0;
+    isFake_pxlpvtx_[nMaxPixelPVs_] = 0;
+    recz_pxlpvtx_[nMaxPixelPVs_] = 0; 
+    recz_err_pxlpvtx_[nMaxPixelPVs_] = 0; 
   }
   
   // == CTF Track
