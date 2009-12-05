@@ -145,6 +145,8 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int technical_bits_[nMaxbits_];
   int physics_bits_[nMaxbits_];
   int isTechBit40_; // boolean to see if TechBit40 is fired
+  int isBSC_; // boolean to see if any BSC TB fired (32->43)
+  
  
   // PrimaryVertices
   static const int nMaxPVs_ = 100;

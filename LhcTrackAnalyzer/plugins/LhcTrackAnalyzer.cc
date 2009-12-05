@@ -880,6 +880,8 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	//cout<<"technical number "<<i<<"  "<<endl;
 	technical_bits_[ntechbits_]=i;
 	if (i == 40) isTechBit40_  = 1; 
+	// if BSC activity, (technical bit) is between 32 and 43, set to true
+	if (i > 31 && i < 44 ) isBSC_ = 1;
 	if( selTechBit_) {
 	  if ( i == techBitToSelect_) { 
 	    techBitPass = true;
@@ -944,6 +946,9 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   rootTree_->Branch("technical_bits",&technical_bits_,"technical_bits[ntechbits]/I");
   rootTree_->Branch("physics_bits",&physics_bits_,"physics_bits[nphysbits]/I");
   rootTree_->Branch("isTechBit40",&isTechBit40_,"isTechBit40/I"); 
+  rootTree_->Branch("isBSC",&isBSC_,"isBSC/I"); 
+  
+
 
   // CTF Track
   rootTree_->Branch("ctf_n",&ctf_n_,"ctf_n/I");
@@ -1155,6 +1160,7 @@ void LhcTrackAnalyzer::SetRootVar() {
   
   // Trigger bits
   isTechBit40_=0;
+  isBSC_ = 0;
   ntechbits_=0;
   nphysbits_=0;
   for ( int i=0; i<nMaxbits_; ++i ) {
