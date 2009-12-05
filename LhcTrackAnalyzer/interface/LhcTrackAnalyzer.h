@@ -198,6 +198,7 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double ctf_yPCA_[nMaxCTFtracks_];
   double ctf_zPCA_[nMaxCTFtracks_];
   int    ctf_nLayers_[nMaxCTFtracks_];
+  int    ctf_nLayers3D_[nMaxCTFtracks_]; 
   int    ctf_nPXBLayers_[nMaxCTFtracks_];
   int    ctf_nPXFLayers_[nMaxCTFtracks_];
   double ctf_trkWeightpvtx_[nMaxCTFtracks_];
@@ -279,6 +280,7 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double sectrk_yPCA_[nMaxSECTRKtracks_];
   double sectrk_zPCA_[nMaxSECTRKtracks_]; 
   int    sectrk_nLayers_[nMaxSECTRKtracks_];
+  int    sectrk_nLayers3D_[nMaxSECTRKtracks_]; 
   int    sectrk_nPXBLayers_[nMaxSECTRKtracks_];
   int    sectrk_nPXFLayers_[nMaxSECTRKtracks_];
   

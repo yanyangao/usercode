@@ -323,8 +323,11 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     ctf_nLayers_[ctf_n_]   = int(tkref->hitPattern().trackerLayersWithMeasurement());
     ctf_nPXBLayers_[ctf_n_] = int(tkref->hitPattern().pixelBarrelLayersWithMeasurement());
     ctf_nPXFLayers_[ctf_n_] = int(tkref->hitPattern().pixelEndcapLayersWithMeasurement());
-
     ctf_nLostHit_[ctf_n_]   = int(tkref->hitPattern().numberOfLostHits());
+    ctf_nLayers3D_[ctf_n_] = int(tkref->hitPattern().pixelLayersWithMeasurement() +
+				tkref->hitPattern().numberOfValidStripLayersWithMonoAndStereo());
+
+    
 
     // Loop over all vertexs and fill the trackWeight
     int ivtx = 0; 
@@ -559,7 +562,9 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       sectrk_nPXBLayers_[sectrk_n_] = int(tkref->hitPattern().pixelBarrelLayersWithMeasurement());
       sectrk_nPXFLayers_[sectrk_n_] = int(tkref->hitPattern().pixelEndcapLayersWithMeasurement());
       sectrk_nLostHit_[sectrk_n_]   = int(tkref->hitPattern().numberOfLostHits());
-      
+      sectrk_nLayers3D_[sectrk_n_] = int(tkref->hitPattern().pixelLayersWithMeasurement() +
+				  tkref->hitPattern().numberOfValidStripLayersWithMonoAndStereo());
+
       // TrackQuality
       //bool isloose = tkref->quality(reco::Track::loose); 
       //bool istight = tkref->quality(reco::Track::tight);
@@ -967,6 +972,7 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   rootTree_->Branch("ctf_yPCA",&ctf_yPCA_,"ctf_yPCA[ctf_n]/D");
   rootTree_->Branch("ctf_zPCA",&ctf_zPCA_,"ctf_zPCA[ctf_n]/D");
   rootTree_->Branch("ctf_nLayers",&ctf_nLayers_,"ctf_nLayers[ctf_n]/I");
+  rootTree_->Branch("ctf_nLayers3D",&ctf_nLayers3D_,"ctf_nLayers3D[ctf_n]/I");
   rootTree_->Branch("ctf_nPXBLayers",&ctf_nPXBLayers_,"ctf_nPXBLayers[ctf_n]/I");
   rootTree_->Branch("ctf_nPXFLayers",&ctf_nPXFLayers_,"ctf_nPXFLayers[ctf_n]/I");
   rootTree_->Branch("ctf_trkWeightpvtx",&ctf_trkWeightpvtx_,"ctf_trkWeightpvtx[ctf_n]/D");
@@ -1048,6 +1054,7 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
     rootTree_->Branch("sectrk_yPCA",&sectrk_yPCA_,"sectrk_yPCA[sectrk_n]/D");
     rootTree_->Branch("sectrk_zPCA",&sectrk_zPCA_,"sectrk_zPCA[sectrk_n]/D"); 
     rootTree_->Branch("sectrk_nLayers",&sectrk_nLayers_,"sectrk_nLayers[sectrk_n]/I");
+    rootTree_->Branch("sectrk_nLayers3D",&sectrk_nLayers3D_,"sectrk_nLayers3D[sectrk_n]/I"); 
     rootTree_->Branch("sectrk_nPXBLayers",&sectrk_nPXBLayers_,"sectrk_nPXBLayers[sectrk_n]/I");
     rootTree_->Branch("sectrk_nPXFLayers",&sectrk_nPXFLayers_,"sectrk_nPXFLayers[sectrk_n]/I");
     
@@ -1213,6 +1220,7 @@ void LhcTrackAnalyzer::SetRootVar() {
     ctf_nLayers_[i]     = 0;
     ctf_nPXBLayers_[i]  = 0;
     ctf_nPXFLayers_[i]  = 0;
+    ctf_nLayers3D_[i]   = 0;
     ctf_trkWeightpvtx_[i] = 0;
     ctf_pvtx_no_[i] = -1;  
 
@@ -1296,7 +1304,8 @@ void LhcTrackAnalyzer::SetRootVar() {
     sectrk_nLayers_[i]     = 0;
     sectrk_nPXBLayers_[i]  = 0;
     sectrk_nPXFLayers_[i]  = 0;
-    
+    sectrk_nLayers3D_[i]  = 0;
+
     // Hits
     sectrk_nHit_[i]      = 0;
     sectrk_nLostHit_[i]      = 0;
