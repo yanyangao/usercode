@@ -19,15 +19,16 @@
 
 ### Configuration ############################################################
 set Release=$CMSSW_VERSION
-set runstring="Run123151"
-#set samples=("{$runstring}_{MinBiasPD}_{BSCSkim}_{TrackerReReco}")
-set samples=("{$runstring}_{BSCSkim_EXPRESS}")
+set runstring="Run122314"
+set samples=("{$runstring}_{MinBiasPD}_{BSCSkim}_{TrackerReReco}")
+#set samples=("{$runstring}_{BSCSkim_EXPRESS}")
 set GlobalTag=("FIRSTCOLL")
 set Events=-1
 set cfg="trackana_data_cfg.py"
 
 ###==== Set work directory
-set workdir="/store/disk02/yanyangao/LhcTrackNtuple/$Release"
+#set workdir="/store/disk02/yanyangao/LhcTrackNtuple/$Release" # at cms-tas03
+set workdir="/uscms_data/d1/ygao/LhcTrackAnalyzer/$Release"
 set cfgfiledir="$workdir/cfgfiles"
 set outputdir="$workdir/ntuple"
 set logdir="$workdir/log/"
@@ -44,19 +45,20 @@ mkdir -p $pngdir
 mkdir -p $epsdir
 
 ###==== Set publish dir
-set ifpublish="false"
+set ifpublish="true"
 
 if ($ifpublish == "true") then 
-  set publishdir="/afs/cern.ch/user/y/yygao/public/www/LhcTrackNtuple/$Release"
+ # set publishdir="/afs/fnal.gov/files/home/room2/ygao/public_html/CMS/Tracking/LhcTrackAnalyzer/$Release" # at cern
+  set publishdir="/afs/fnal.gov/files/home/room2/ygao/public_html/CMS/Tracking/LhcTrackAnalyzer/$Release"
   mkdir -p $publishdir
 endif
 
 
 ###====Set the track collecitons and vertex collections
 set sequence="only_analyze"
-set TrackCollection="generalTracks"
+set TrackCollection="generalTracks::RETRACK"
 set secTrackCollection="ctfPixelLess"
-set vertexCollection="offlinePrimaryVertices"
+set vertexCollection="offlinePrimaryVertices::REVERTEX"
 set pixelVertexCollection="pixelVertices"
 
 
@@ -125,7 +127,7 @@ else if ($1 == 3) then
       continue
  endif       
 
- set runSecTrackColl="true"
+ set runSecTrackColl="false"
  set normScale="0" # 0: no normailziation; 1: normalize by Entries; 2: normalize by Histogram Integral
  ## Specify the cuts
  set cutstring="nocut"
@@ -225,17 +227,17 @@ else if ($1 == 4) then
  endif       
 
  set comptrk="compdatamc"
- set newfile="/store/disk02/yanyangao/LhcTrackNtuple/CMSSW_3_3_5/ntuple/Run123151_BSCSkim_EXPRESS_FIRSTCOLL_only_analyze.root"
- set reffile="/store/disk02/yanyangao/LhcTrackNtuple/CMSSW_3_3_5/ntuple/minbias_900GeV_STARTUP_STARTUP3X_V8D_CMSSW_3_3_4.root"
+ set newfile="/uscms_data/d2/ygao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/Run122314_MinBiasPD_BSCSkim_TrackerReReco_FIRSTCOLL_only_analyze.root"
+ set reffile="/uscms_data/d2/ygao/LhcTrackAnalyzer/CMSSW_3_3_4/ntuple/MinBias900GeV_NoFieldAnalysis_ReReco_TOBOnly_MC_Giovanni_STARTUP3X_V8D_CMSSW_3_3_4.root"
 
- set newlabel="Run123151_BSCSkim_EXPRESS"
- set reflabel="MB900"
+ set newlabel="Run122314_BSCSkim_MBPD"
+ set reflabel="MB900NoField"
 
   set ctfOrSecTrk="1" #1: ctf; 2: sectrk
  set normScale="1" #0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral    
  
  ## Specify the cuts
- set cutstring="cuttrkdz"
+ set cutstring="nocut"
 
  switch ($cutstring)
    case "nocut"
@@ -268,8 +270,8 @@ else if ($1 == 4) then
       set trkselection="1" 
    endsw
 
- set comppngdir="CMSSW_3_3_4/pngfiles/comp_{$newlabel}_{$reflabel}/$cutstring/"
- set compepsdir="CMSSW_3_3_4/epsfiles/comp_{$newlabel}_{$reflabel}/$cutstring/"
+ set comppngdir="$pngdir/comp_{$newlabel}_{$reflabel}/$cutstring/"
+ set compepsdir="$epsdir/comp_{$newlabel}_{$reflabel}/$cutstring/"
 
  mkdir -p $comppngdir
  mkdir -p $compepsdir
@@ -299,7 +301,7 @@ else if ($1 == 4) then
        continue
     endif         
  
-   set comppublishdir="$publishdir/comp_{$newlabel}_{$reflabel}"
+   set comppublishdir="$publishdir/comp_{$newlabel}_{$reflabel}/$cutstring/"
    mkdir -p $comppublishdir
 
    rm -f $comppublishdir/*.png   
