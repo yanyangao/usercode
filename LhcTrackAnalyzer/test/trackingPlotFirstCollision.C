@@ -77,7 +77,7 @@ void createPlot(TCanvas *canvas, TFile *file,  TString type, TString name, int n
   // If the histogram is filled per track, cut on the event and track.
   // Otherwise, cut only on the event level
   TString cutstring;
-  if(type == "perTrk" && "TRKSELECTION"!= "") {
+  if(type == "perTrk") {
     cutstring = "EVTSELECTION&&TRKSELECTION";
   }
   else if ( type == "perEvt") {
@@ -114,10 +114,7 @@ void createPlot(TCanvas *canvas, TFile *file,  TString type, TString name, int n
   else if( name.Contains("pvtx")) {
     if(name.Contains("rec")) {  
       y_title="Number of Real PrimaryVertices";
-      if ("EVTSELECTION" == "")
-	tree->Project("h1",name,"isFake_pvtx==0"); 
-      else 
-	tree->Project("h1",name, cutstring.Append("&&isFake_pvtx==0")); 
+      tree->Project("h1",name, cutstring.Append("&&isFake_pvtx==0")); 
     }
     else { 
       y_title="Number of Valid PrimaryVertices";
@@ -258,14 +255,17 @@ void createPlot(TCanvas *canvas, TFile *file,  TString type, TString name, int n
   if(type == "perTrk" || name == "n" || name == "cluster_charge") 
     leg->Draw("SAME");
   
-  TString dirname ="PNGDIR/SAMPLE/CUTSTRING/";
-  TString filename = dirname;
-  filename.Append(name);
-  filename.Append(".png");
-  canvas->Print(filename);
+  TString pngdirname ="PNGDIR/SAMPLE/CUTSTRING/";
+  TString pngfilename = pngdirname;
+  pngfilename.Append(name);
+  pngfilename.Append(".png");
+  canvas->Print(pngfilename);
 
-  filename.ReplaceAll("png","eps");
-  canvas->Print(filename);
+  TString epsdirname ="EPSDIR/SAMPLE/CUTSTRING/";
+  TString epsfilename = epsdirname;
+  epsfilename.Append(name);
+  epsfilename.Append(".eps");
+  canvas->Print(epsfilename);
 
   delete h1;
   delete h2; 
