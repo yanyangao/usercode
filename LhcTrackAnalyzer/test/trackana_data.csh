@@ -44,7 +44,7 @@ mkdir -p $pngdir
 mkdir -p $epsdir
 
 ###==== Set publish dir
-set ifpublish="true"
+set ifpublish="false"
 
 if ($ifpublish == "true") then 
   set publishdir="/afs/cern.ch/user/y/yygao/public/www/LhcTrackNtuple/$Release"
@@ -54,7 +54,7 @@ endif
 
 ###====Set the track collecitons and vertex collections
 set sequence="only_analyze"
-set TrackCollection="generalTracks" 
+set TrackCollection="generalTracks"
 set secTrackCollection="ctfPixelLess"
 set vertexCollection="offlinePrimaryVertices"
 set pixelVertexCollection="pixelVertices"
@@ -66,7 +66,6 @@ if ($1 == 1) then
 echo "you chose option 1: prepare cfg files "  
 
 set runSecTrackColl="True"
-echo runSecTrackColl
 foreach sample($samples)
     echo "for " $sample
    # set different cuts for different samples
@@ -133,18 +132,18 @@ else if ($1 == 3) then
 
  switch ($cutstring)
    case "nocut"
-      set evtselection="" 
-      set trkselection="" 
+      set evtselection="1" 
+      set trkselection="1" 
     breaksw
 
     case "TechBit40"
       set evtselection="isTechBit40==1" 
-      set trkselection="" 
+      set trkselection="1" 
     breaksw
 
     case "GoodPvtx"
       set evtselection="hasGoodPvtx==1" 
-      set trkselection="" 
+      set trkselection="1" 
     breaksw
 
     case "GoodPvtx_cuttrkdz"
@@ -153,8 +152,8 @@ else if ($1 == 3) then
     breaksw
 
     default:
-      set evtselection="" 
-      set trkselection="" 
+      set evtselection="1" 
+      set trkselection="1" 
    endsw
 
 
@@ -220,27 +219,60 @@ else if ($1 == 4) then
 
  echo "you chose option 4:  run compSample.C"
 
- if(! -e compSample.C) then                                                                                                       
+ if(! -e compSample.C) then
       echo "Missing compSample.C macro, skipping this sample..."
       continue
  endif       
 
- set comptrk="compttbarminbias"
+ set comptrk="compdatamc"
+ set newfile="/store/disk02/yanyangao/LhcTrackNtuple/CMSSW_3_3_5/ntuple/Run123151_BSCSkim_EXPRESS_FIRSTCOLL_only_analyze.root"
+ set reffile="/store/disk02/yanyangao/LhcTrackNtuple/CMSSW_3_3_5/ntuple/minbias_900GeV_STARTUP_STARTUP3X_V8D_CMSSW_3_3_4.root"
 
- set newfile="/uscms_data/d2/ygao/LhcTrackAnalyzer/CMSSW_3_1_2/ntuple/ttbar_MC_31X_V3_CMSSW_3_1_2.root"
- set reffile="/uscms_data/d2/ygao/LhcTrackAnalyzer/CMSSW_3_1_2/ntuple/minbias_MC_31X_V3_CMSSW_3_1_2.root"
+ set newlabel="Run123151_BSCSkim_EXPRESS"
+ set reflabel="MB900"
 
- set newlabel="ttbar"
- set reflabel="minbias"
+  set ctfOrSecTrk="1" #1: ctf; 2: sectrk
+ set normScale="1" #0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral    
+ 
+ ## Specify the cuts
+ set cutstring="cuttrkdz"
 
- set comppngdir="/uscms_data/d2/ygao/LhcTrackAnalyzer/CMSSW_3_1_2/pngfiles/comp_{$newlabel}_{$reflabel}/"
- set compepsdir="/uscms_data/d2/ygao/LhcTrackAnalyzer/CMSSW_3_1_2/epsfiles/comp_{$newlabel}_{$reflabel}/"
+ switch ($cutstring)
+   case "nocut"
+      set evtselection="1" 
+      set trkselection="1" 
+    breaksw
+
+    case "TechBit40"
+      set evtselection="isTechBit40==1" 
+      set trkselection="" 
+    breaksw
+
+    case "GoodPvtx"
+      set evtselection="hasGoodPvtx==1"
+      set trkselection="1" 
+    breaksw
+
+    case "GoodPvtx_cuttrkdz"
+      set evtselection="hasGoodPvtx==1" 
+      set trkselection="abs(ctf_dz)<10" 
+    breaksw
+
+    case "cuttrkdz"
+      set evtselection="1" 
+      set trkselection="abs(ctf_dz)<10" 
+    breaksw
+
+    default:
+      set evtselection="1" 
+      set trkselection="1" 
+   endsw
+
+ set comppngdir="CMSSW_3_3_4/pngfiles/comp_{$newlabel}_{$reflabel}/$cutstring/"
+ set compepsdir="CMSSW_3_3_4/epsfiles/comp_{$newlabel}_{$reflabel}/$cutstring/"
 
  mkdir -p $comppngdir
  mkdir -p $compepsdir
-
- set ctfOrSecTrk="1" #1: ctf; 2: sectrk
- set normScale="1" #0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral    
 
  cat compSample.C | sed \
       -e s@COMPTRK@$comptrk@g \
@@ -249,11 +281,16 @@ else if ($1 == 4) then
       -e s@REFFILE@$reffile@g \
       -e s@REFLABEL@$reflabel@g \
       -e s@PNGDIR@$comppngdir@g \
+      -e s@EPSDIR@$compepsdir@g \
       -e s@DOCFTSECTRK@$ctfOrSecTrk@g \
       -e s@NORMSCALE@$normScale@g \
+      -e s@CUTSTRING@$cutstring@g \
+      -e s@EVTSELECTION@$evtselection@g \
+      -e s@TRKSELECTION@$trkselection@g \
       > ! $macrodir/$comptrk.C
 
  root -b -q -l $macrodir/$comptrk.C > ! $logdir/macro.$comptrk.log
+
  
  if ($ifpublish == "true") then  
 
