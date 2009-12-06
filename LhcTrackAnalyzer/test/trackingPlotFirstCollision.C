@@ -17,8 +17,9 @@ void SAMPLE()
   createPlot(canvas, file, "perEvt", "n", 200, 0, 200, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perEvt", "nVertices", 100, 0, 100, false, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perEvt", "nPixelVertices", 100, 0, 100, false, te,"UU",0.55,0.70,false,false,false,normScale);
-  createPlot(canvas, file, "perEvt", "hasGoodPvtx", 2, -0.5, 1.5, false, te, "UU",0.55,0.70,false,false,false,normScale);
-  createPlot(canvas, file, "perEvt", "isTechBit40", 2, -0.5, 1.5, false, te, "UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perEvt", "hasGoodPvtx", 2, 0, 2, false, te, "UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perEvt", "isBSC", 2, 0, 2, false, te, "UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perEvt", "isTechBit40", 2, 0, 2, false, te, "UU",0.55,0.70,false,false,false,normScale);
 
   // Plots filled per track
   createPlot(canvas, file, "perTrk", "nHit", 40, 0, 40, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
@@ -30,8 +31,10 @@ void SAMPLE()
   createPlot(canvas, file, "perTrk", "nTIDhit", 20, 0, 20, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perTrk", "nTEChit", 20, 0, 20, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perTrk", "nLayers", 30, 0, 30, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perTrk", "nLayers3D", 30, 0, 30, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);   
   createPlot(canvas, file, "perTrk", "nPXBLayers", 10, 0, 10, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perTrk", "nPXFLayers", 10, 0, 10, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perTrk", "nPixelHit", 10, 0, 10, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);   
   createPlot(canvas, file, "perTrk", "eta", 100, -4, 4, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perTrk", "pt", 100, 0, 10, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perTrk", "phi", 100, -3.5, 3.5, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
@@ -124,7 +127,8 @@ void createPlot(TCanvas *canvas, TFile *file,  TString type, TString name, int n
   else if ( name.Contains("nVertices",TString::kExact) 
 	    || name.Contains("hasGoodPvtx",TString::kExact) 
 	    || name.Contains("nPixelVertices",TString::kExact) 
-	    || name.Contains("isTechBit40",TString::kExact) 
+	    || name.Contains("isTechBit40",TString::kExact)
+            || name.Contains("isBSC",TString::kExact)  
 	    || name.Contains("bsX0",TString::kExact)
 	    || name.Contains("bsY0",TString::kExact)
 	    || name.Contains("bsZ0",TString::kExact)
@@ -170,8 +174,10 @@ void createPlot(TCanvas *canvas, TFile *file,  TString type, TString name, int n
   if( name.Contains("nTOBhit",TString::kExact) )  x_title = "Number of TOB Hits per Track" ;
   if( name.Contains("nTIDhit",TString::kExact) )  x_title = "Number of TID Hits per Track" ;
   if( name.Contains("nTEChit",TString::kExact) )  x_title = "Number of TEC Hits per Track" ;
+  if( name.Contains("nPixelHit",TString::kExact) )  x_title = "Number of Pixel Hits per Track" ;
 
   if( name.Contains("nLayers",TString::kExact) )  x_title = "Number of Layers per Track" ;
+  if( name.Contains("nLayers3D",TString::kExact) )  x_title = "Number of 3D Layers per Track" ;
   if( name.Contains("nPXBLayers",TString::kExact) )  x_title = "Number of PixelBarrel Layers per Track" ;
   if( name.Contains("nPXFLayers",TString::kExact) )  x_title = "Number of PixEndcap Layers per Track" ;
   if( name.Contains("eta",TString::kExact) )  x_title = "Track Pseudorapidity" ;
@@ -203,6 +209,7 @@ void createPlot(TCanvas *canvas, TFile *file,  TString type, TString name, int n
   if( name.Contains("nPixelVertices",TString::kExact) )  x_title = "Number of pixelVertices";
   if( name.Contains("hasGoodPvtx",TString::kExact) )  x_title = "hasRealPrimaryVertex";
   if( name.Contains("isTechBit40",TString::kExact) )  x_title = "isTechBit40";
+  if( name.Contains("isBSC",TString::kExact) )  x_title = "isBSC";
 
   if(logx) gPad->SetLogx();
   else gPad->SetLogx(0);
