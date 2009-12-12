@@ -974,7 +974,7 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   // CTF Track
   rootTree_->Branch("ctf_n",&ctf_n_,"ctf_n/I");
   rootTree_->Branch("ctf_nHighPurity",&ctf_nHighPurity_,"ctf_nHighPurity/I"); 
-  rootTree_->Branch("ctf_fHighPurity",&ctf_fHighPurity_,"ctf_fHighPurity/I"); 
+  rootTree_->Branch("ctf_fHighPurity",&ctf_fHighPurity_,"ctf_fHighPurity/D"); 
   rootTree_->Branch("ctf_pt",&ctf_pt_,"ctf_pt[ctf_n]/D");
   rootTree_->Branch("ctf_ptErr",&ctf_ptErr_,"ctf_ptErr[ctf_n]/D");
   rootTree_->Branch("ctf_eta",&ctf_eta_,"ctf_eta[ctf_n]/D");
