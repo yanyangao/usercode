@@ -19,16 +19,18 @@
 
 ### Configuration ############################################################
 set Release=$CMSSW_VERSION
-set runstring="Run122314"
-set samples=("{$runstring}_{MinBiasPD}_{BSCSkim}_{TrackerReReco}")
-#set samples=("{$runstring}_{BSCSkim_EXPRESS}")
-set GlobalTag=("FIRSTCOLL")
-set Events=-1
+set runstring=""
+set samples=("MB_{Dec9thReReco}")
+#set samples=("{$runstring}_{MinBiasPD}_{BSCSkim}_{TrackerReReco}")
+#set samples=("{$runstring}_{EXPRESS}")
+#set samples=("{$runstring}_{stdReco}_{FYBS}_{VtxCut}")
+set GlobalTag=("GR09_P_V7")
+set Events=100
 set cfg="trackana_data_cfg.py"
 
 ###==== Set work directory
-#set workdir="/store/disk02/yanyangao/LhcTrackNtuple/$Release" # at cms-tas03
-set workdir="/uscms_data/d1/ygao/LhcTrackAnalyzer/$Release"
+set workdir="/store/disk02/yanyangao/LhcTrackAnalyzer/$Release" # at cms-tas03
+#set workdir="/uscms_data/d1/ygao/LhcTrackAnalyzer/$Release"
 set cfgfiledir="$workdir/cfgfiles"
 set outputdir="$workdir/ntuple"
 set logdir="$workdir/log/"
@@ -48,17 +50,17 @@ mkdir -p $epsdir
 set ifpublish="true"
 
 if ($ifpublish == "true") then 
- # set publishdir="/afs/fnal.gov/files/home/room2/ygao/public_html/CMS/Tracking/LhcTrackAnalyzer/$Release" # at cern
-  set publishdir="/afs/fnal.gov/files/home/room2/ygao/public_html/CMS/Tracking/LhcTrackAnalyzer/$Release"
+  #set publishdir="/afs/fnal.gov/files/home/room2/ygao/public_html/CMS/Tracking/LhcTrackAnalyzer/$Release" # At fnal
+  set publishdir="/afs/cern.ch/user/y/yygao/www/LhcTrackAnalyzer/$Release"
   mkdir -p $publishdir
 endif
 
 
 ###====Set the track collecitons and vertex collections
 set sequence="only_analyze"
-set TrackCollection="generalTracks::RETRACK"
+set TrackCollection="generalTracks"
 set secTrackCollection="ctfPixelLess"
-set vertexCollection="offlinePrimaryVertices::REVERTEX"
+set vertexCollection="offlinePrimaryVertices"
 set pixelVertexCollection="pixelVertices"
 
 
@@ -127,10 +129,10 @@ else if ($1 == 3) then
       continue
  endif       
 
- set runSecTrackColl="false"
+ set runSecTrackColl="true"
  set normScale="0" # 0: no normailziation; 1: normalize by Entries; 2: normalize by Histogram Integral
  ## Specify the cuts
- set cutstring="nocut"
+ set cutstring="HighPurityGoodPvtx"
 
  switch ($cutstring)
    case "nocut"
@@ -148,12 +150,46 @@ else if ($1 == 3) then
       set trkselection="1" 
     breaksw
 
-    case "GoodPvtx_cuttrkdz"
+    case "HighPurityGoodPvtx"
       set evtselection="hasGoodPvtx==1" 
-      set trkselection="abs(ctf_dz)<10" 
+      set trkselection="ctf_isHighPurity==1"
     breaksw
 
-    default:
+   case "cutPXBhit"
+      set evtselection="1"
+      set trkselection="ctf_nPXBhit==0"
+    breaksw                              
+
+ case "HighPurityTechBit40"
+    set evtselection="isTechBit40==1"
+     set trkselection="ctf_isHighPurity==1"
+ breaksw 
+
+  case "HighPurityGoodPvtx"
+    set evtselection="hasGoodPvtx==1"
+    set trkselection="ctf_isHighPurity==1"
+  breaksw
+
+                                                    
+ 
+ case "GoodPvtxCutBG" 
+  set evtselection="hasGoodPvtx==1"
+  set trkselection="ctf_n<100"
+ breaksw    
+
+ case "BadLumi"
+    set evtselection="glob_bx!=51"
+    set trkselection="1" 
+  breaksw          
+
+  case "cutnTracks"
+   set evtselection="ctf_n<200"
+   set trkselection="1" 
+  breaksw
+
+
+ default:
+
       set evtselection="1" 
       set trkselection="1" 
    endsw
@@ -227,17 +263,22 @@ else if ($1 == 4) then
  endif       
 
  set comptrk="compdatamc"
- set newfile="/uscms_data/d2/ygao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/Run122314_MinBiasPD_BSCSkim_TrackerReReco_FIRSTCOLL_only_analyze.root"
- set reffile="/uscms_data/d2/ygao/LhcTrackAnalyzer/CMSSW_3_3_4/ntuple/MinBias900GeV_NoFieldAnalysis_ReReco_TOBOnly_MC_Giovanni_STARTUP3X_V8D_CMSSW_3_3_4.root"
+  set newfile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/Run123596_stdReco_FYBS_VtxCut_FIRSTCOLL_only_analyze.root"
+# set newfile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/Run123596_BSCSkim_Bit4041_FIRSTCOLL_only_analyze.root"
+ set reffile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/minbias_900GeV_STARTUP_STARTUP3X_V8D_CMSSW_3_3_4.root"
 
- set newlabel="Run122314_BSCSkim_MBPD"
- set reflabel="MB900NoField"
+ #set newfile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/Run123592_ReReco_fittedBS_FIRSTCOLL_only_analyze.root"
+ #set reffile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/Run123592_BSCSkim_EXPRESS_Bit4041_FIRSTCOLL_only_analyze.root"
+    
 
-  set ctfOrSecTrk="1" #1: ctf; 2: sectrk
+ set newlabel="Run123596_stdReco_YFBS_VtxCut"
+ set reflabel="MB900MCSTARTUP"
+
+ set ctfOrSecTrk="1" #1: ctf; 2: sectrk
  set normScale="1" #0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral    
  
  ## Specify the cuts
- set cutstring="nocut"
+ set cutstring="GoodPvtxCutBG"
 
  switch ($cutstring)
    case "nocut"
@@ -255,15 +296,26 @@ else if ($1 == 4) then
       set trkselection="1" 
     breaksw
 
-    case "GoodPvtx_cuttrkdz"
+    case "GoodPvtxPxlHit"
+    set evtselection="hasGoodPvtx==1"  
+    set trkselection="sectrk_nPixelHit>2"
+   breaksw 
+    case "HighPurityGoodPvtx"
       set evtselection="hasGoodPvtx==1" 
-      set trkselection="abs(ctf_dz)<10" 
+      set trkselection="ctf_isHighPurity==1"
     breaksw
 
     case "cuttrkdz"
       set evtselection="1" 
       set trkselection="abs(ctf_dz)<10" 
     breaksw
+
+     case "GoodPvtxCutBG"
+    set evtselection="hasGoodPvtx==1"
+      set trkselection="ctf_n<100"
+      
+      breaksw
+  
 
     default:
       set evtselection="1" 
