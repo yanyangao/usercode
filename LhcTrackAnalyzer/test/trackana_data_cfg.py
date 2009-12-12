@@ -33,7 +33,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.2 $'),
+        version = cms.untracked.string('$Revision: 1.1 $'),
             annotation = cms.untracked.string('promptCollisionReco nevts:100'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -54,73 +54,6 @@ process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(NEVENT) )
 
 # Other statements
 process.GlobalTag.globaltag = 'GLOBALTAG::All'
-
-## By Giovanni for first collision
-## Skip events with HV off
-process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters   = 5000
-## Seeding: increase the region
-process.fifthSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 100
-process.fifthSeeds.RegionFactoryPSet.RegionPSet.originRadius     =   5
-## Seeding: add TOB3 to the list, allow unmatched hits
-process.fifthlayerpairs.TOB.useSimpleRphiHitsCleaner = cms.bool(False)
-process.fifthlayerpairs.TOB.rphiRecHits = cms.InputTag("fifthStripRecHits","rphiRecHitUnmatched")
-process.fifthlayerpairs.TOB.stereoRecHits = cms.InputTag("fifthStripRecHits","stereoRecHitUnmatched")
-process.fifthlayerpairs.layerList += [ 'TOB1+TOB3', 'TOB2+TOB3' ] #, 'TOB1+TOB4', 'TOB2+TOB4' ]
-## Pattern recognition: lower the cut on the number of hits
-process.fifthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 5
-process.fifthCkfTrajectoryFilter.filterPset.maxLostHits = 4
-process.fifthCkfTrajectoryFilter.filterPset.maxConsecLostHits = 2
-process.fifthCkfInOutTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-process.fifthCkfInOutTrajectoryFilter.filterPset.maxLostHits = 4
-process.fifthCkfInOutTrajectoryFilter.filterPset.maxConsecLostHits = 2
-process.fifthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 2
-## Pattern recognition: enlarge a lot the search window, as the true momentum is very small while the tracking assumes p=5 GeV if B=0
-process.Chi2MeasurementEstimator.MaxChi2 = 200
-process.Chi2MeasurementEstimator.nSigma  = 5
-## Fitter-smoother: lower the cut on the number of hits
-process.fifthRKTrajectorySmoother.minHits = 4
-process.fifthRKTrajectoryFitter.minHits = 4
-process.fifthFittingSmootherWithOutlierRejection.MinNumberOfHits = 4
-## Fitter-smoother: loosen outlier rejection
-process.fifthFittingSmootherWithOutlierRejection.BreakTrajWith2ConsecutiveMissing = False
-process.fifthFittingSmootherWithOutlierRejection.EstimateCut = 50
-## Quality filter
-process.tobtecStepLoose.minNumberLayers = 3
-process.tobtecStepLoose.minNumber3DLayers = 0
-process.tobtecStepLoose.maxNumberLostLayers = 4
-process.tobtecStepLoose.dz_par1 = cms.vdouble(100.5, 4.0)
-process.tobtecStepLoose.dz_par2 = cms.vdouble(100.5, 4.0)
-process.tobtecStepLoose.d0_par1 = cms.vdouble(1.5, 4.0)
-process.tobtecStepLoose.d0_par2 = cms.vdouble(1.5, 4.0)
-process.tobtecStepLoose.chi2n_par = cms.double(10.0)
-process.tobtecStepLoose.keepAllTracks = True
-process.tobtecStepTight = process.tobtecStepLoose.clone(
-    keepAllTracks = True,
-    qualityBit = cms.string('tight'),
-    src = cms.InputTag("tobtecStepLoose"),
-    minNumberLayers = 5,
-    minNumber3DLayers = 1
-)
-process.tobtecStep = process.tobtecStepLoose.clone(
-    keepAllTracks = True,
-    qualityBit = cms.string('highPurity'),
-    src = cms.InputTag("tobtecStepTight"),
-    minNumberLayers = 4,
-    minNumber3DLayers = 2
-)
-
-# for HF proper reconstruction
-process.hfreco.firstSample = 4
-process.hfreco.samplesToAdd = 4
-
-
-## Redo PrimaryVertex fitter
-process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 10
-process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 500
-process.offlinePrimaryVertices.TkFilterParameters.minSiliconHits = 5
-process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
-process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = -1
-process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
 
 # Output definition
 process.FEVT = cms.OutputModule("PoolOutputModule",
@@ -146,8 +79,8 @@ process.trackana.secTrackCollectionTag = "SECTRKCOLLECTION"
 process.trackana.OutputFileName = cms.string("OUTPUTDIR/SAMPLE_GLOBALTAG_SEQUENCE.root")
 process.trackana.vertexCollection = "PVTXCOLLECTION"
 process.trackana.pixelVertexCollectionTag = "PIXELVERTEXCOLLECTION"
-
-
+process.trackana.selTechBit = True # if select event based on TechBit
+process.trackana.techBitToSelect = 0 # This corresponds to a good BX
 
 # only_analyze
 process.only_analyze = cms.Sequence(process.trackana)
