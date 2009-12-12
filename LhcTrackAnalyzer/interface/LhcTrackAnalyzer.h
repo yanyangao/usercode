@@ -124,7 +124,8 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int glob_runno_;
   int glob_evtno_;
   int glob_ls_;
- 
+  int glob_bx_;
+
   // Root-Tuple variables :
   //=======================
   void SetRootVar();  
@@ -146,7 +147,7 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int physics_bits_[nMaxbits_];
   int isTechBit40_; // boolean to see if TechBit40 is fired
   int isBSC_; // boolean to see if any BSC TB fired (32->43)
-  
+  int isBeamHalo_;  // boolean to see if any BSC TB fired (36->39)
  
   // PrimaryVertices
   static const int nMaxPVs_ = 100;
@@ -175,6 +176,8 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   // ctf Tracks 
   static const int nMaxCTFtracks_ = 10000;
   int ctf_n_;
+  int ctf_nHighPurity_;
+  double ctf_fHighPurity_;
   double ctf_pt_[nMaxCTFtracks_];       
   double ctf_eta_[nMaxCTFtracks_];
   double ctf_phi_[nMaxCTFtracks_];
@@ -182,6 +185,8 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double ctf_dxy_[nMaxCTFtracks_];
   double ctf_dzCorr_[nMaxCTFtracks_];
   double ctf_dxyCorr_[nMaxCTFtracks_];
+  double ctf_dzCorr_pvtx_[nMaxCTFtracks_];
+  double ctf_dxyCorr_pvtx_[nMaxCTFtracks_];
   double ctf_ptErr_[nMaxCTFtracks_];       
   double ctf_etaErr_[nMaxCTFtracks_];
   double ctf_phiErr_[nMaxCTFtracks_];
@@ -264,6 +269,8 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double sectrk_dxy_[nMaxSECTRKtracks_];
   double sectrk_dzCorr_[nMaxSECTRKtracks_];
   double sectrk_dxyCorr_[nMaxSECTRKtracks_];
+  double sectrk_dzCorr_pvtx_[nMaxSECTRKtracks_];
+  double sectrk_dxyCorr_pvtx_[nMaxSECTRKtracks_];
   double sectrk_ptErr_[nMaxSECTRKtracks_];       
   double sectrk_etaErr_[nMaxSECTRKtracks_];
   double sectrk_phiErr_[nMaxSECTRKtracks_];

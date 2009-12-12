@@ -159,6 +159,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   glob_runno_ = iEvent.id().run();
   glob_evtno_ = iEvent.id().event();
   glob_ls_   = iEvent.luminosityBlock();
+  glob_bx_  = iEvent.bunchCrossing();
 
   //=======================================================
   // BeamSpot accessors
@@ -240,6 +241,8 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   if(debug_)
     cout<<"LhcTrackAnalyzer::analyze() looping over "<< vertexCollectionHandle->size()<< "primaryVertices." << endl;    
+  // Define the pvtx point as the leading pvtx position if the vertex collection is full, otherwise as default BS
+  const Point pvtx = vertexCollectionHandle.isValid() ? Point(vertexColl->begin()->x(),vertexColl->begin()->y(), vertexColl->begin()->z()):beamSpot;
 
   bool nonFakePvtx = true;
   if(selNonFakePvtx_) nonFakePvtx = false;
@@ -289,6 +292,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //for(unsigned int i = 0, TrackCollection::const_iterator track = ctfTrackCollectionHandle->begin(); track!= ctfTrackCollectionHandle->end(); ++track, ++i)
   // Loop track reco::TrackRef
   ctf_n_ = 0;
+  ctf_nHighPurity_ = 0;
   for (unsigned int i=0; i<ctfTrackCollectionHandle->size(); i++, ctf_n_++) {
     TrackRef tkref(ctfTrackCollectionHandle,i); 
     if ( ctf_n_ >= nMaxCTFtracks_ ) {
@@ -309,7 +313,8 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     ctf_dxyErr_[ctf_n_]      = tkref->dxyError();
     ctf_dzCorr_[ctf_n_]       = tkref->dz(beamSpot);
     ctf_dxyCorr_[ctf_n_]      = tkref->dxy(beamSpot);
-    
+    ctf_dxyCorr_pvtx_[ctf_n_] = tkref->dxy(pvtx);
+    ctf_dzCorr_pvtx_[ctf_n_]       = tkref->dz(pvtx);
     ctf_chi2_[ctf_n_]     = tkref->chi2();
     ctf_chi2ndof_[ctf_n_] = tkref->normalizedChi2();
     ctf_charge_[ctf_n_]   = tkref->charge();
@@ -357,6 +362,8 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     ctf_isLoose_[ctf_n_] = int ( (tkref->qualityMask() & 1 ) == 1);
     ctf_isTight_[ctf_n_] = int ( (tkref->qualityMask() & 2 ) == 2);
     ctf_isHighPurity_[ctf_n_] = int ( (tkref->qualityMask() & 4 ) == 4);
+    if( (tkref->qualityMask() & 4 ) == 4) ++ctf_nHighPurity_;
+      
     
     if(debug_) {
       cout << "ctfTrack "<< i << " : pT = "<< ctf_pt_<<" +/- "<< ctf_ptErr_ 
@@ -497,6 +504,11 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     
   } // End of Loop over the ctf tracks
   
+  if(ctf_n_>0) {
+    ctf_fHighPurity_ =  double(ctf_nHighPurity_)/double(ctf_n_);
+    //cout<<"ctf_n ="<<ctf_n_<<"; ctf_nHighPurity = "<<ctf_nHighPurity_<<"; ctf_fHighPurity = "<<ctf_fHighPurity_<<endl;
+  }
+  
   //=======================================================
   // If run on secTrackCollection
   //=======================================================
@@ -546,7 +558,8 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       sectrk_dxyErr_[sectrk_n_]      = tkref->dxyError();
       sectrk_dzCorr_[sectrk_n_]       = tkref->dz(beamSpot);
       sectrk_dxyCorr_[sectrk_n_]      = tkref->dxy(beamSpot);
-      
+      sectrk_dxyCorr_pvtx_[sectrk_n_]      = tkref->dxy(pvtx);
+      sectrk_dzCorr_pvtx_[sectrk_n_]       = tkref->dz(pvtx);
       sectrk_chi2_[sectrk_n_]     = tkref->chi2();
       sectrk_chi2ndof_[sectrk_n_] = tkref->normalizedChi2();
       sectrk_charge_[sectrk_n_]   = tkref->charge();
@@ -580,6 +593,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       sectrk_isLoose_[sectrk_n_] = int ( (tkref->qualityMask() & 1 ) == 1);
       sectrk_isTight_[sectrk_n_] = int ( (tkref->qualityMask() & 2 ) == 2);
       sectrk_isHighPurity_[sectrk_n_] = int ( (tkref->qualityMask() & 4 ) == 4);
+      
       
       if(debug_) {
 	cout << "secTrack "<< i << " : pT = "<< sectrk_pt_<<" +/- "<< sectrk_ptErr_ 
@@ -880,6 +894,8 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	//cout<<"technical number "<<i<<"  "<<endl;
 	technical_bits_[ntechbits_]=i;
 	if (i == 40) isTechBit40_  = 1; 
+	// The beamHalo bits are 36-39
+	if (i < 40 && i > 35) isBeamHalo_ = 1; 
 	// if BSC activity, (technical bit) is between 32 and 43, set to true
 	if (i > 31 && i < 44 ) isBSC_ = 1;
 	if( selTechBit_) {
@@ -892,6 +908,8 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
   }
+  
+
   if( techBitPass && nonFakePvtx ) // select on the event based on techBit and nonFakePvtx
     rootTree_->Fill();
 } 
@@ -908,7 +926,9 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   rootTree_->Branch("glob_runno",&glob_runno_,"glob_runno/I");
   rootTree_->Branch("glob_evtno",&glob_evtno_,"glob_evtno/I");
   rootTree_->Branch("glob_ls",&glob_ls_,"glob_ls/I");
-  
+  rootTree_->Branch("glob_bx",&glob_bx_,"glob_bx/I");
+   
+ 
 
   // BeamSpot
   rootTree_->Branch("bsX0",&bsX0_,"bsX0/D");
@@ -947,11 +967,14 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   rootTree_->Branch("physics_bits",&physics_bits_,"physics_bits[nphysbits]/I");
   rootTree_->Branch("isTechBit40",&isTechBit40_,"isTechBit40/I"); 
   rootTree_->Branch("isBSC",&isBSC_,"isBSC/I"); 
+  rootTree_->Branch("isBeamHalo",&isBeamHalo_,"isBeamHalo/I"); 
   
 
 
   // CTF Track
   rootTree_->Branch("ctf_n",&ctf_n_,"ctf_n/I");
+  rootTree_->Branch("ctf_nHighPurity",&ctf_nHighPurity_,"ctf_nHighPurity/I"); 
+  rootTree_->Branch("ctf_fHighPurity",&ctf_fHighPurity_,"ctf_fHighPurity/I"); 
   rootTree_->Branch("ctf_pt",&ctf_pt_,"ctf_pt[ctf_n]/D");
   rootTree_->Branch("ctf_ptErr",&ctf_ptErr_,"ctf_ptErr[ctf_n]/D");
   rootTree_->Branch("ctf_eta",&ctf_eta_,"ctf_eta[ctf_n]/D");
@@ -964,6 +987,8 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   rootTree_->Branch("ctf_dxyErr",&ctf_dxyErr_,"ctf_dxyErr[ctf_n]/D");
   rootTree_->Branch("ctf_dxyCorr",&ctf_dxyCorr_,"ctf_dxyCorr[ctf_n]/D");
   rootTree_->Branch("ctf_dzCorr",&ctf_dzCorr_,"ctf_dzCorr[ctf_n]/D");
+  rootTree_->Branch("ctf_dxyCorr_pvtx",&ctf_dxyCorr_pvtx_,"ctf_dxyCorr_pvtx[ctf_n]/D");
+  rootTree_->Branch("ctf_dzCorr_pvtx",&ctf_dzCorr_pvtx_,"ctf_dzCorr_pvtx[ctf_n]/D");
   rootTree_->Branch("ctf_chi2",&ctf_chi2_,"ctf_chi2[ctf_n]/D");
   rootTree_->Branch("ctf_chi2ndof",&ctf_chi2ndof_,"ctf_chi2ndof[ctf_n]/D");
   rootTree_->Branch("ctf_charge",&ctf_charge_,"ctf_charge[ctf_n]/I");
@@ -1046,6 +1071,8 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
     rootTree_->Branch("sectrk_dxyErr",&sectrk_dxyErr_,"sectrk_dxyErr[sectrk_n]/D");
     rootTree_->Branch("sectrk_dxyCorr",&sectrk_dxyCorr_,"sectrk_dxyCorr[sectrk_n]/D");
     rootTree_->Branch("sectrk_dzCorr",&sectrk_dzCorr_,"sectrk_dzCorr[sectrk_n]/D");
+    rootTree_->Branch("sectrk_dxyCorr_pvtx",&sectrk_dxyCorr_pvtx_,"sectrk_dxyCorr_pvtx[sectrk_n]/D");
+    rootTree_->Branch("sectrk_dzCorr_pvtx",&sectrk_dzCorr_pvtx_,"sectrk_dzCorr_pvtx[sectrk_n]/D");
     rootTree_->Branch("sectrk_chi2",&sectrk_chi2_,"sectrk_chi2[sectrk_n]/D");
     rootTree_->Branch("sectrk_chi2ndof",&sectrk_chi2ndof_,"sectrk_chi2ndof[sectrk_n]/D");
     rootTree_->Branch("sectrk_charge",&sectrk_charge_,"sectrk_charge[sectrk_n]/I");
@@ -1150,6 +1177,7 @@ void LhcTrackAnalyzer::SetRootVar() {
   glob_evtno_ = 0;
   glob_runno_ = 0;
   glob_ls_ = 0;
+  glob_bx_ = 0;
 
   //BeamSpot
   bsX0_ = 0;
@@ -1160,6 +1188,7 @@ void LhcTrackAnalyzer::SetRootVar() {
   
   // Trigger bits
   isTechBit40_=0;
+  isBeamHalo_ = 0;
   isBSC_ = 0;
   ntechbits_=0;
   nphysbits_=0;
@@ -1198,6 +1227,8 @@ void LhcTrackAnalyzer::SetRootVar() {
   
   // == CTF Track
   ctf_n_ = 0;
+  ctf_nHighPurity_=0;
+  ctf_fHighPurity_=0;
   for ( int i=0; i<nMaxCTFtracks_; ++i ) {
     ctf_pt_[i]             = 0;
     ctf_eta_[i]            = 0;
@@ -1206,6 +1237,8 @@ void LhcTrackAnalyzer::SetRootVar() {
     ctf_dxy_[i]            = 0;
     ctf_dzCorr_[i]         = 0;
     ctf_dxyCorr_[i]        = 0;
+    ctf_dzCorr_pvtx_[i]         = 0;
+    ctf_dxyCorr_pvtx_[i]        = 0;
     ctf_ptErr_[i]          = 0;
     ctf_etaErr_[i]         = 0;
     ctf_phiErr_[i]         = 0;
@@ -1290,6 +1323,8 @@ void LhcTrackAnalyzer::SetRootVar() {
     sectrk_dxy_[i]            = 0;
     sectrk_dzCorr_[i]         = 0;
     sectrk_dxyCorr_[i]        = 0;
+    sectrk_dzCorr_pvtx_[i]         = 0;
+    sectrk_dxyCorr_pvtx_[i]        = 0;
     sectrk_ptErr_[i]          = 0;
     sectrk_etaErr_[i]         = 0;
     sectrk_phiErr_[i]         = 0;
