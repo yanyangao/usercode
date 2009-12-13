@@ -15,17 +15,20 @@
 ## argv[1] == 4 
 # Compare two samples
 # run compSample.C macro 
+## argv[1] == 5
+# Compare different cuts on the same sample
+# run compCut.C macro 
 ####################################################
 
 ### Configuration ############################################################
 set Release=$CMSSW_VERSION
-set runstring=""
-set samples=("MB_{Dec9thReReco}")
+set runstring="Run124024"
+#set samples=("MB_{Dec9thReReco}")
 #set samples=("{$runstring}_{MinBiasPD}_{BSCSkim}_{TrackerReReco}")
 #set samples=("{$runstring}_{EXPRESS}")
-#set samples=("{$runstring}_{stdReco}_{FYBS}_{VtxCut}")
-set GlobalTag=("GR09_P_V7")
-set Events=100
+set samples=("{$runstring}_{EXPRESS}")
+set GlobalTag=("GR09_E_V7")
+set Events=-1
 set cfg="trackana_data_cfg.py"
 
 ###==== Set work directory
@@ -132,16 +135,12 @@ else if ($1 == 3) then
  set runSecTrackColl="true"
  set normScale="0" # 0: no normailziation; 1: normalize by Entries; 2: normalize by Histogram Integral
  ## Specify the cuts
- set cutstring="HighPurityGoodPvtx"
+ #set cutstring="TrkInGoodPvtxCutBG"
+  set cutstring="GoodPvtxCutnTracks"
 
  switch ($cutstring)
    case "nocut"
       set evtselection="1" 
-      set trkselection="1" 
-    breaksw
-
-    case "TechBit40"
-      set evtselection="isTechBit40==1" 
       set trkselection="1" 
     breaksw
 
@@ -155,36 +154,25 @@ else if ($1 == 3) then
       set trkselection="ctf_isHighPurity==1"
     breaksw
 
-   case "cutPXBhit"
-      set evtselection="1"
-      set trkselection="ctf_nPXBhit==0"
-    breaksw                              
-
- case "HighPurityTechBit40"
-    set evtselection="isTechBit40==1"
-     set trkselection="ctf_isHighPurity==1"
- breaksw 
-
   case "HighPurityGoodPvtx"
     set evtselection="hasGoodPvtx==1"
     set trkselection="ctf_isHighPurity==1"
   breaksw
 
-                                                    
- 
- case "GoodPvtxCutBG" 
-  set evtselection="hasGoodPvtx==1"
-  set trkselection="ctf_n<100"
+                 
+ case "GoodPvtxCutnTracks" 
+  set evtselection="ctf_n<100"
+  set trkselection="1"
  breaksw    
 
- case "BadLumi"
-    set evtselection="glob_bx!=51"
-    set trkselection="1" 
-  breaksw          
+ case "GoodPvtxCutfHighPurity"
+  set evtselection="ctf_fHighPurity>0.2"
+  set trkselection="1"
+  breaksw
 
-  case "cutnTracks"
-   set evtselection="ctf_n<200"
-   set trkselection="1" 
+case "TrkInGoodPvtxCutBG"
+  set evtselection="ctf_fHighPurity>0.2"
+  set trkselection="ctf_trkWeightpvtx>0.5"
   breaksw
 
 
@@ -263,22 +251,23 @@ else if ($1 == 4) then
  endif       
 
  set comptrk="compdatamc"
-  set newfile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/Run123596_stdReco_FYBS_VtxCut_FIRSTCOLL_only_analyze.root"
-# set newfile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/Run123596_BSCSkim_Bit4041_FIRSTCOLL_only_analyze.root"
- set reffile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/minbias_900GeV_STARTUP_STARTUP3X_V8D_CMSSW_3_3_4.root"
 
- #set newfile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/Run123592_ReReco_fittedBS_FIRSTCOLL_only_analyze.root"
- #set reffile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/Run123592_BSCSkim_EXPRESS_Bit4041_FIRSTCOLL_only_analyze.root"
+ set newfile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/Run124024_EXPRESS_GR09_E_V7_only_analyze.root"
+ set reffile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/minbias_900GeV_STARTUPV8I_STARTUP3X_V8I_CMSSW_3_3_4.root"# MC in Peak mode
     
 
- set newlabel="Run123596_stdReco_YFBS_VtxCut"
- set reflabel="MB900MCSTARTUP"
+ #set newlabel="MB900MCPEAK"
+ #set reflabel="MB900MCDECO"
+
+ set newlabel="Run124024_EXPRESS"
+ set reflabel="MB900MC_STARTUPV8I"
 
  set ctfOrSecTrk="1" #1: ctf; 2: sectrk
  set normScale="1" #0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral    
  
  ## Specify the cuts
- set cutstring="GoodPvtxCutBG"
+ set cutstring="GoodPvtxCutfHighPurity"
+#set cutstring="GoodPvtxCutnTracks"
 
  switch ($cutstring)
    case "nocut"
@@ -296,23 +285,24 @@ else if ($1 == 4) then
       set trkselection="1" 
     breaksw
 
-    case "GoodPvtxPxlHit"
-    set evtselection="hasGoodPvtx==1"  
-    set trkselection="sectrk_nPixelHit>2"
-   breaksw 
     case "HighPurityGoodPvtx"
       set evtselection="hasGoodPvtx==1" 
       set trkselection="ctf_isHighPurity==1"
     breaksw
+  
+   case "CutfHighPurity"
+   set evtselection="ctf_fHighPurity>0.2"
+   set trkselection="1"
+   breaksw
 
-    case "cuttrkdz"
-      set evtselection="1" 
-      set trkselection="abs(ctf_dz)<10" 
-    breaksw
+  case "GoodPvtxCutfHighPurity"
+  set evtselection="ctf_fHighPurity>0.2"
+   set trkselection="1"
+   breaksw
 
-     case "GoodPvtxCutBG"
-    set evtselection="hasGoodPvtx==1"
-      set trkselection="ctf_n<100"
+  case "GoodPvtxCutnTracks"
+    set evtselection="ctf_n<100"
+      set trkselection="1"
       
       breaksw
   
@@ -371,4 +361,82 @@ else if ($1 == 4) then
  endif
 
 
+
+
+##############################################################################
+else if ($1 == 5) then
+
+ echo "you chose option 5:  run compCut.C"
+
+ if(! -e compCut.C) then
+      echo "Missing compCut.C macro, skipping this sample..."
+      continue
+ endif       
+
+foreach sample($samples)
+
+ set file="$outputdir/{$sample}_{$GlobalTag}_{$sequence}.root"
+ echo $file
+    
+ set newlabel="CutfHighPurity"
+ set reflabel="CutnTracks"
+
+ set ctfOrSecTrk="1" #1: ctf; 2: sectrk
+ set normScale="0" #0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral    
+
+ # cut1
+ set evtselection1="ctf_fHighPurity>0.2"
+ set trkselection1="1"
+ # cut2
+ set evtselection2="ctf_n<100"
+ set trkselection2="1"
+
+ set comppngdir="$pngdir/comp_{$newlabel}_{$reflabel}/"
+ set compepsdir="$epsdir/comp_{$newlabel}_{$reflabel}/"
+
+ mkdir -p $comppngdir
+ mkdir -p $compepsdir
+
+ cat compCut.C | sed \
+      -e s@FILE@$file@g \
+      -e s@NEWLABEL@$newlabel@g \
+      -e s@REFLABEL@$reflabel@g \
+      -e s@PNGDIR@$comppngdir@g \
+      -e s@EPSDIR@$compepsdir@g \
+      -e s@DOCFTSECTRK@$ctfOrSecTrk@g \
+      -e s@NORMSCALE@$normScale@g \
+      -e s@EVTSELECTION1@$evtselection1@g \
+      -e s@TRKSELECTION1@$trkselection1@g \
+      -e s@EVTSELECTION2@$evtselection2@g \
+      -e s@TRKSELECTION2@$trkselection2@g \
+      > ! $macrodir/compCut.C
+
+ root -b -q -l $macrodir/compCut.C > ! $logdir/macro.compCut.log
+
+ 
+ if ($ifpublish == "true") then  
+
+    if(! -e makeCompTrackHtml.py) then
+      echo "Missing webpage making script makeTrackHtml.py, skipping this sample..."
+       continue
+    endif         
+ 
+   set comppublishdir="$publishdir/$sample/comp_{$newlabel}_{$reflabel}/"
+   mkdir -p $comppublishdir
+
+   rm -f $comppublishdir/*.png   
+
+   cp $comppngdir/*.png $comppublishdir
+
+   cat  makeCompTrackHtml.py | sed \
+      -e s@NEWLABEL@$newlabel@g \
+      -e s@REFLABEL@$reflabel@g \
+      > ! $comppublishdir/makeHtml.py
+
+   chmod u+x $comppublishdir/makeHtml.py 
+
+   $comppublishdir/makeHtml.py $comppublishdir
+ endif
+
+end
 endif
