@@ -1,8 +1,5 @@
 void COMPTRK()
 {
-  //gROOT->ProcessLine(".L ~/tdrStyle.C");
-  //setTDRStyle();
-  
   std::string fileName = "NEWFILE";
   TFile *file = new TFile(fileName.c_str());
 
@@ -17,11 +14,12 @@ void COMPTRK()
 
   // Plots filled per event:
   createPlot(canvas, file, reffile, "perEvt", "n", 200, 0, 200, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perEvt", "nVertices", 100, 0, 100, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  //createPlot(canvas, file, reffile, "perEvt", "nPixelVertices", 100, 0, 100, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  //createPlot(canvas, file, reffile, "perEvt", "hasGoodPvtx", 2, 0, 2, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  //createPlot(canvas, file, reffile, "perEvt", "isTechBit40", 2, 0, 2, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-
+  createPlot(canvas, file, reffile, "perEvt", "nVertices", 10, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perEvt", "nPixelVertices", 10, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perEvt", "bsX0", 50, -0.5, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perEvt", "bsY0", 50, -0.5, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perEvt", "bsZ0", 50, -5, 5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perEvt", "bsSigmaZ", 50, 0, 15, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
 
   // Plots filled per track
   createPlot(canvas, file, reffile, "perTrk",  "nHit", 40, 0, 40, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
@@ -35,24 +33,25 @@ void COMPTRK()
   createPlot(canvas, file, reffile, "perTrk",  "nLayers", 30, 0, 30, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perTrk",  "nPXBLayers", 10, 0, 10, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perTrk",  "nPXFLayers", 10, 0, 10, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
-  //createPlot(canvas, file, reffile, "perTrk",  "nPixelLayers", 10, 0, 10, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
-  //createPlot(canvas, file, reffile, "perTrk",  "nLayers3D", 30, 0, 30, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "nPixelHit", 10, 0, 10, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "nLayers3D", 30, 0, 30, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
     
   createPlot(canvas, file, reffile, "perTrk",  "eta", 100, -4, 4, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perTrk",  "pt", 100, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perTrk",  "phi", 100, -3.5, 3.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perTrk",  "dxy", 100, -20, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perTrk",  "dz", 100, -100, 100, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "pt", 100, 0, 10, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "phi", 100, -3.5, 3.5, te,"UU",0.15,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "dxyCorr", 100, -0.5, 0.5, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "dz", 100, -20, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
 
-  createPlot(canvas, file, reffile, "perTrk",  "xPCA", 100, -20, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perTrk",  "yPCA", 100, -20, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perTrk",  "zPCA", 100, -100, 100, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perTrk",  "chi2ndof", 100, 0.0, 50, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-
+  createPlot(canvas, file, reffile, "perTrk",  "xPCA", 100, -0.5, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "yPCA", 100, -0.5, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "zPCA", 100, -20, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "chi2ndof", 100, 0.0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "algo", 10, 0.0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "isHighPurity", 2, 0.0, 2, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale); 
 
   // Plots filled per Real Vertex  
-  createPlot(canvas, file, reffile, "perGoodPvtx",  "recx_pvtx", 100, -20, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale); 
-  createPlot(canvas, file, reffile, "perGoodPvtx",  "recy_pvtx", 100, -20, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perGoodPvtx",  "recx_pvtx", 100, -0.1, 0.4, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale); 
+  createPlot(canvas, file, reffile, "perGoodPvtx",  "recy_pvtx", 100, -0.1, 0.4, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perGoodPvtx",  "recz_pvtx", 100, -20, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
 
   // Plots filled per Vertex
@@ -84,29 +83,12 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
   // If the histogram is filled per track, cut on the event and track.
   // Otherwise, cut only on the event level
   
-  TString cutstring;
-  if(type == "perTrk") {
-    cutstring = "EVTSELECTION&&TRKSELECTION";
-  }
-  else if ( type == "perEvt") {
-    cutstring = "EVTSELECTION";
-    y_title = "Number of Events";
-  }
-  else if ( type == "perSiHit") {
-    cutstring = "EVTSELECTION";
-    y_title = "Number of Strip Clusters";
-  }
-  else if ( type == "perGoodPvtx") {
-    cutstring = "EVTSELECTION";
-    y_title = "Number of Real Vertices";
-  }
-  else if ( type == "perVtx") {
-    cutstring = "EVTSELECTION";
-    y_title = "Number of Valid Vertices";
-  }
-  else 
-    cutstring = "EVTSELECTION";
-  
+  TString basecut="isTechBit40&&!isBeamHalo&&hasGoodPvtx==1";
+  TString evtcutstring=basecut;
+  evtcutstring.Append("&&EVTSELECTION");
+  TString trkcutstring=basecut;
+  trkcutstring.Append("&&EVTSELECTION&&TRKSELECTION");
+
 
   TString hist_name;
   
@@ -115,28 +97,29 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
     if(algo == 1)  hist_name = "ctf"; 
     if(algo == 2)  hist_name = "sectrk_";
     hist_name.Append(name);   
-    tree->Project("h1",hist_name, cutstring);
-    reftree->Project("h2",hist_name, cutstring);  
+    tree->Project("h1",hist_name, evtcutstring);
+    reftree->Project("h2",hist_name, evtcutstring);  
     x_title = " Strip Cluster Charge (ADC Counts)";
     y_title = "Number of Clusters";
   }
   
   else if (name == "recz_pxlpvtx") {
-    tree->Project("h1",name, cutstring);
-    reftree->Project("h2",name, cutstring);
+    tree->Project("h1",name, evtcutstring);
+    reftree->Project("h2",name, evtcutstring);
     y_title="Number of pixelVertices";
   }
   
   else if( name.Contains("pvtx")) {
     if(name.Contains("rec")) {  
       y_title="Number of Real PrimaryVertices";
-      tree->Project("h1",name, cutstring.Append("&&isFake_pvtx==0")); 
-      reftree->Project("h2",name, cutstring.Append("&&isFake_pvtx==0")); 	
+      TString vtxcutstring=evtcutstring;
+      tree->Project("h1",name, vtxcutstring.Append("&&isFake_pvtx==0")); 
+      reftree->Project("h2",name, vtxcutstring.Append("&&isFake_pvtx==0")); 	
     }
     else { 
       y_title="Number of Valid PrimaryVertices";
-      tree->Project("h1",name, cutstring);
-      reftree->Project("h2",name, cutstring);
+      tree->Project("h1",name, evtcutstring);
+      reftree->Project("h2",name, evtcutstring);
     }
   }
   
@@ -147,9 +130,12 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
 	    || name.Contains("bsX0",TString::kExact)
 	    || name.Contains("bsY0",TString::kExact)
 	    || name.Contains("bsZ0",TString::kExact)
+	    || name.Contains("bsSigmaZ",TString::kExact)
+            || name.Contains("glob_ls",TString::kExact)
+	    || name.Contains("glob_bx",TString::kExact)  
 	    ) {
-    tree->Project("h1",name, cutstring);
-    reftree->Project("h2",name, cutstring);
+    tree->Project("h1",name, evtcutstring);
+    reftree->Project("h2",name, evtcutstring);
     y_title = "Number of Events";
   }
 
@@ -157,8 +143,8 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
     if(algo == 1)  hist_name = "ctf_"; 
     if(algo == 2)  hist_name = "sectrk_";
     hist_name.Append(name);   
-    tree->Project("h1",hist_name, cutstring);
-    reftree->Project("h2",hist_name, cutstring);
+    tree->Project("h1",hist_name, trkcutstring);
+    reftree->Project("h2",hist_name, trkcutstring);
   }
 
 
@@ -171,6 +157,7 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
   if( name.Contains("nTOBhit",TString::kExact) )  x_title = "Number of TOB Hits per Track" ;
   if( name.Contains("nTIDhit",TString::kExact) )  x_title = "Number of TID Hits per Track" ;
   if( name.Contains("nTEChit",TString::kExact) )  x_title = "Number of TEC Hits per Track" ;
+  if( name.Contains("nPixelHit",TString::kExact) )  x_title = "Number of Pixel Hits per Track" ; 
 
   if( name.Contains("nLayers",TString::kExact) )  x_title = "Number of Layers per Track" ;
   if( name.Contains("nPXBLayers",TString::kExact) )  x_title = "Number of PixelBarrel Layers per Track" ;
@@ -182,12 +169,14 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
   if( name.Contains("pt",TString::kExact) )  x_title = "p_{T} (GeV)" ;
   if( name.Contains("phi",TString::kExact) )  x_title = "Track Azimuthal Angle" ;
   if( name.Contains("dxy",TString::kExact) )  x_title = "Track dxy wrt (0,0,0) (cm)" ;
+  if( name.Contains("dxyCorr",TString::kExact) )  x_title = "Track dxy wrt offline BS (cm)" ; 
   if( name.Contains("dz",TString::kExact) )  x_title = "Track dz wrt (0,0,0) (cm)" ;
   if( name.Contains("xPCA",TString::kExact) )  x_title = "x PCA (cm)" ;
   if( name.Contains("yPCA",TString::kExact) )  x_title = "y PCA (cm)" ;
   if( name.Contains("zPCA",TString::kExact) )  x_title = "z PCA (cm)" ;
   if( name.Contains("chi2ndof",TString::kExact) )  x_title = "#chi^{2}/ndf" ;
   if( name.Contains("algo",TString::kExact) )  x_title = "Track Algorithm" ;  
+  if( name.Contains("isHighPurity",TString::kExact) )  x_title = "isHighPurity";
   
   // all cluster charge
   if( name.Contains("clusterCharge_all",TString::kExact) )  x_title = "Cluster Charge (ADC Counts)";
@@ -209,11 +198,13 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
   if( name.Contains("bsX0",TString::kExact) )  x_title = "BeamSpot X (cm)" ;
   if( name.Contains("bsY0",TString::kExact) )  x_title = "BeamSpot Y (cm)" ;
   if( name.Contains("bsZ0",TString::kExact) )  x_title = "BeamSpot Z (cm)" ;
-
+  if( name.Contains("bsSigmaZ",TString::kExact) )  x_title = "BeamSpot SigmaZ (cm)" ;
+  
   // TriggerBits
   if( name.Contains("isTechBit40",TString::kExact) )  x_title = "isTechBit40";
   if( name.Contains("isBSC",TString::kExact) )  x_title = "isBSC";
-  
+  if( name == "n" )  x_title = "Number of Tracks";
+
 
   if(logx) gPad->SetLogx();
   else gPad->SetLogx(0);
@@ -249,7 +240,7 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
   canvas->Update();
   
   TLegend *leg = new TLegend(0.16,0.93,0.60,0.995);
-  leg->SetTextSize(0.04);
+  leg->SetTextSize(0.03);
   leg->SetTextFont(42);
   leg->SetFillColor(0); 
   leg->SetBorderSize(1);
@@ -311,7 +302,7 @@ void NormalizeHistograms(TH1F* h1, TH1F* h2, int SetScale) {
     if ( h1->GetEntries() != 0 && h2->GetEntries() != 0 ){
       //h1->Sumw2();
       //h2->Sumw2();
-      if(h1->GetEntries()>h2->GetEntries())
+      if(h1->GetEntries()<h2->GetEntries())
 	h2->Scale(float(h1->GetEntries()/h2->GetEntries()));
       else
 	h1->Scale(float(h2->GetEntries()/h1->GetEntries()));

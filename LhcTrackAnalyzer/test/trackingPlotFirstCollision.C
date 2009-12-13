@@ -15,11 +15,16 @@ void SAMPLE()
   
   // Plots filled per event
   createPlot(canvas, file, "perEvt", "n", 200, 0, 200, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
-  createPlot(canvas, file, "perEvt", "nVertices", 100, 0, 100, false, te,"UU",0.55,0.70,false,false,false,normScale);
-  createPlot(canvas, file, "perEvt", "nPixelVertices", 100, 0, 100, false, te,"UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perEvt", "nVertices", 20, 0, 20, false, te,"UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perEvt", "nPixelVertices", 20, 0, 20, false, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perEvt", "hasGoodPvtx", 2, 0, 2, false, te, "UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perEvt", "isBSC", 2, 0, 2, false, te, "UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perEvt", "isTechBit40", 2, 0, 2, false, te, "UU",0.55,0.70,false,false,false,normScale);
+  //createPlot(canvas, file, "perEvt", "glob_ls", 20, 0, 20, false, te, "UU",0.55,0.70,false,false,false,normScale);  
+  createPlot(canvas, file, "perEvt", "glob_bx", 100, 0, 10000, false, te, "UU",0.55,0.70,false,false,false,normScale);  
+  createPlot(canvas, file, "perEvt", "bsX0", 10, -10, 10, false, te, "UU",0.55,0.70,false,false,false,normScale);  
+  createPlot(canvas, file, "perEvt", "bsY0", 10, -10, 10, false, te, "UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perEvt", "bsZ0", 10, -10, 10, false, te, "UU",0.55,0.70,false,false,false,normScale);
 
   // Plots filled per track
   createPlot(canvas, file, "perTrk", "nHit", 40, 0, 40, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
@@ -38,23 +43,27 @@ void SAMPLE()
   createPlot(canvas, file, "perTrk", "eta", 100, -4, 4, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perTrk", "pt", 100, 0, 10, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perTrk", "phi", 100, -3.5, 3.5, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
-  createPlot(canvas, file, "perTrk", "dxy", 100, -20, 20, runSecTrackColl, te,"UU",0.55,0.70,false,false,true,normScale);
-  createPlot(canvas, file, "perTrk", "dz", 100, -50, 50, runSecTrackColl, te,"UU",0.55,0.70,false,false,true,normScale);
-  createPlot(canvas, file, "perTrk", "xPCA", 100, -20, 20, runSecTrackColl, te,"UU",0.55,0.70,false,false,true,normScale);
-  createPlot(canvas, file, "perTrk", "yPCA", 100, -20, 20, runSecTrackColl, te,"UU",0.55,0.70,false,false,true,normScale);
-  createPlot(canvas, file, "perTrk", "zPCA", 100, -50, 50, runSecTrackColl, te,"UU",0.55,0.70,false,false,true,normScale);
+  createPlot(canvas, file, "perTrk", "dxy", 100, -1, 1, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perTrk", "dz", 100, -20, 20, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
+
+  createPlot(canvas, file, "perTrk", "dxyCorr", 100, -1, 1, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale); 
+  createPlot(canvas, file, "perTrk", "dzCorr", 100, -20, 20, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perTrk", "xPCA", 100, -1, 1, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perTrk", "yPCA", 100, -1, 1, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perTrk", "zPCA", 100, -20, 20, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perTrk", "chi2ndof", 100, 0.0, 10, runSecTrackColl, te,"UU",0.55,0.70,false,false,true,normScale);
   createPlot(canvas, file, "perTrk", "algo", 20, -1, 19, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale); 
+  createPlot(canvas, file, "perTrk", "isHighPurity", 2, 0, 2, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);  
 
   // Plots filled per SiStripHit
   createPlot(canvas, file, "perSiHit","cluster_charge", 100, 0, 1000, runSecTrackColl, te,"UU",0.55,0.70,false,false,false,normScale);
 
   // Plot filled per Valid Vertex
-  createPlot(canvas, file, "perGoodPvtx", "recx_pvtx", 100, -10, 10, false, te,"UU",0.55,0.70,false,false,false,normScale);
-  createPlot(canvas, file, "perGoodPvtx", "recy_pvtx", 100, -10, 10, false, te,"UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perGoodPvtx", "recx_pvtx", 100, 0.1, 0.3, false, te,"UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perGoodPvtx", "recy_pvtx", 100, 0, 0.3, false, te,"UU",0.55,0.70,false,false,false,normScale);
   createPlot(canvas, file, "perGoodPvtx", "recz_pvtx", 100, -20, 20, false, te,"UU",0.55,0.70,false,false,false,normScale);
   // Plot filled per vertex
-  createPlot(canvas, file, "perVtx", "isFake_pvtx", 2, 0, 1.5, false, te,"UU",0.55,0.70,false,false,false,normScale);
+  createPlot(canvas, file, "perVtx", "isFake_pvtx", 2, 0, 2, false, te,"UU",0.55,0.70,false,false,false,normScale);
   
   createPlot(canvas, file, "perVtx", "recz_pxlpvtx", 100, -20, 20, false, te,"UU",0.55,0.70,false,false,false,normScale);
   
@@ -79,49 +88,33 @@ void createPlot(TCanvas *canvas, TFile *file,  TString type, TString name, int n
   
   // If the histogram is filled per track, cut on the event and track.
   // Otherwise, cut only on the event level
-  TString cutstring;
-  if(type == "perTrk") {
-    cutstring = "EVTSELECTION&&TRKSELECTION";
-  }
-  else if ( type == "perEvt") {
-    cutstring = "EVTSELECTION";
-    y_title = "Number of Events";
-  }
-  else if ( type == "perSiHit") {
-    cutstring = "EVTSELECTION";
-    y_title = "Number of Strip Clusters";
-  }
-  else if ( type == "perGoodPvtx") {
-    cutstring = "EVTSELECTION";
-    y_title = "Number of Real Vertices";
-  }
-  else if ( type == "perVtx") {
-    cutstring = "EVTSELECTION";
-    y_title = "Number of Valid Vertices";
-  }
-  else 
-    cutstring = "EVTSELECTION";
-  
 
+  TString basecut="isTechBit40&&!isBeamHalo&&hasGoodPvtx==1";
+  TString evtcutstring=basecut;
+  evtcutstring.Append("&&EVTSELECTION");
+  TString trkcutstring=basecut;
+  trkcutstring.Append("&&EVTSELECTION&&TRKSELECTION");
+  
   TString ctf_name =  "ctf_";
 
   if( name.Contains("cluster_charge",TString::kExact) ) {
     ctf_name = "ctf"; 
     ctf_name.Append(name);   
-    tree->Project("h1",ctf_name, cutstring);
+    tree->Project("h1",ctf_name, evtcutstring);
   }
   else if (name == "recz_pxlpvtx") {
-    tree->Project("h1",name, cutstring);
+    tree->Project("h1",name, evtcutstring);
     y_title="Number of pixelVertices";
   }
   else if( name.Contains("pvtx")) {
     if(name.Contains("rec")) {  
       y_title="Number of Real PrimaryVertices";
-      tree->Project("h1",name, cutstring.Append("&&isFake_pvtx==0")); 
+      TString vtxcutstring=evtcutstring;
+      tree->Project("h1",name, vtxcutstring.Append("&&isFake_pvtx==0")); 
     }
     else { 
       y_title="Number of Valid PrimaryVertices";
-      tree->Project("h1",name, cutstring);
+      tree->Project("h1",name, evtcutstring);
     }
   }
   else if ( name.Contains("nVertices",TString::kExact) 
@@ -132,19 +125,20 @@ void createPlot(TCanvas *canvas, TFile *file,  TString type, TString name, int n
 	    || name.Contains("bsX0",TString::kExact)
 	    || name.Contains("bsY0",TString::kExact)
 	    || name.Contains("bsZ0",TString::kExact)
+	    || name.Contains("glob_ls",TString::kExact) 
+	    || name.Contains("glob_bx",TString::kExact)   
 	    ) {
-    tree->Project("h1",name, cutstring);
+    tree->Project("h1",name, evtcutstring);
     y_title = "Number of Events";
   }
-
   else { 
     ctf_name.Append(name); 
-    tree->Project("h1",ctf_name, cutstring);
+    tree->Project("h1",ctf_name, trkcutstring);
   }
 
   if(runSecTrackColl && ctf_name.Contains("ctf")) {
     TString sectrk_name = ctf_name.ReplaceAll("ctf","sectrk");
-    tree->Project("h2",sectrk_name, cutstring.ReplaceAll("ctf","sectrk"));
+    tree->Project("h2",sectrk_name,evtcutstring);
   }
  
   // Set the x_tile 
@@ -185,18 +179,20 @@ void createPlot(TCanvas *canvas, TFile *file,  TString type, TString name, int n
   if( name.Contains("phi",TString::kExact) )  x_title = "Track Azimuthal Angle" ;
   if( name.Contains("dxy",TString::kExact) )  x_title = "Track dxy wrt (0,0,0) (cm)" ;
   if( name.Contains("dz",TString::kExact) )  x_title = "Track dz wrt (0,0,0) (cm)" ;
+  if( name.Contains("dxyCorr",TString::kExact) )  x_title = "Track dxy wrt BS (cm)" ;  
+  if( name.Contains("dzCorr",TString::kExact) )  x_title = "Track dz wrt BS (cm)" ;  
   if( name.Contains("xPCA",TString::kExact) )  x_title = "x PCA (cm)" ;
   if( name.Contains("yPCA",TString::kExact) )  x_title = "y PCA (cm)" ;
   if( name.Contains("zPCA",TString::kExact) )  x_title = "z PCA (cm)" ;
   if( name.Contains("chi2ndof",TString::kExact) )  x_title = "#chi^{2}/ndf" ;
   if( name.Contains("algo",TString::kExact) )  x_title = "Track Algorithm" ;  
+  if( name.Contains("isHighPurity",TString::kExact) )  x_title = "isHighPurity" ;  
 
   // pvtx stuff
   if( name.Contains("recx_pvtx",TString::kExact) )  x_title = "PrimaryVertex Position X (cm)" ;
   if( name.Contains("recy_pvtx",TString::kExact) )  x_title = "PrimaryVertex Position Y (cm)" ;
   if( name.Contains("recz_pvtx",TString::kExact) )  x_title = "PrimaryVertex Position Z (cm)" ;
   if( name.Contains("isFake_pvtx",TString::kExact) )  x_title = "PrimaryVertex isFake()";  
-
   if( name.Contains("recz_pxlpvtx",TString::kExact) )  x_title = "pixelVertices Position Z (cm)" ;
 
   //beamspot
@@ -205,11 +201,13 @@ void createPlot(TCanvas *canvas, TFile *file,  TString type, TString name, int n
   if( name.Contains("bsZ0",TString::kExact) )  x_title = "BeamSpot Z (cm)" ;
    
   
+
   if( name.Contains("nVertices",TString::kExact) )  x_title = "Number of PrimaryVertices";
   if( name.Contains("nPixelVertices",TString::kExact) )  x_title = "Number of pixelVertices";
   if( name.Contains("hasGoodPvtx",TString::kExact) )  x_title = "hasRealPrimaryVertex";
   if( name.Contains("isTechBit40",TString::kExact) )  x_title = "isTechBit40";
   if( name.Contains("isBSC",TString::kExact) )  x_title = "isBSC";
+  if( name.Contains("glob_bx",TString::kExact) )  x_title = "bunchCrossing";
 
   if(logx) gPad->SetLogx();
   else gPad->SetLogx(0);
