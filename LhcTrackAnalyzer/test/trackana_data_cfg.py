@@ -25,15 +25,12 @@ process.load('Configuration/EventContent/EventContent_cff')
 # Refitters
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
-# cut RecoTracks
-process.load("UserCode.LhcTrackAnalyzer.cutRecoTracks_cfi")
-
 # suppress report message every 1000 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.1 $'),
+        version = cms.untracked.string('$Revision: 1.2 $'),
             annotation = cms.untracked.string('promptCollisionReco nevts:100'),
             name = cms.untracked.string('PyReleaseValidation')
         )
