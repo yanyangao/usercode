@@ -1203,26 +1203,26 @@ void LhcTrackAnalyzer::SetRootVar() {
   hasGoodPvtx_ = 0;
   nVertices_ = 0;
   for ( int i=0; i<nMaxPVs_; ++i ) {
-    nTracks_pvtx_[nMaxPVs_] = 0; // Number of tracks in the pvtx  
-    sumptsq_pvtx_[nMaxPVs_] = 0;
-    isValid_pvtx_[nMaxPVs_] = 0;
-    isFake_pvtx_[nMaxPVs_] = 0;
-    recx_pvtx_[nMaxPVs_] = 0;
-    recy_pvtx_[nMaxPVs_] = 0;
-    recz_pvtx_[nMaxPVs_] = 0;
-    recx_err_pvtx_[nMaxPVs_] = 0;
-    recy_err_pvtx_[nMaxPVs_] = 0;
-    recz_err_pvtx_[nMaxPVs_] = 0;
+    nTracks_pvtx_[i] = 0; // Number of tracks in the pvtx  
+    sumptsq_pvtx_[i] = 0;
+    isValid_pvtx_[i] = 0;
+    isFake_pvtx_[i] = 0;
+    recx_pvtx_[i] = 0;
+    recy_pvtx_[i] = 0;
+    recz_pvtx_[i] = 0;
+    recx_err_pvtx_[i] = 0;
+    recy_err_pvtx_[i] = 0;
+    recz_err_pvtx_[i] = 0;
   }
   
   // PixelVertices
   hasGoodPxlPvtx_ = 0;
   nPixelVertices_ = 0;
   for ( int i=0; i<nMaxPixelPVs_; ++i ) { 
-    nTracks_pxlpvtx_[nMaxPixelPVs_] = 0;
-    isFake_pxlpvtx_[nMaxPixelPVs_] = 0;
-    recz_pxlpvtx_[nMaxPixelPVs_] = 0; 
-    recz_err_pxlpvtx_[nMaxPixelPVs_] = 0; 
+    nTracks_pxlpvtx_[i] = 0;
+    isFake_pxlpvtx_[i] = 0;
+    recz_pxlpvtx_[i] = 0; 
+    recz_err_pxlpvtx_[i] = 0; 
   }
   
   // == CTF Track
