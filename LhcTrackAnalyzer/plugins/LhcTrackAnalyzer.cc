@@ -893,7 +893,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if ( tw[i] ) {
 	//cout<<"technical number "<<i<<"  "<<endl;
 	technical_bits_[ntechbits_]=i;
-	if (i == 40) isTechBit40_  = 1; 
+	if (i == 40 || i == 41) isTechBit40_  = 1; 
 	// The beamHalo bits are 36-39
 	if (i < 40 && i > 35) isBeamHalo_ = 1; 
 	// if BSC activity, (technical bit) is between 32 and 43, set to true
