@@ -23,6 +23,7 @@
 <use name=TrackingTools/TransientTrack>
 <use name=DataFormats/BeamSpot>
 <use name=RecoVertex/PrimaryVertexProducer>
+<use name=RecoTracker/TransientTrackingRecHit>
 
 <export>  
    <use name=FWCore/Framework>
@@ -47,4 +48,5 @@
    <use name=TrackingTools/TransientTrack>
    <use name=DataFormats/BeamSpot>
    <use name=RecoVertex/PrimaryVertexProducer>
+   <use name=RecoTracker/TransientTrackingRecHit>
 </export>

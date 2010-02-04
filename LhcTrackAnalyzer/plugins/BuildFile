@@ -8,6 +8,7 @@
 <use name=CondFormats/DataRecord>
 <use name=boost>
 <use name=rootrflx>
+<use name=RecoTracker/TransientTrackingRecHit>
 
 <use name=root>
 <use name=rootminuit>
