@@ -71,6 +71,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 // Vertex Stuff
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -488,8 +490,12 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	   ctfcluster_layer_[ctfcluster_n_]  = clusterLayer;
 	   ctfcluster_charge_[ctfcluster_n_] = clusterCharge;
 	   // Cluster position available only after track refitting
-	   if ( afterRefitting_ ) {
-	     GlobalPoint recHitGlobalPosition = tracker->idToDet((*rhit)->geographicalId())->surface().toGlobal((*rhit)->localPosition());
+	   if ( afterRefitting_ ) {	
+	     edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+	     iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theTrackerRecHitBuilder); 
+	     const TransientTrackingRecHitBuilder* theTTRHBuilder = theTrackerRecHitBuilder.product();
+	     TransientTrackingRecHit::RecHitPointer tthit = theTTRHBuilder->build((*recHit).get());
+	     GlobalPoint recHitGlobalPosition = tthit->globalPosition();
 	     ctfcluster_x_[ctfcluster_n_] = recHitGlobalPosition.x();
 	     ctfcluster_y_[ctfcluster_n_] = recHitGlobalPosition.y();
 	     ctfcluster_z_[ctfcluster_n_] = recHitGlobalPosition.z();
@@ -720,7 +726,11 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	    // Cluster position available only after track refitting
 	    if ( afterRefitting_ ) {
-	      GlobalPoint recHitGlobalPosition = tracker->idToDet((*rhit)->geographicalId())->surface().toGlobal((*rhit)->localPosition());
+	      edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+	      iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theTrackerRecHitBuilder); 
+	      const TransientTrackingRecHitBuilder* theTTRHBuilder = theTrackerRecHitBuilder.product();
+	      TransientTrackingRecHit::RecHitPointer tthit = theTTRHBuilder->build((*recHit).get());
+	      GlobalPoint recHitGlobalPosition = tthit->globalPosition();
 	      sectrkcluster_x_[sectrkcluster_n_] = recHitGlobalPosition.x();
 	      sectrkcluster_y_[sectrkcluster_n_] = recHitGlobalPosition.y();
 	      sectrkcluster_z_[sectrkcluster_n_] = recHitGlobalPosition.z();
@@ -795,12 +805,6 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       cluster_type_[cluster_n_]   = clusterType;
       cluster_layer_[cluster_n_]  = clusterLayer;
       cluster_charge_[cluster_n_] = clusterCharge;
-      if ( afterRefitting_ ) {
-	GlobalPoint recHitGlobalPosition = tracker->idToDet(rhit->geographicalId())->surface().toGlobal(rhit->localPosition());
-	cluster_x_[cluster_n_] = recHitGlobalPosition.x();
-	cluster_y_[cluster_n_] = recHitGlobalPosition.y();
-	cluster_z_[cluster_n_] = recHitGlobalPosition.z();
-      }
       ++cluster_n_;
       
     } // end loop over all rPhi RecHits
@@ -849,12 +853,6 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       cluster_type_[cluster_n_]   = clusterType;
       cluster_layer_[cluster_n_]  = clusterLayer;
       cluster_charge_[cluster_n_] = clusterCharge;
-      if ( afterRefitting_ ) {
-	GlobalPoint recHitGlobalPosition = tracker->idToDet(rhit->geographicalId())->surface().toGlobal(rhit->localPosition());
-	cluster_x_[cluster_n_] = recHitGlobalPosition.x();
-	cluster_y_[cluster_n_] = recHitGlobalPosition.y();
-	cluster_z_[cluster_n_] = recHitGlobalPosition.z();
-      }
       ++cluster_n_;
       
     } // end loop over all Stereo RecHits
@@ -1203,26 +1201,26 @@ void LhcTrackAnalyzer::SetRootVar() {
   hasGoodPvtx_ = 0;
   nVertices_ = 0;
   for ( int i=0; i<nMaxPVs_; ++i ) {
-    nTracks_pvtx_[i] = 0; // Number of tracks in the pvtx  
-    sumptsq_pvtx_[i] = 0;
-    isValid_pvtx_[i] = 0;
-    isFake_pvtx_[i] = 0;
-    recx_pvtx_[i] = 0;
-    recy_pvtx_[i] = 0;
-    recz_pvtx_[i] = 0;
-    recx_err_pvtx_[i] = 0;
-    recy_err_pvtx_[i] = 0;
-    recz_err_pvtx_[i] = 0;
+    nTracks_pvtx_[nMaxPVs_] = 0; // Number of tracks in the pvtx  
+    sumptsq_pvtx_[nMaxPVs_] = 0;
+    isValid_pvtx_[nMaxPVs_] = 0;
+    isFake_pvtx_[nMaxPVs_] = 0;
+    recx_pvtx_[nMaxPVs_] = 0;
+    recy_pvtx_[nMaxPVs_] = 0;
+    recz_pvtx_[nMaxPVs_] = 0;
+    recx_err_pvtx_[nMaxPVs_] = 0;
+    recy_err_pvtx_[nMaxPVs_] = 0;
+    recz_err_pvtx_[nMaxPVs_] = 0;
   }
   
   // PixelVertices
   hasGoodPxlPvtx_ = 0;
   nPixelVertices_ = 0;
   for ( int i=0; i<nMaxPixelPVs_; ++i ) { 
-    nTracks_pxlpvtx_[i] = 0;
-    isFake_pxlpvtx_[i] = 0;
-    recz_pxlpvtx_[i] = 0; 
-    recz_err_pxlpvtx_[i] = 0; 
+    nTracks_pxlpvtx_[nMaxPixelPVs_] = 0;
+    isFake_pxlpvtx_[nMaxPixelPVs_] = 0;
+    recz_pxlpvtx_[nMaxPixelPVs_] = 0; 
+    recz_err_pxlpvtx_[nMaxPixelPVs_] = 0; 
   }
   
   // == CTF Track
