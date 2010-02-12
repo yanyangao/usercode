@@ -22,18 +22,16 @@
 
 ### Configuration ############################################################
 set Release=$CMSSW_VERSION
-set runstring="Run124024"
+#set runstring="Run124024"
 #set samples=("MB_{Dec9thReReco}")
-#set samples=("{$runstring}_{MinBiasPD}_{BSCSkim}_{TrackerReReco}")
-#set samples=("{$runstring}_{EXPRESS}")
-set samples=("{$runstring}_{EXPRESS}")
-set GlobalTag=("GR09_E_V7")
+set samples=("MinBias900GeV_BSCNOBEAMHALO_Dec19thSkim_v1")
+set GlobalTag=("GR09_R_V5")
 set Events=-1
 set cfg="trackana_data_cfg.py"
 
 ###==== Set work directory
 set workdir="/store/disk02/yanyangao/LhcTrackAnalyzer/$Release" # at cms-tas03
-#set workdir="/uscms_data/d1/ygao/LhcTrackAnalyzer/$Release"
+#set workdir="/uscms_data/d1/ygao/LhcTrackAnalyzer/$Release" # uscms
 set cfgfiledir="$workdir/cfgfiles"
 set outputdir="$workdir/ntuple"
 set logdir="$workdir/log/"
@@ -50,11 +48,11 @@ mkdir -p $pngdir
 mkdir -p $epsdir
 
 ###==== Set publish dir
-set ifpublish="true"
+set ifpublish="false"
 
 if ($ifpublish == "true") then 
   #set publishdir="/afs/fnal.gov/files/home/room2/ygao/public_html/CMS/Tracking/LhcTrackAnalyzer/$Release" # At fnal
-  set publishdir="/afs/cern.ch/user/y/yygao/www/LhcTrackAnalyzer/$Release"
+  set publishdir="/afs/cern.ch/user/y/yygao/www/LhcTrackAnalyzer/$Release" # at cern
   mkdir -p $publishdir
 endif
 
@@ -252,41 +250,34 @@ else if ($1 == 4) then
 
  set comptrk="compdatamc"
 
- set newfile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/Run124024_EXPRESS_GR09_E_V7_only_analyze.root"
- set reffile="/store/disk02/yanyangao/LhcTrackAnalyzer/CMSSW_3_3_5/ntuple/minbias_900GeV_STARTUPV8I_STARTUP3X_V8I_CMSSW_3_3_4.root"# MC in Peak mode
-    
+set newfile="work/ntuple/MinBias900GeV_BSCNOBEAMHALO_Dec19thSkim_v1_GR09_R_V5_only_analyze.root"
+set reffile="work/ntuple/MinBias_Summer09_MC_STARTUP3X_V8K_900GeV_v1_STARTUP3X_V8K_CMSSW_3_3_6_patch3.root"
 
- #set newlabel="MB900MCPEAK"
- #set reflabel="MB900MCDECO"
+set newlabel="MB900GeV_Dec19ReReco"
+#set reflabel="MB900GeV"
+#set newlabel="Run124120"
+set reflabel="STARTUPV8K"
 
- set newlabel="Run124024_EXPRESS"
- set reflabel="MB900MC_STARTUPV8I"
 
  set ctfOrSecTrk="1" #1: ctf; 2: sectrk
- set normScale="1" #0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral    
+ set normScale="3" #0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral  3: normalizationByEvents  
  
  ## Specify the cuts
- set cutstring="GoodPvtxCutfHighPurity"
+#set cutstring="nocut"
+# set cutstring="GoodPvtxCutfHighPurity"
+#set cutstring="GoodPvtxCutfHPnLayers"
+set cutstring="GoodPvtxHighPurity"
+#set cutstring="HighPurityGoodPvtx" 
 #set cutstring="GoodPvtxCutnTracks"
 
- switch ($cutstring)
+switch ($cutstring)
    case "nocut"
       set evtselection="1" 
       set trkselection="1" 
     breaksw
 
-    case "TechBit40"
-      set evtselection="isTechBit40==1" 
-      set trkselection="" 
-    breaksw
-
-    case "GoodPvtx"
-      set evtselection="hasGoodPvtx==1"
-      set trkselection="1" 
-    breaksw
-
-    case "HighPurityGoodPvtx"
-      set evtselection="hasGoodPvtx==1" 
+    case "GoodPvtxHighPurity"
+      set evtselection="ctf_fHighPurity>0.2"
       set trkselection="ctf_isHighPurity==1"
     breaksw
   
@@ -295,25 +286,41 @@ else if ($1 == 4) then
    set trkselection="1"
    breaksw
 
+ case "GoodPvtxCutfHPnLayers"
+    set evtselection="ctf_fHighPurity>0.2"
+    set trkselection="ctf_nLayers>4"
+    breaksw
+
   case "GoodPvtxCutfHighPurity"
   set evtselection="ctf_fHighPurity>0.2"
    set trkselection="1"
    breaksw
 
   case "GoodPvtxCutnTracks"
-    set evtselection="ctf_n<100"
-      set trkselection="1"
-      
-      breaksw
-  
+  set evtselection="ctf_n<100"
+  set trkselection="1"
+    breaksw
+  case "HighPurityGoodPvtx"
+  set evtselection="ctf_fHighPurity>0.2"
+  set trkselection="ctf_isHighPurity==1"
+    breaksw               
 
-    default:
+          default:
       set evtselection="1" 
       set trkselection="1" 
    endsw
 
- set comppngdir="$pngdir/comp_{$newlabel}_{$reflabel}/$cutstring/"
- set compepsdir="$epsdir/comp_{$newlabel}_{$reflabel}/$cutstring/"
+ if($normScale == 3) then
+ set comppngdir="$pngdir/comp_{$newlabel}_{$reflabel}/NormByEvts/$cutstring/"
+ set compepsdir="$epsdir/comp_{$newlabel}_{$reflabel}/NormByEvts/$cutstring/"
+ endif 
+
+ if($normScale == 1) then
+ set comppngdir="$pngdir/comp_{$newlabel}_{$reflabel}/NormByEntries/$cutstring/"
+ set compepsdir="$epsdir/comp_{$newlabel}_{$reflabel}/NormByEntries/$cutstring/"
+ endif 
+
+
 
  mkdir -p $comppngdir
  mkdir -p $compepsdir
@@ -342,8 +349,15 @@ else if ($1 == 4) then
       echo "Missing webpage making script makeTrackHtml.py, skipping this sample..."
        continue
     endif         
- 
-   set comppublishdir="$publishdir/comp_{$newlabel}_{$reflabel}/$cutstring/"
+    
+    if($normScale == 1) then
+    set comppublishdir="$publishdir/comp_{$newlabel}_{$reflabel}/NormByEntries/$cutstring/"
+    endif
+
+   if($normScale == 3) then
+    set comppublishdir="$publishdir/comp_{$newlabel}_{$reflabel}/NormByEvts/$cutstring/"
+    endif
+
    mkdir -p $comppublishdir
 
    rm -f $comppublishdir/*.png   
@@ -378,17 +392,17 @@ foreach sample($samples)
  set file="$outputdir/{$sample}_{$GlobalTag}_{$sequence}.root"
  echo $file
     
- set newlabel="CutfHighPurity"
- set reflabel="CutnTracks"
+ set newlabel="Run124120"
+ set reflabel="Run124275"
 
  set ctfOrSecTrk="1" #1: ctf; 2: sectrk
- set normScale="0" #0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral    
+ set normScale="2" #0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral    
 
  # cut1
- set evtselection1="ctf_fHighPurity>0.2"
+ set evtselection1="glob_runno==124120"
  set trkselection1="1"
  # cut2
- set evtselection2="ctf_n<100"
+ set evtselection2="glob_runno==124275"
  set trkselection2="1"
 
  set comppngdir="$pngdir/comp_{$newlabel}_{$reflabel}/"
