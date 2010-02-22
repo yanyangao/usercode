@@ -1,0 +1,18 @@
+\contentsline {section}{\numberline {1}Introduction}{3}
+\contentsline {section}{\numberline {2}Data Samples and Event Selections}{3}
+\contentsline {subsection}{\numberline {2.1}Data Samples}{3}
+\contentsline {subsection}{\numberline {2.2}Event Selection}{3}
+\contentsline {section}{\numberline {3}Primary Vertex Resolution Measured with Two-Vertex Method}{4}
+\contentsline {subsection}{\numberline {3.1}Two-vertex Method Description}{4}
+\contentsline {subsection}{\numberline {3.2}Resolution and Pulls in Different \ensuremath {P_T}\, Ranges}{5}
+\contentsline {section}{\numberline {4}Two-vertex method validation on MC samples}{5}
+\contentsline {subsection}{\numberline {4.1}Resolution and Pulls vs Number of Tracks}{5}
+\contentsline {subsection}{\numberline {4.2}Resolution and Pulls vs Number of Tracks at Different \ensuremath {P_T}\, Ranges}{6}
+\contentsline {section}{\numberline {5}Resolution and pull on collision data}{7}
+\contentsline {subsection}{\numberline {5.1}Resolution and pull vs number of tracks}{7}
+\contentsline {subsection}{\numberline {5.2}Resolution and pull vs number of tracks at different \ensuremath {P_T}\, ranges}{7}
+\contentsline {subsection}{\numberline {5.3}Compare resolution and pulls at $\sqrt {s}=$ 900 GeV and 2360GeV}{7}
+\contentsline {section}{\numberline {6}Systematic effects and cross checks}{8}
+\contentsline {subsection}{\numberline {6.1}Effect of the Alignment Scenario}{8}
+\contentsline {subsection}{\numberline {6.2}Effect of the split vertex weight difference}{9}
+\contentsline {section}{\numberline {7}Conclusion}{9}

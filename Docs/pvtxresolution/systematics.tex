@@ -1,0 +1,115 @@
+In this section, we discuss briefly the systematic uncertainties in 
+the primary vertex resolution measurement. 
+
+\subsection{Effect of the Alignment Scenario}
+
+The primary vertex resolution depends on the track impact parameter resolution,
+which is affected by the tracker alignment senarios. 
+At the early stage of data taking, the alignment senario may 
+not describe the actual value. 
+The systematic uncertainties on the tracking parameters induced 
+by the misalignment will be translated to the systematic errors 
+of primary vertex resolution. 
+
+To estimate the effect of misalignment on the primary vertex resolution, 
+we repeat the study on the MC dataset simulated with perfectly 
+aligned tracker and with the alignment position error (APE) set to 0. 
+Figure~\ref{fig:resvsntrk-aligncheck}-~\ref{fig:pullvsntrk-aligncheck} 
+show the resolution and pulls versus number of tracks for the collision data, 
+MC with misalignment scenario matching the data taking and the MC with 
+ideal geometry and APE.
+
+From this study, we estimate systematic uncertainty due to the mis-alignment 
+is within 5 $\mu m$ where the number of tracks exceed 5. 
+The difference in resolution can be as large as around 20-30 $\mu m$ 
+in the case where number of tracks are less than 5. 
+This difference is also reflected in the corresponding bins of 
+pull distributions. On the other hand, with less than 5 tracks in the 
+primary vertex, the gaussian fit does not describe the residual well. 
+So the difference highly depends on the fit range. 
+Nevertheless, in all number of track bins, the mis-aligned systematic 
+uncertainties are within 10\% of the resolution itself. 
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[htb]
+\begin{center}
+\centerline{
+\epsfig{figure=figures/ResX_IdealMC.eps,height=2.0in}
+\epsfig{figure=figures/ResY_IdealMC.eps,height=2.0in}
+\epsfig{figure=figures/ResZ_IdealMC.eps,height=2.0in}
+}
+\caption{\sl
+Primary vertex resolution as a function of the number of tracks used in the 
+fitted vertex.
+}
+\label{fig:resvsntrk-aligncheck}
+\end{center}
+%\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{figure}[htb]
+\begin{center}
+\centerline{
+\epsfig{figure=figures/PullX_IdealMC.eps,height=2.0in}
+\epsfig{figure=figures/PullY_IdealMC.eps,height=2.0in}
+\epsfig{figure=figures/PullZ_IdealMC.eps,height=2.0in}
+}
+\caption{\sl
+Fitted pulls from primary vertex distribution as a function of the number of tracks used in the 
+fitted vertex.}
+\label{fig:pullvsntrk-aligncheck}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsection{Effect of the split vertex weight difference}
+
+In the Adaptiver filter, all tracks that are clusterized in a given cluster 
+are used in the vertex fit. The outlier tracks which are away from 
+the vertex position are downweighted signficantly and contribute 
+little to the fit vertex positions or errors. 
+Thus as we compare the two split vertices, though the number of tracks do not 
+differ, the number of tracks with high weights ($>0.5$) (or the numbers of degree of freedom) may differ. 
+In that case, the difference between the two vertex positions does not 
+represent the vertex error in either vertex. 
+
+To cross check this effect, we repeat the study with resolution 
+and pull versus the number of high weighted tracks instead of the total number 
+of tracks. 
+Figure~\ref{fig:resvsntrk-HW}-~\ref{fig:pullvsntrk-HW} show the comparison 
+between the two approaches. 
+And we see that the resolution at the tail region between the two methods are consistent. 
+And the pull distributions are consistent in all regions. 
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[htb]
+\begin{center}
+\centerline{
+\epsfig{figure=figures/ResX_HW.eps,height=2.0in}
+\epsfig{figure=figures/ResY_HW.eps,height=2.0in}
+\epsfig{figure=figures/ResZ_HW.eps,height=2.0in}
+}
+\caption{\sl
+Primary vertex resolution as a function of the number of tracks used in the 
+fitted vertex.
+}
+\label{fig:resvsntrk-HW}
+\end{center}
+%\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{figure}[htb]
+\begin{center}
+\centerline{
+\epsfig{figure=figures/PullX_HW.eps,height=2.0in}
+\epsfig{figure=figures/PullY_HW.eps,height=2.0in}
+\epsfig{figure=figures/PullZ_HW.eps,height=2.0in}
+}
+\caption{\sl
+Fitted pulls from primary vertex distribution as a function of the number of tracks used in the 
+fitted vertex.}
+\label{fig:pullvsntrk-HW}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%

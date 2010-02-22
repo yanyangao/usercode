@@ -1,0 +1,110 @@
+% latex cms-note-graviton ; dvips -Ppdf -t letter -G0 cms-note-graviton
+% ps2pdf -sPAPERSIZE=a4 cms-note-graviton.ps
+% preparation guidelines:
+% https://twiki.cern.ch/twiki//bin/view/CMS/Internal/PubPreparation
+
+\documentclass{cmspaper}
+\usepackage{graphicx}
+\usepackage{rotate}
+\usepackage{relsize}
+\usepackage{epsfig}
+\usepackage{lineno}
+\usepackage{verbatim} 
+\setlength{\topmargin}{0.7in}
+
+\newcommand{\pt} {\ensuremath{P_T}}
+
+
+\begin{document}
+
+%==============================================================================
+% title page for many authors
+%
+% select one of the following and type in the proper number:
+% \cmsnote{2005/000}
+% \internalnote{2009/version1a}
+\begin{titlepage}
+\cmsnote{2010/version0}
+\date{\today}
+
+\title{Primary Vertex Resolution Measured with Data Driven Two-Vertex Method at $\sqrt{s} = $ 0.9/2.36 TeV}
+
+  \begin{Authlist}
+    J.~ Bernardini, F.~ Fiori, F.~ Palla
+    \Instfoot{pisa}{INFN Sezione di Pisa, Pisa, Italy}    
+    K.~Burkett, Y.~Gao
+    \Instfoot{fnal}{Fermi National Accelerator Laboratory, Batavia, USA}
+    G.Y.~ Jeng
+    \Instfoot{ucriverside}{University of California, Riverside, Riverside, USA}
+
+  \end{Authlist}
+
+\begin{abstract}
+
+This note introduces a data driven algorithm, referred as two-vertex method, 
+to measure primary vertex postion resolution. 
+In two-vertex method, the tracks used in the primary vertex fitter 
+are split into two different sets and used to independently
+fit the primary vertex. The distribution of the difference in the
+fitted vertex positions can then be used to extract the resolution. 
+The primary vertex resolution dependence on the number of tracks used 
+in fitting the vertex and the \pt of those tracks are 
+presented for the data collected at $\sqrt{s}$ = 0.9 and 2.36 TeV collsion 
+during 2009 in CMS.
+
+\end{abstract}
+\end{titlepage}
+
+\setcounter{page}{2}%JPP
+\tableofcontents
+\pagebreak
+
+
+%------------------
+\section {Introduction}
+\label{sec:intro}
+\input{intro}
+
+%------------------
+\section{Data Samples and Event Selections}
+\label{sec:datasample}
+\input{datasample}
+
+%------------------
+\section{Primary Vertex Resolution Measured with Two-Vertex Method}
+\label{sec:twovertex}
+\input{twovertex}
+%------------------
+%\pagebreak
+
+%------------------
+\section{Two-vertex method validation on MC samples}
+\label{sec:mcvalidation}
+\input{mcvalidation}
+%------------------
+\pagebreak
+
+%------------------
+\section{Resolution and pull on collision data}
+\label{sec:dataresults}
+\input{dataresults}
+%------------------
+\pagebreak
+
+%------------------
+\section{Systematic effects and cross checks}
+\label{sec:systematics}
+\input{systematics}
+%------------------
+
+\section{Conclusion}
+\label{sec:conclusion}
+\input{conclusion}
+
+
+% References
+\input{note-ref.tex}
+
+\end{document}
+
+

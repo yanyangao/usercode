@@ -1,0 +1,122 @@
+\subsection{Two-vertex Method Description}
+
+To measure the primary vertex resolution, we measure the primary vertex 
+position of each event with two independent sets of tracks. 
+We obtain the algorithm resolution by comparing the 
+relative position of the two vertices in $x$, $y$ and $z$. 
+The distribution of the difference in the fitted vertex positions 
+can then be used to extract the resolution and pulls. 
+The method proceeds as follows. 
+
+%%%%%%%%%%%%%%%%%%%%
+\begin{enumerate}
+\item Divide tracks used in the primary vertex in two independent sets (A and B)
+%%%%%%%%%%%%%%%%
+\begin{itemize}
+\item
+We take tracks used the ``offlinePrimaryVertices'' and sort them in descending order of \pt. 
+\item 
+Starting from highest-\pt track, we take pairs of tracks and 
+randomly choose which track goes into which set (A or B). This 
+ensures that there is no asymmetry of the track \pt\, spectrum in 
+the two vertices. If the number of the tracks are odd, we drop 
+the lowest-\pt track. 
+\end{itemize}
+%%%%%%%%%%%%%%%%
+We monitor the basic track distributions (\pt, $\eta$, $\phi$, $dxy$ and $dz$) 
+of the split track sets. Figure~\ref{fig:splittrack} show the comparison 
+of these variables between the original tracks and split track sets A and B in 
+the mininum bias collision data taken at $\sqrt{s}=$900GeV. 
+We see that the split track sets have consistent kinematics as the 
+original tracks. 
+
+%%%%%%
+\item Vertex fit each trackset (A and B) independently using ``offlinePrimaryVertices'' algorithm.
+
+\item Compare the primary vertex position between the two fit vertices and extract resolution and pull. 
+
+When comparing the two fitted vertices, it is important that 
+the number of tracks used in the final fitted vertices and the 
+$\Sigma\pt$ and $z$ of the two vertices do not differ by too much. 
+As we sort the tracks according the \pt\, prior to the splitting 
+step, the difference of the $\Sigma\pt$ between the two vertices 
+are negligible. We select on the following two variables to ensure the 
+number of tracks and vertex $z$ difference of the two vertex is small:
+\begin{itemize}
+\item Relative difference of the number of tracks used in the two vertices, 
+$|\frac{\tt{nTrk(vtx1)-nTrk(vtx2)}}{\tt{nTrk(vtx1)+nTrk(vtx2)}}|<0.1$
+\item The separation signficance in z, defined as 
+$\frac{|z(vtx1)-z(vtx2)|}{\tt{max}(\sigma z(vtx1),\sigma z(vtx2))}>5$
+\end{itemize}
+Figure~\ref{fig:anaselection} shows the distribution of these 
+two variables before applying the cuts. The selection efficiency of the two 
+cuts is found to be 74\% in both data and MC. 
+
+We analyze the difference between the two selected matching vertices and 
+and extract the resolution and pull dependence of the number of tracks 
+used in the primary vertex as follows. 
+%%%%%%%%%
+\begin{itemize}
+\item
+The difference between the coordinates of the two vertices in $x$, $y$ 
+and $z$ is histogrammed for each number of tracks. We fit a single 
+gaussian to each distribution in the range of $\pm2\times$RMS. 
+The resolution is defined as the gaussian width $\sigma$ divided by $\sqrt{2}$.
+\item
+The pull distribution at each number of track bin is filled with the 
+quantity ${x_1-x_2}\over\sqrt{\sigma x_1^2+\sigma x_2^2}$, where 
+$x_i$ and $\sigma x_i$ are the vertex position and errors of the two vertices.
+We fit a single gaussian to each distribution in the range of $\pm2\times$RMS.
+\end{itemize}
+%%%%%%%%%
+\end{enumerate}
+
+Before moving forward, it is important to point out that this method rovides an estimate 
+of the resolution and pulls comparing vertices formed 
+with average number of tracks that are about half of the number of tracks 
+that are used in the actual primary vertex fitter. 
+As the intrinsic vertex resolution is well known to decrease with the 
+number tracks used in the primary vertex fitter. Therefore, the average 
+resolutin obtained from this method will always be larger than the actual 
+resolution in a given sample. More details on the systematic uncertainties 
+are described in section~\ref{sec:systematics}.
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[htb]
+\begin{center}
+\begin{tabular}{ccc}
+\epsfig{figure=figures/trkPtPV.eps,height=2.0in}
+\epsfig{figure=figures/trkEtaPV.eps,height=2.0in}
+\epsfig{figure=figures/trkPhiPV.eps,height=2.0in}\\
+\epsfig{figure=figures/trkDxyCorrPV.eps,height=2.0in}
+\epsfig{figure=figures/trkDzPV.eps,height=2.0in}
+\end{tabular}
+\caption{\sl 
+Track \pt, $\eta$, $\Phi$, $dxy$ and $dz$ distributions of the 
+tracks used in the primary vertex. 
+Data is shown with red dots while MC is shown as histogram filled in blue.
+}
+\label{fig:splittrack}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[htb]
+\begin{center}
+\centerline{
+\epsfig{figure=figures/nTrkDiff.eps,height=2.5in}
+\epsfig{figure=figures/twovtxzsign.eps,height=2.5in}
+}
+\caption{\sl
+Left: The relative difference of number of tracks used in 
+the two vertex fit; Right: The $z$-signficance of the 
+two vertex fit. Please see text for the definition. 
+Data is shown with red dots while MC is shown as histogram filled in blue.
+}
+\label{fig:anaselection}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Resolution and Pulls in Different \pt\, Ranges}
+

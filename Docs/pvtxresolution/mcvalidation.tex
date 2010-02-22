@@ -1,0 +1,65 @@
+
+We can validate the procedure of the two-vertex method by comparing the 
+results using the two-vertex method to the results obtained with MC method.
+In Monte Carlo, the resolution of the primary vertex positions can be easily 
+evaluated by comparing the reconstructed positions with the simulated 
+positions. This is also referred as MC method later. In the MC method, 
+the residual is defined as $x_{\tt rec}-x_{\tt sim}$. 
+
+\subsection{Resolution and Pulls vs Number of Tracks}
+
+Figure~\ref{fig:resvsntrk-900MC}-~\ref{fig:pullvsntrk-900MC} show 
+the resolution and pull as a function of the nubmer of tracks used 
+in the primary vertex for four different methods. 
+In each plot, the results of the following four methods are overlaid:
+%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+\item Black: MC method applied on the unsplit vertex collection
+\item Red: MC method applied on the first split vertex collection
+\item Green: MC method results applied on the second split vertex collection
+\item Blue: Two-vertex method results
+\end{itemize}
+%%%%%%%%%%%%%%%%%%
+
+We see good agreement between the resolution obtained using MC method and 
+two-vertex method. There is slight difference at large number of track bins ($>$10) 
+between the resolutions obtained by applying MC method to 
+the unsplit trackset and the rest of the methods. 
+It is because of the <\pt> of the split track sets are in general 
+100\,MeV larger than the original {\it generalTracks}. 
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[htb]
+\begin{center}
+\centerline{
+\epsfig{figure=figures/ResX_900GeVMC.eps,height=2.0in}
+\epsfig{figure=figures/ResY_900GeVMC.eps,height=2.0in}
+\epsfig{figure=figures/ResZ_900GeVMC.eps,height=2.0in}
+}
+\caption{\sl
+Primary vertex resolution as a function of the number of tracks used in the fitted vertex. 
+}
+\label{fig:resvsntrk-900MC}
+\end{center}
+%\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{figure}[htb]
+\begin{center}
+\centerline{
+\epsfig{figure=figures/PullX_900GeVMC.eps,height=2.0in}
+\epsfig{figure=figures/PullY_900GeVMC.eps,height=2.0in}
+\epsfig{figure=figures/PullZ_900GeVMC.eps,height=2.0in}
+}
+\caption{\sl
+Fitted pulls from primary vertex distribution as a function of the number of tracks used in the 
+fitted vertex.}
+\label{fig:pullvsntrk-900MC}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsection{Resolution and Pulls vs Number of Tracks at Different \pt\, Ranges}
+
+{\it Actiion Item for PISA.}

@@ -1,0 +1,32 @@
+The event primary vertex resolution is given by the uncertainty 
+reported by the primary vertex algorithm. 
+The reconstruction of the primary interaction vertex~\cite{pvtxreco} in
+the event starts from the track collection.  Tracks are
+first filtered with cuts on the impact parameter, number
+of hits, and the $\chi^2$ per degree of freedom.  The
+filtered tracks are then clustered in $z$.  Clusters are
+split when there is a gap over a thresold. The tracks in the
+cluster are then fit with an Adaptive Vertex Fit, where
+tracks in the vertex are assigned a weight between 0 and 1
+based on their compatibility with the common vertex.
+
+The resolution on the primary vertex is tightly coupled to the impact
+parameter resolution of a track. The primary vertex resolution is then
+a strong function of the number of tracks used in fitting the vertex,
+and the \pt of those tracks. 
+It is not mathematically possible to define a primary vertex resolution 
+for a specific sample since each vertex is independent and 
+has its own uncertainty. 
+Therefore, the best we can do is to try to measure an average 
+resolution of an event ensemble.
+
+In this note, we introduce the data-driven method, referred as two-vertex 
+method, to measure the vertex resolution dependence on the 
+number of tracks used in the primary vertex. 
+In this method, we measure the primary vertex position of each event 
+with two independent sets of tracks. 
+We obtain the algorithm resolution by comparing the 
+relative position of the two vertices in $x$, $y$ and $z$. 
+The distribution of the difference in the fitted vertex positions 
+can then be used to extract the resolution and pulls. 
+
