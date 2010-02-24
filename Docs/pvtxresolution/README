@@ -1,0 +1,2 @@
+To get this package in a local CMSSW area:
+cvs co -d pvtxnote /UserCode/YGao/Docs/pvtxresolution/
