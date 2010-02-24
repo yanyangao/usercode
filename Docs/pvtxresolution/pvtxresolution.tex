@@ -34,23 +34,19 @@
     \Instfoot{pisa}{INFN Sezione di Pisa, Pisa, Italy}    
     K.~Burkett, Y.~Gao
     \Instfoot{fnal}{Fermi National Accelerator Laboratory, Batavia, USA}
-    G.Y.~ Jeng
+    G.~ Hanson, G.Y.~ Jeng
     \Instfoot{ucriverside}{University of California, Riverside, Riverside, USA}
 
   \end{Authlist}
 
 \begin{abstract}
 
-This note introduces a data driven algorithm, referred as two-vertex method, 
-to measure primary vertex postion resolution. 
-In two-vertex method, the tracks used in the primary vertex fitter 
-are split into two different sets and used to independently
-fit the primary vertex. The distribution of the difference in the
-fitted vertex positions can then be used to extract the resolution. 
-The primary vertex resolution dependence on the number of tracks used 
-in fitting the vertex and the \pt of those tracks are 
-presented for the data collected at $\sqrt{s}$ = 0.9 and 2.36 TeV collsion 
-during 2009 in CMS.
+This note introduces a data driven algorithm, referred as two-vertex method, to 
+measure the primary vertex resolution dependence on the number of tracks used 
+in fitting the vertex and the average \pt of those tracks. 
+%The method is based on the application of the \emph{Adaptive Vertex Filter}, the most robust vertex finding algorithm developed by the CMS collaboration, on two independent sets of tracks belonging to the same hard interaction.
+The method is validated on Monte Carlo simulated data and applied to 
+the first LHC collision data collected at $\sqrt{s}$ = 0.9 and 2.36 TeV in CMS.
 
 \end{abstract}
 \end{titlepage}
@@ -78,21 +74,21 @@ during 2009 in CMS.
 %\pagebreak
 
 %------------------
-\section{Two-vertex method validation on MC samples}
+\section{Two-vertex Method Validation on MC Samples}
 \label{sec:mcvalidation}
 \input{mcvalidation}
 %------------------
 \pagebreak
 
 %------------------
-\section{Resolution and pull on collision data}
+\section{Resolution and Pull on Collision Data}
 \label{sec:dataresults}
 \input{dataresults}
 %------------------
 \pagebreak
 
 %------------------
-\section{Systematic effects and cross checks}
+\section{Systematic Effects and Cross Checks}
 \label{sec:systematics}
 \input{systematics}
 %------------------
