@@ -6,7 +6,7 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
-#process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #======================================
 # Global Tag
