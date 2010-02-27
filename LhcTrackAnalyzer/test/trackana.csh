@@ -17,9 +17,9 @@
 
 ### Configuration ############################################################
 set Release="$CMSSW_VERSION"
-set samples=("ttbar" "minbias")
-set GlobalTag="MC_31X_V3"
-set Events=1000
+set samples=("MinBias_Summer09_START3X_22A_900GeV_352_v1")
+set GlobalTag="START3X_V22A"
+set Events=50000
 set cfg="trackana_cfg.py"
 
 # Set work directory
@@ -63,7 +63,7 @@ foreach sample($samples)
     breaksw
 
     default:
-    set dataset=""
+    set dataset=$sample
    endsw
 
    if(! -e ../python/${dataset}_cff.py) then 
