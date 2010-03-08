@@ -114,7 +114,7 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   bool selTechBit_;
   int  techBitToSelect_;
   bool selNonFakePvtx_;
-  
+ 
 
   // Output
   std::string filename_;     
@@ -148,12 +148,15 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int isTechBit40_; // boolean to see if TechBit40 is fired
   int isBSC_; // boolean to see if any BSC TB fired (32->43)
   int isBeamHalo_;  // boolean to see if any BSC TB fired (36->39)
- 
+  int belowPtThresold_; // boolean to check if the tracks are all above a thresold
+
+
   // PrimaryVertices
   static const int nMaxPVs_ = 100;
   int hasGoodPvtx_;
   int nVertices_;
-  int nTracks_pvtx_[nMaxPVs_]; // Number of tracks in the pvtx  
+  int nTracks_pvtx_[nMaxPVs_]; // Number of tracks in the pvtx 
+  double ndof_pvtx_[nMaxPVs_];
   double sumptsq_pvtx_[nMaxPVs_];
   int isValid_pvtx_[nMaxPVs_];
   int isFake_pvtx_[nMaxPVs_];
@@ -186,6 +189,7 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double ctf_dzCorr_[nMaxCTFtracks_];
   double ctf_dxyCorr_[nMaxCTFtracks_];
   double ctf_dzCorr_pvtx_[nMaxCTFtracks_];
+  double ctf_dzCorrErr_pvtx_[nMaxCTFtracks_];
   double ctf_dxyCorr_pvtx_[nMaxCTFtracks_];
   double ctf_ptErr_[nMaxCTFtracks_];       
   double ctf_etaErr_[nMaxCTFtracks_];

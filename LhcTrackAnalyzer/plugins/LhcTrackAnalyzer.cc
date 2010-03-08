@@ -30,13 +30,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h>
 #include <SimDataFormats/TrackingHit/interface/PSimHit.h>
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TFile.h"
@@ -102,8 +98,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-
-typedef math::XYZTLorentzVectorF LorentzVector;
 typedef math::XYZPoint Point;
 
 using namespace std;
@@ -251,7 +245,8 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   nVertices_ = 0; 
   for(reco::VertexCollection::const_iterator v=vertexColl->begin(); 
       v!=vertexColl->end(); ++v, ++nVertices_) {
-    nTracks_pvtx_[nVertices_] = v->tracksSize();	
+    nTracks_pvtx_[nVertices_] = v->tracksSize();
+    ndof_pvtx_[nVertices_] = v->ndof();	
     sumptsq_pvtx_[nVertices_] = sumPtSquared(*v);
     isValid_pvtx_[nVertices_] = int(v->isValid());
     isFake_pvtx_[nVertices_] =  int(v->isFake());
@@ -295,14 +290,19 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // Loop track reco::TrackRef
   ctf_n_ = 0;
   ctf_nHighPurity_ = 0;
-  for (unsigned int i=0; i<ctfTrackCollectionHandle->size(); i++, ctf_n_++) {
+  for (unsigned int i=0; i<ctfTrackCollectionHandle->size(); i++) {
     TrackRef tkref(ctfTrackCollectionHandle,i); 
     if ( ctf_n_ >= nMaxCTFtracks_ ) {
       std::cout << " LhcTrackAnalyzer::analyze() : Warning - Number of ctfTracks: " 
 		<< ctf_n_ << " , greater than " << nMaxCTFtracks_ << std::endl;
       continue;
       }
-    
+
+    // Calculate dzSignificance
+    float pvtx_zErr = (vertexCollectionHandle.isValid()&&(!vertexColl->begin()->isFake())) ? vertexColl->begin()->zError():bsSigmaZ_;
+    float dzpvtxsign = tkref->dz(pvtx)/sqrt(tkref->dzError()*tkref->dzError()+pvtx_zErr*pvtx_zErr); 
+
+    if(tkref->quality(reco::TrackBase::highPurity) && dzpvtxsign < 10 && tkref->ptError()/tkref->pt()<0.1 ) {
     ctf_pt_[ctf_n_]       = tkref->pt();
     ctf_ptErr_[ctf_n_]    = tkref->ptError();
     ctf_eta_[ctf_n_]      = tkref->eta();
@@ -317,6 +317,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     ctf_dxyCorr_[ctf_n_]      = tkref->dxy(beamSpot);
     ctf_dxyCorr_pvtx_[ctf_n_] = tkref->dxy(pvtx);
     ctf_dzCorr_pvtx_[ctf_n_]       = tkref->dz(pvtx);
+    ctf_dzCorrErr_pvtx_[ctf_n_]       = sqrt(tkref->dzError()*tkref->dzError()+pvtx_zErr*pvtx_zErr);
     ctf_chi2_[ctf_n_]     = tkref->chi2();
     ctf_chi2ndof_[ctf_n_] = tkref->normalizedChi2();
     ctf_charge_[ctf_n_]   = tkref->charge();
@@ -332,10 +333,10 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     ctf_nPXFLayers_[ctf_n_] = int(tkref->hitPattern().pixelEndcapLayersWithMeasurement());
     ctf_nLostHit_[ctf_n_]   = int(tkref->hitPattern().numberOfLostHits());
     ctf_nLayers3D_[ctf_n_] = int(tkref->hitPattern().pixelLayersWithMeasurement() +
-				tkref->hitPattern().numberOfValidStripLayersWithMonoAndStereo());
-
+				 tkref->hitPattern().numberOfValidStripLayersWithMonoAndStereo());
     
-
+    
+    
     // Loop over all vertexs and fill the trackWeight
     int ivtx = 0; 
     for(reco::VertexCollection::const_iterator v=vertexColl->begin();
@@ -355,7 +356,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //bool ishighpurity = tkref->quality(reco::Track::highPurity); 
     //bool isconfirmed = tkref->quality(reco::Track::confirmed);
     //bool isgoodIterative = tkref->quality(reco::Track::goodIterative);
-    
+      
     //std::string qualityName; 
     //if(isloose) qualityName = tkref->qualityName(reco::Track::loose);
     //if(istight) qualityName = tkref->qualityName(reco::Track::tight);
@@ -365,7 +366,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     ctf_isTight_[ctf_n_] = int ( (tkref->qualityMask() & 2 ) == 2);
     ctf_isHighPurity_[ctf_n_] = int ( (tkref->qualityMask() & 4 ) == 4);
     if( (tkref->qualityMask() & 4 ) == 4) ++ctf_nHighPurity_;
-      
+    
     
     if(debug_) {
       cout << "ctfTrack "<< i << " : pT = "<< ctf_pt_<<" +/- "<< ctf_ptErr_ 
@@ -383,108 +384,108 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     // Loop over the track recHits :
     //------------------------------
     for ( trackingRecHit_iterator recHit = tkref->recHitsBegin(); recHit != tkref->recHitsEnd(); ++recHit ) {
-       if ( !((*recHit)->isValid()) ) continue; 
-       
-       // PATRICE : pas compris
-       //total number of hits belonging to track (matched hits are resolved)
-       //if( dynamic_cast<const SiStripRecHit2D*>((*recHit).get()) ) nHit+=1;
-       //if( dynamic_cast<const SiStripMatchedRecHit2D*>((*recHit).get()) ) nHit+=2;
-       
-       ++ctf_nHit_[ctf_n_];
-       DetId id((*recHit)->geographicalId());
-
-       if ( (unsigned int)id.subdetId() == StripSubdetector::TIB ) {
-	 ++ctf_nStripHit_[ctf_n_];
-	 ++ctf_nTIBhit_[ctf_n_];
-	 TIBDetId useDetId(id.rawId());
-	 switch ( useDetId.layer() ) {
-	 case 1: ++ctf_nTIB1hit_[ctf_n_]; break;
-	 case 2: ++ctf_nTIB2hit_[ctf_n_]; break;
-	 case 3: ++ctf_nTIB3hit_[ctf_n_]; break;
-	 case 4: ++ctf_nTIB4hit_[ctf_n_]; break;
-	 }
-       } else if ( (unsigned int)id.subdetId() == StripSubdetector::TID ) {
-	 ++ctf_nStripHit_[ctf_n_];
-	 ++ctf_nTIDhit_[ctf_n_];
-	 TIDDetId useDetId(id.rawId());
-	 switch ( useDetId.wheel() ) {
-	 case 1: ++ctf_nTID1hit_[ctf_n_]; break;
-	 case 2: ++ctf_nTID2hit_[ctf_n_]; break;
-	 case 3: ++ctf_nTID3hit_[ctf_n_]; break;
-	 }
-       } else if ( (unsigned int)id.subdetId() == StripSubdetector::TOB ) {
-	 ++ctf_nStripHit_[ctf_n_];
-	 ++ctf_nTOBhit_[ctf_n_];
-	 TOBDetId useDetId(id.rawId());
-	 switch ( useDetId.layer() ) {
-	 case 1: ++ctf_nTOB1hit_[ctf_n_]; break;
-	 case 2: ++ctf_nTOB2hit_[ctf_n_]; break;
-	 case 3: ++ctf_nTOB3hit_[ctf_n_]; break;
-	 case 4: ++ctf_nTOB4hit_[ctf_n_]; break;
-	 case 5: ++ctf_nTOB5hit_[ctf_n_]; break;
-	 case 6: ++ctf_nTOB6hit_[ctf_n_]; break;
-	 }
-       } else if ( (unsigned int)id.subdetId() == StripSubdetector::TEC ) {
-	 ++ctf_nStripHit_[ctf_n_];
-	 ++ctf_nTEChit_[ctf_n_];
-	 TECDetId useDetId(id.rawId());
-	 switch ( useDetId.wheel() ) {
-	 case 1: ++ctf_nTEC1hit_[ctf_n_]; break;
-	 case 2: ++ctf_nTEC2hit_[ctf_n_]; break;
-	 case 3: ++ctf_nTEC3hit_[ctf_n_]; break;
-	 case 4: ++ctf_nTEC4hit_[ctf_n_]; break;
-	 case 5: ++ctf_nTEC5hit_[ctf_n_]; break;
-	 case 6: ++ctf_nTEC6hit_[ctf_n_]; break;
-	 case 7: ++ctf_nTEC7hit_[ctf_n_]; break;
-	 case 8: ++ctf_nTEC8hit_[ctf_n_]; break;
-	 case 9: ++ctf_nTEC9hit_[ctf_n_]; break;
-	 }
-       }  else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelBarrel ) {
-	 ++ctf_nPixelHit_[ctf_n_];
-	 ++ctf_nPXBhit_[ctf_n_];
-       } else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelEndcap ) {
-	 ++ctf_nPixelHit_[ctf_n_];
-	 ++ctf_nPXFhit_[ctf_n_];
-       } // endif over sub-dets
-
-       // Loop over the track SiStripRecHit2D for clusterCharge :
-
-       std::vector<SiStripRecHit2D*> output = getRecHitComponents((*recHit).get());
-       for(std::vector<SiStripRecHit2D*>::const_iterator rhit = output.begin(); rhit!=output.end(); ++ rhit) {
-	 
-	 uint16_t clusterCharge = ClusterCharge(*rhit);
-	 ctf_clusterCharge_all_ += clusterCharge;
-
-	 unsigned int clusterType  = 0;
-	 unsigned int clusterLayer = 0;
-
-	 DetId id_tmp((*rhit)->geographicalId());
-	 
-	 if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TIB ) {
-	   clusterType = 1;
-	   ctf_clusterCharge_TIB_ += clusterCharge;
-	   TIBDetId useDetId(id_tmp.rawId());
-	   clusterLayer = useDetId.layer();
-	 }
-	 else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TID ) {
-	   clusterType = 2;
-	   ctf_clusterCharge_TID_ += clusterCharge;
-	   TIDDetId useDetId(id_tmp.rawId());
+      if ( !((*recHit)->isValid()) ) continue; 
+      
+      // PATRICE : pas compris
+      //total number of hits belonging to track (matched hits are resolved)
+      //if( dynamic_cast<const SiStripRecHit2D*>((*recHit).get()) ) nHit+=1;
+      //if( dynamic_cast<const SiStripMatchedRecHit2D*>((*recHit).get()) ) nHit+=2;
+      
+      ++ctf_nHit_[ctf_n_];
+      DetId id((*recHit)->geographicalId());
+      
+      if ( (unsigned int)id.subdetId() == StripSubdetector::TIB ) {
+	++ctf_nStripHit_[ctf_n_];
+	++ctf_nTIBhit_[ctf_n_];
+	TIBDetId useDetId(id.rawId());
+	switch ( useDetId.layer() ) {
+	case 1: ++ctf_nTIB1hit_[ctf_n_]; break;
+	case 2: ++ctf_nTIB2hit_[ctf_n_]; break;
+	case 3: ++ctf_nTIB3hit_[ctf_n_]; break;
+	case 4: ++ctf_nTIB4hit_[ctf_n_]; break;
+	}
+      } else if ( (unsigned int)id.subdetId() == StripSubdetector::TID ) {
+	++ctf_nStripHit_[ctf_n_];
+	++ctf_nTIDhit_[ctf_n_];
+	TIDDetId useDetId(id.rawId());
+	switch ( useDetId.wheel() ) {
+	case 1: ++ctf_nTID1hit_[ctf_n_]; break;
+	case 2: ++ctf_nTID2hit_[ctf_n_]; break;
+	case 3: ++ctf_nTID3hit_[ctf_n_]; break;
+	}
+      } else if ( (unsigned int)id.subdetId() == StripSubdetector::TOB ) {
+	++ctf_nStripHit_[ctf_n_];
+	++ctf_nTOBhit_[ctf_n_];
+	TOBDetId useDetId(id.rawId());
+	switch ( useDetId.layer() ) {
+	case 1: ++ctf_nTOB1hit_[ctf_n_]; break;
+	case 2: ++ctf_nTOB2hit_[ctf_n_]; break;
+	case 3: ++ctf_nTOB3hit_[ctf_n_]; break;
+	case 4: ++ctf_nTOB4hit_[ctf_n_]; break;
+	case 5: ++ctf_nTOB5hit_[ctf_n_]; break;
+	case 6: ++ctf_nTOB6hit_[ctf_n_]; break;
+	}
+      } else if ( (unsigned int)id.subdetId() == StripSubdetector::TEC ) {
+	++ctf_nStripHit_[ctf_n_];
+	++ctf_nTEChit_[ctf_n_];
+	TECDetId useDetId(id.rawId());
+	switch ( useDetId.wheel() ) {
+	case 1: ++ctf_nTEC1hit_[ctf_n_]; break;
+	case 2: ++ctf_nTEC2hit_[ctf_n_]; break;
+	case 3: ++ctf_nTEC3hit_[ctf_n_]; break;
+	case 4: ++ctf_nTEC4hit_[ctf_n_]; break;
+	case 5: ++ctf_nTEC5hit_[ctf_n_]; break;
+	case 6: ++ctf_nTEC6hit_[ctf_n_]; break;
+	case 7: ++ctf_nTEC7hit_[ctf_n_]; break;
+	case 8: ++ctf_nTEC8hit_[ctf_n_]; break;
+	case 9: ++ctf_nTEC9hit_[ctf_n_]; break;
+	}
+      }  else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelBarrel ) {
+	++ctf_nPixelHit_[ctf_n_];
+	++ctf_nPXBhit_[ctf_n_];
+      } else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelEndcap ) {
+	++ctf_nPixelHit_[ctf_n_];
+	++ctf_nPXFhit_[ctf_n_];
+      } // endif over sub-dets
+      
+	// Loop over the track SiStripRecHit2D for clusterCharge :
+      
+      std::vector<SiStripRecHit2D*> output = getRecHitComponents((*recHit).get());
+      for(std::vector<SiStripRecHit2D*>::const_iterator rhit = output.begin(); rhit!=output.end(); ++ rhit) {
+	
+	uint16_t clusterCharge = ClusterCharge(*rhit);
+	ctf_clusterCharge_all_ += clusterCharge;
+	
+	  unsigned int clusterType  = 0;
+	  unsigned int clusterLayer = 0;
+	  
+	  DetId id_tmp((*rhit)->geographicalId());
+	  
+	  if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TIB ) {
+	    clusterType = 1;
+	    ctf_clusterCharge_TIB_ += clusterCharge;
+	    TIBDetId useDetId(id_tmp.rawId());
+	    clusterLayer = useDetId.layer();
+	  }
+	  else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TID ) {
+	    clusterType = 2;
+	    ctf_clusterCharge_TID_ += clusterCharge;
+	    TIDDetId useDetId(id_tmp.rawId());
 	   clusterLayer = useDetId.wheel();
-	 }
-	 else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TOB ) {
-	   clusterType = 3;
-	   ctf_clusterCharge_TOB_ += clusterCharge;
-	   TOBDetId useDetId(id_tmp.rawId());
-	   clusterLayer = useDetId.layer();
-	 }
-	 else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TEC ) {
-	   clusterType = 4;
-	   ctf_clusterCharge_TEC_ += clusterCharge;
+	  }
+	  else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TOB ) {
+	    clusterType = 3;
+	    ctf_clusterCharge_TOB_ += clusterCharge;
+	    TOBDetId useDetId(id_tmp.rawId());
+	    clusterLayer = useDetId.layer();
+	  }
+	  else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TEC ) {
+	    clusterType = 4;
+	    ctf_clusterCharge_TEC_ += clusterCharge;
 	    TECDetId useDetId(id_tmp.rawId());
 	    clusterLayer = useDetId.wheel();
-	 }
-
+	  }
+	  
 	 if ( ctfcluster_n_ < nMaxCTFclusters_ ) {
 	   ctfcluster_type_[ctfcluster_n_]   = clusterType;
 	   ctfcluster_layer_[ctfcluster_n_]  = clusterLayer;
@@ -504,10 +505,10 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 } else {
 	   std::cout << " TrackTupleMaker::analyze() : Warning #cluster for CTF tracks: " << ctfcluster_n_ << " , greater than " << nMaxCTFclusters_ << std::endl;
 	 }
-       } // end loop over track SiStripRecHit2D
-
-     } // end loop over ctf RecHits
-    
+	} // end loop over track SiStripRecHit2D
+      } // end loop over ctf RecHits
+      ++ctf_n_;
+    }
   } // End of Loop over the ctf tracks
   
   if(ctf_n_>0) {
@@ -915,7 +916,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ------------ method called once each job before begining the event loop  ------------
 void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
-{
+  {
   edm::LogInfo("beginJob") << "Begin Job" << std::endl;
   // Define TTree for output
   rootFile_ = new TFile(filename_.c_str(),"recreate");
@@ -938,7 +939,8 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
 
   // PrimaryVertex
   rootTree_->Branch("nVertices",&nVertices_,"nVertices/I");  
-  rootTree_->Branch("nTracks_pvtx",&nTracks_pvtx_,"nTracks_pvtx[nVertices]/I"); 
+  rootTree_->Branch("nTracks_pvtx",&nTracks_pvtx_,"nTracks_pvtx[nVertices]/I");
+  rootTree_->Branch("ndof_pvtx",&ndof_pvtx_,"ndof_pvtx[nVertices]/D"); 
   rootTree_->Branch("isValid_pvtx",&isValid_pvtx_,"isValid_pvtx[nVertices]/I"); 
   rootTree_->Branch("isFake_pvtx",&isFake_pvtx_,"isFake_pvtx[nVertices]/I"); 
   rootTree_->Branch("recx_pvtx",&recx_pvtx_,"recx_pvtx[nVertices]/D"); 
@@ -966,7 +968,8 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   rootTree_->Branch("isTechBit40",&isTechBit40_,"isTechBit40/I"); 
   rootTree_->Branch("isBSC",&isBSC_,"isBSC/I"); 
   rootTree_->Branch("isBeamHalo",&isBeamHalo_,"isBeamHalo/I"); 
-  
+  rootTree_->Branch("belowPtThresold",&belowPtThresold_,"belowPtThresold/I"); 
+
 
 
   // CTF Track
@@ -987,6 +990,7 @@ void LhcTrackAnalyzer::beginJob(const edm::EventSetup&)
   rootTree_->Branch("ctf_dzCorr",&ctf_dzCorr_,"ctf_dzCorr[ctf_n]/D");
   rootTree_->Branch("ctf_dxyCorr_pvtx",&ctf_dxyCorr_pvtx_,"ctf_dxyCorr_pvtx[ctf_n]/D");
   rootTree_->Branch("ctf_dzCorr_pvtx",&ctf_dzCorr_pvtx_,"ctf_dzCorr_pvtx[ctf_n]/D");
+  rootTree_->Branch("ctf_dzCorrErr_pvtx",&ctf_dzCorrErr_pvtx_,"ctf_dzCorrErr_pvtx[ctf_n]/D");
   rootTree_->Branch("ctf_chi2",&ctf_chi2_,"ctf_chi2[ctf_n]/D");
   rootTree_->Branch("ctf_chi2ndof",&ctf_chi2ndof_,"ctf_chi2ndof[ctf_n]/D");
   rootTree_->Branch("ctf_charge",&ctf_charge_,"ctf_charge[ctf_n]/I");
@@ -1184,6 +1188,8 @@ void LhcTrackAnalyzer::SetRootVar() {
   bsDxdz_ = 0;
   bsDydz_ = 0;
   
+  // pt
+  belowPtThresold_ = 0;
   // Trigger bits
   isTechBit40_=0;
   isBeamHalo_ = 0;
@@ -1201,7 +1207,8 @@ void LhcTrackAnalyzer::SetRootVar() {
   hasGoodPvtx_ = 0;
   nVertices_ = 0;
   for ( int i=0; i<nMaxPVs_; ++i ) {
-    nTracks_pvtx_[i] = 0; // Number of tracks in the pvtx  
+    nTracks_pvtx_[i] = 0; // Number of tracks in the pvtx
+    ndof_pvtx_[i] = 0;
     sumptsq_pvtx_[i] = 0;
     isValid_pvtx_[i] = 0;
     isFake_pvtx_[i] = 0;
@@ -1237,6 +1244,7 @@ void LhcTrackAnalyzer::SetRootVar() {
     ctf_dxyCorr_[i]        = 0;
     ctf_dzCorr_pvtx_[i]         = 0;
     ctf_dxyCorr_pvtx_[i]        = 0;
+    ctf_dzCorrErr_pvtx_[i]         = 0;
     ctf_ptErr_[i]          = 0;
     ctf_etaErr_[i]         = 0;
     ctf_phiErr_[i]         = 0;
