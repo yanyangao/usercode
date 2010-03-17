@@ -274,6 +274,10 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     nTracks_pxlpvtx_[nPixelVertices_] = v->tracksSize();
     isFake_pxlpvtx_[nPixelVertices_] =  int(v->isFake());
     if(!v->isFake()) hasGoodPxlPvtx_ = 1;
+    recx_pxlpvtx_[nPixelVertices_] = v->x();
+    recx_err_pxlpvtx_[nPixelVertices_] = v->xError();
+    recy_pxlpvtx_[nPixelVertices_] = v->y();
+    recy_err_pxlpvtx_[nPixelVertices_] = v->yError();
     recz_pxlpvtx_[nPixelVertices_] = v->z();
     recz_err_pxlpvtx_[nPixelVertices_] = v->zError();
   }
@@ -302,39 +306,40 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     float pvtx_zErr = (vertexCollectionHandle.isValid()&&(!vertexColl->begin()->isFake())) ? vertexColl->begin()->zError():bsSigmaZ_;
     float dzpvtxsign = tkref->dz(pvtx)/sqrt(tkref->dzError()*tkref->dzError()+pvtx_zErr*pvtx_zErr); 
 
-    if(tkref->quality(reco::TrackBase::highPurity) && dzpvtxsign < 10 && tkref->ptError()/tkref->pt()<0.1 ) {
-    ctf_pt_[ctf_n_]       = tkref->pt();
-    ctf_ptErr_[ctf_n_]    = tkref->ptError();
-    ctf_eta_[ctf_n_]      = tkref->eta();
-    ctf_etaErr_[ctf_n_]   = tkref->etaError();
-    ctf_phi_[ctf_n_]      = tkref->phi();
-    ctf_phiErr_[ctf_n_]   = tkref->phiError();
-    ctf_dz_[ctf_n_]       = tkref->dz();
-    ctf_dzErr_[ctf_n_]       = tkref->dzError();
-    ctf_dxy_[ctf_n_]      = tkref->dxy();
-    ctf_dxyErr_[ctf_n_]      = tkref->dxyError();
-    ctf_dzCorr_[ctf_n_]       = tkref->dz(beamSpot);
-    ctf_dxyCorr_[ctf_n_]      = tkref->dxy(beamSpot);
-    ctf_dxyCorr_pvtx_[ctf_n_] = tkref->dxy(pvtx);
-    ctf_dzCorr_pvtx_[ctf_n_]       = tkref->dz(pvtx);
-    ctf_dzCorrErr_pvtx_[ctf_n_]       = sqrt(tkref->dzError()*tkref->dzError()+pvtx_zErr*pvtx_zErr);
-    ctf_chi2_[ctf_n_]     = tkref->chi2();
-    ctf_chi2ndof_[ctf_n_] = tkref->normalizedChi2();
-    ctf_charge_[ctf_n_]   = tkref->charge();
-    ctf_qoverp_[ctf_n_]   = tkref->qoverp();
-    ctf_algo_[ctf_n_]    = tkref->algo();
-    ctf_qualityMask_[ctf_n_] = tkref->qualityMask();
-    ctf_xPCA_[ctf_n_]     = tkref->vertex().x();
-    ctf_yPCA_[ctf_n_]     = tkref->vertex().y();
-    ctf_zPCA_[ctf_n_]     = tkref->vertex().z(); 
-    
-    ctf_nLayers_[ctf_n_]   = int(tkref->hitPattern().trackerLayersWithMeasurement());
-    ctf_nPXBLayers_[ctf_n_] = int(tkref->hitPattern().pixelBarrelLayersWithMeasurement());
-    ctf_nPXFLayers_[ctf_n_] = int(tkref->hitPattern().pixelEndcapLayersWithMeasurement());
-    ctf_nLostHit_[ctf_n_]   = int(tkref->hitPattern().numberOfLostHits());
-    ctf_nLayers3D_[ctf_n_] = int(tkref->hitPattern().pixelLayersWithMeasurement() +
-				 tkref->hitPattern().numberOfValidStripLayersWithMonoAndStereo());
-    
+    //if(tkref->quality(reco::TrackBase::highPurity) && dzpvtxsign < 10 && tkref->ptError()/tkref->pt()<0.1 ) {
+    if(1) {
+      ctf_pt_[ctf_n_]       = tkref->pt();
+      ctf_ptErr_[ctf_n_]    = tkref->ptError();
+      ctf_eta_[ctf_n_]      = tkref->eta();
+      ctf_etaErr_[ctf_n_]   = tkref->etaError();
+      ctf_phi_[ctf_n_]      = tkref->phi();
+      ctf_phiErr_[ctf_n_]   = tkref->phiError();
+      ctf_dz_[ctf_n_]       = tkref->dz();
+      ctf_dzErr_[ctf_n_]       = tkref->dzError();
+      ctf_dxy_[ctf_n_]      = tkref->dxy();
+      ctf_dxyErr_[ctf_n_]      = tkref->dxyError();
+      ctf_dzCorr_[ctf_n_]       = tkref->dz(beamSpot);
+      ctf_dxyCorr_[ctf_n_]      = tkref->dxy(beamSpot);
+      ctf_dxyCorr_pvtx_[ctf_n_] = tkref->dxy(pvtx);
+      ctf_dzCorr_pvtx_[ctf_n_]       = tkref->dz(pvtx);
+      ctf_dzCorrErr_pvtx_[ctf_n_]       = sqrt(tkref->dzError()*tkref->dzError()+pvtx_zErr*pvtx_zErr);
+      ctf_chi2_[ctf_n_]     = tkref->chi2();
+      ctf_chi2ndof_[ctf_n_] = tkref->normalizedChi2();
+      ctf_charge_[ctf_n_]   = tkref->charge();
+      ctf_qoverp_[ctf_n_]   = tkref->qoverp();
+      ctf_algo_[ctf_n_]    = tkref->algo();
+      ctf_qualityMask_[ctf_n_] = tkref->qualityMask();
+      ctf_xPCA_[ctf_n_]     = tkref->vertex().x();
+      ctf_yPCA_[ctf_n_]     = tkref->vertex().y();
+      ctf_zPCA_[ctf_n_]     = tkref->vertex().z(); 
+      
+      ctf_nLayers_[ctf_n_]   = int(tkref->hitPattern().trackerLayersWithMeasurement());
+      ctf_nPXBLayers_[ctf_n_] = int(tkref->hitPattern().pixelBarrelLayersWithMeasurement());
+      ctf_nPXFLayers_[ctf_n_] = int(tkref->hitPattern().pixelEndcapLayersWithMeasurement());
+      ctf_nLostHit_[ctf_n_]   = int(tkref->hitPattern().numberOfLostHits());
+      ctf_nLayers3D_[ctf_n_] = int(tkref->hitPattern().pixelLayersWithMeasurement() +
+				   tkref->hitPattern().numberOfValidStripLayersWithMonoAndStereo());
+      
     
     
     // Loop over all vertexs and fill the trackWeight
@@ -954,8 +959,12 @@ void LhcTrackAnalyzer::beginJob()
   // PixelVertices
   rootTree_->Branch("nPixelVertices",&nPixelVertices_,"nPixelVertices/I"); 
   rootTree_->Branch("nTracks_pxlpvtx",&nTracks_pxlpvtx_,"nTracks_pxlpvtx[nPixelVertices]/I"); 
-  rootTree_->Branch("isFake_pxlpvtx",&isFake_pxlpvtx_,"isFake_pxlpvtx[nPixelVertices]/I"); 
+  rootTree_->Branch("isFake_pxlpvtx",&isFake_pxlpvtx_,"isFake_pxlpvtx[nPixelVertices]/I");
+  rootTree_->Branch("recx_pxlpvtx",&recx_pxlpvtx_,"recx_pxlpvtx[nPixelVertices]/D");
+  rootTree_->Branch("recy_pxlpvtx",&recy_pxlpvtx_,"recy_pxlpvtx[nPixelVertices]/D");  
   rootTree_->Branch("recz_pxlpvtx",&recz_pxlpvtx_,"recz_pxlpvtx[nPixelVertices]/D");
+  rootTree_->Branch("recx_err_pxlpvtx",&recx_err_pxlpvtx_,"recx_err_pxlpvtx[nPixelVertices]/D");
+  rootTree_->Branch("recy_err_pxlpvtx",&recy_err_pxlpvtx_,"recy_err_pxlpvtx[nPixelVertices]/D");  
   rootTree_->Branch("recz_err_pxlpvtx",&recz_err_pxlpvtx_,"recz_err_pxlpvtx[nPixelVertices]/D"); 
   rootTree_->Branch("hasGoodPxlPvtx",&hasGoodPxlPvtx_,"hasGoodPxlPvtx/I"); 
   
@@ -1226,7 +1235,11 @@ void LhcTrackAnalyzer::SetRootVar() {
   for ( int i=0; i<nMaxPixelPVs_; ++i ) { 
     nTracks_pxlpvtx_[i] = 0;
     isFake_pxlpvtx_[i] = 0;
+    recx_pxlpvtx_[i] = 0;
+    recy_pxlpvtx_[i] = 0;
     recz_pxlpvtx_[i] = 0; 
+    recx_err_pxlpvtx_[i] = 0;
+    recy_err_pxlpvtx_[i] = 0;
     recz_err_pxlpvtx_[i] = 0; 
   }
   

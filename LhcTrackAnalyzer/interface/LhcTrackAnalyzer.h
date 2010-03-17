@@ -173,7 +173,11 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int hasGoodPxlPvtx_;
   int nTracks_pxlpvtx_[nMaxPixelPVs_];
   int isFake_pxlpvtx_[nMaxPixelPVs_];
+  double recx_pxlpvtx_[nMaxPixelPVs_];
+  double recy_pxlpvtx_[nMaxPixelPVs_];  
   double recz_pxlpvtx_[nMaxPixelPVs_];
+  double recx_err_pxlpvtx_[nMaxPixelPVs_];
+  double recy_err_pxlpvtx_[nMaxPixelPVs_];
   double recz_err_pxlpvtx_[nMaxPixelPVs_];  
 
   // ctf Tracks 
