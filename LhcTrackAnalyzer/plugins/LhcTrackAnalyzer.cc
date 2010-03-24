@@ -67,9 +67,12 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-
 // Vertex Stuff
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"  
@@ -120,10 +123,6 @@ LhcTrackAnalyzer::LhcTrackAnalyzer(const edm::ParameterSet& iConfig)
   filename_ = iConfig.getParameter<std::string>("OutputFileName");
   afterRefitting_           = iConfig.getParameter<bool> ("afterRefitting");  
   runSecTrackColl_          = iConfig.getParameter<bool> ("runSecTrackColl");
-  saveAllClusters_          = iConfig.getParameter<bool> ("saveAllClusters");
-  selTechBit_              = iConfig.getParameter<bool> ("selTechBit");
-  techBitToSelect_         = iConfig.getParameter<int>("techBitToSelect");
-  selNonFakePvtx_          = iConfig.getParameter<bool>("selNonFakePvtx");
   pixelVertexCollectionTag_      = iConfig.getParameter<edm::InputTag>("pixelVertexCollectionTag"); 
 }
    
@@ -181,7 +180,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   } 
        
   //=======================================================
-  // GET pixelVertices
+  // PixelVertices accessors
   //=======================================================
   static const reco::VertexCollection s_empty_pixelVertexColl;
   const reco::VertexCollection *pixelVertexColl = &s_empty_pixelVertexColl;
@@ -222,12 +221,15 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     bsY0_ = bs.y0();
     bsZ0_ = bs.z0();
     bsSigmaZ_ = bs.sigmaZ();
+    bsWidthX_ = bs.BeamWidthX();
+    bsWidthY_ = bs.BeamWidthY();
     bsDxdz_ = bs.dxdz();
     bsDydz_ = bs.dydz();
-
+    
     if(debug_)
       cout<<"beamSpot: (x,y,z) = ("<< bsX0_<<", "<<bsY0_<<", "<<bsZ0_
-	  <<"); sigmaZ = "<<bsSigmaZ_<<"; dxdz = "<<bsDxdz_<<"; dydz = "<<bsDydz_<<endl;
+	  <<"); sigmaZ = "<<bsSigmaZ_<<"; dxdz = "<<bsDxdz_<<"; dydz = "
+	  <<bsDydz_<<"; BeamWidthX = "<<bsWidthX_<<"; BeamWidthY = "<<bsWidthY_<<endl;
     
   }
 
@@ -239,19 +241,15 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     cout<<"LhcTrackAnalyzer::analyze() looping over "<< vertexCollectionHandle->size()<< "primaryVertices." << endl;    
   // Define the pvtx point as the leading pvtx position if the vertex collection is full, otherwise as default BS
   const Point pvtx = vertexCollectionHandle.isValid() ? Point(vertexColl->begin()->x(),vertexColl->begin()->y(), vertexColl->begin()->z()):beamSpot;
-
-  bool nonFakePvtx = true;
-  if(selNonFakePvtx_) nonFakePvtx = false;
+  
   nVertices_ = 0; 
   for(reco::VertexCollection::const_iterator v=vertexColl->begin(); 
       v!=vertexColl->end(); ++v, ++nVertices_) {
     nTracks_pvtx_[nVertices_] = v->tracksSize();
     ndof_pvtx_[nVertices_] = v->ndof();	
     sumptsq_pvtx_[nVertices_] = sumPtSquared(*v);
-    isValid_pvtx_[nVertices_] = int(v->isValid());
     isFake_pvtx_[nVertices_] =  int(v->isFake());
     if(!v->isFake()) hasGoodPvtx_ = 1; 
-    if(selNonFakePvtx_ && !v->isFake()) nonFakePvtx = true;
     recx_pvtx_[nVertices_] = v->x();
     recy_pvtx_[nVertices_] = v->y();
     recz_pvtx_[nVertices_] = v->z();
@@ -262,7 +260,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
 
   //=======================================================
-  // Retrieve the PrimaryVertex information
+  // Retrieve the PixelVertex information
   //======================================================= 
 
   if(debug_)
@@ -272,7 +270,8 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   for(reco::VertexCollection::const_iterator v=pixelVertexColl->begin(); 
       v!=pixelVertexColl->end(); ++v, ++nPixelVertices_) {
     nTracks_pxlpvtx_[nPixelVertices_] = v->tracksSize();
-    isFake_pxlpvtx_[nPixelVertices_] =  int(v->isFake());
+    isFake_pxlpvtx_[nPixelVertices_] =  int(v->isFake()); 
+    ndof_pxlpvtx_[nPixelVertices_] = v->ndof();	
     if(!v->isFake()) hasGoodPxlPvtx_ = 1;
     recx_pxlpvtx_[nPixelVertices_] = v->x();
     recx_err_pxlpvtx_[nPixelVertices_] = v->xError();
@@ -291,6 +290,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     cout<<"LhcTrackAnalyzer::analyze() looping over "<< ctfTrackCollectionHandle->size()<< "ctfTracks." << endl;       
   // Loop track by reco::Track
   //for(unsigned int i = 0, TrackCollection::const_iterator track = ctfTrackCollectionHandle->begin(); track!= ctfTrackCollectionHandle->end(); ++track, ++i)
+
   // Loop track reco::TrackRef
   ctf_n_ = 0;
   ctf_nHighPurity_ = 0;
@@ -302,44 +302,42 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       continue;
       }
 
-    // Calculate dzSignificance
+    // For dz Significance calculation
     float pvtx_zErr = (vertexCollectionHandle.isValid()&&(!vertexColl->begin()->isFake())) ? vertexColl->begin()->zError():bsSigmaZ_;
-    float dzpvtxsign = tkref->dz(pvtx)/sqrt(tkref->dzError()*tkref->dzError()+pvtx_zErr*pvtx_zErr); 
-
-    //if(tkref->quality(reco::TrackBase::highPurity) && dzpvtxsign < 10 && tkref->ptError()/tkref->pt()<0.1 ) {
-    if(1) {
-      ctf_pt_[ctf_n_]       = tkref->pt();
-      ctf_ptErr_[ctf_n_]    = tkref->ptError();
-      ctf_eta_[ctf_n_]      = tkref->eta();
-      ctf_etaErr_[ctf_n_]   = tkref->etaError();
-      ctf_phi_[ctf_n_]      = tkref->phi();
-      ctf_phiErr_[ctf_n_]   = tkref->phiError();
-      ctf_dz_[ctf_n_]       = tkref->dz();
-      ctf_dzErr_[ctf_n_]       = tkref->dzError();
-      ctf_dxy_[ctf_n_]      = tkref->dxy();
-      ctf_dxyErr_[ctf_n_]      = tkref->dxyError();
-      ctf_dzCorr_[ctf_n_]       = tkref->dz(beamSpot);
-      ctf_dxyCorr_[ctf_n_]      = tkref->dxy(beamSpot);
-      ctf_dxyCorr_pvtx_[ctf_n_] = tkref->dxy(pvtx);
-      ctf_dzCorr_pvtx_[ctf_n_]       = tkref->dz(pvtx);
-      ctf_dzCorrErr_pvtx_[ctf_n_]       = sqrt(tkref->dzError()*tkref->dzError()+pvtx_zErr*pvtx_zErr);
-      ctf_chi2_[ctf_n_]     = tkref->chi2();
-      ctf_chi2ndof_[ctf_n_] = tkref->normalizedChi2();
-      ctf_charge_[ctf_n_]   = tkref->charge();
-      ctf_qoverp_[ctf_n_]   = tkref->qoverp();
-      ctf_algo_[ctf_n_]    = tkref->algo();
-      ctf_qualityMask_[ctf_n_] = tkref->qualityMask();
-      ctf_xPCA_[ctf_n_]     = tkref->vertex().x();
-      ctf_yPCA_[ctf_n_]     = tkref->vertex().y();
-      ctf_zPCA_[ctf_n_]     = tkref->vertex().z(); 
-      
-      ctf_nLayers_[ctf_n_]   = int(tkref->hitPattern().trackerLayersWithMeasurement());
-      ctf_nPXBLayers_[ctf_n_] = int(tkref->hitPattern().pixelBarrelLayersWithMeasurement());
-      ctf_nPXFLayers_[ctf_n_] = int(tkref->hitPattern().pixelEndcapLayersWithMeasurement());
-      ctf_nLostHit_[ctf_n_]   = int(tkref->hitPattern().numberOfLostHits());
-      ctf_nLayers3D_[ctf_n_] = int(tkref->hitPattern().pixelLayersWithMeasurement() +
-				   tkref->hitPattern().numberOfValidStripLayersWithMonoAndStereo());
-      
+    //float dzpvtxsign = tkref->dz(pvtx)/sqrt(tkref->dzError()*tkref->dzError()+pvtx_zErr*pvtx_zErr); 
+    
+    ctf_pt_[ctf_n_]       = tkref->pt();
+    ctf_ptErr_[ctf_n_]    = tkref->ptError();
+    ctf_eta_[ctf_n_]      = tkref->eta();
+    ctf_etaErr_[ctf_n_]   = tkref->etaError();
+    ctf_phi_[ctf_n_]      = tkref->phi();
+    ctf_phiErr_[ctf_n_]   = tkref->phiError();
+    ctf_dz_[ctf_n_]       = tkref->dz();
+    ctf_dzErr_[ctf_n_]       = tkref->dzError();
+    ctf_dxy_[ctf_n_]      = tkref->dxy();
+    ctf_dxyErr_[ctf_n_]      = tkref->dxyError();
+    ctf_dzCorr_[ctf_n_]       = tkref->dz(beamSpot);
+    ctf_dxyCorr_[ctf_n_]      = tkref->dxy(beamSpot);
+    ctf_dxyCorr_pvtx_[ctf_n_] = tkref->dxy(pvtx);
+    ctf_dzCorr_pvtx_[ctf_n_]       = tkref->dz(pvtx);
+    ctf_dzCorrErr_pvtx_[ctf_n_]       = sqrt(tkref->dzError()*tkref->dzError()+pvtx_zErr*pvtx_zErr);
+    ctf_chi2_[ctf_n_]     = tkref->chi2();
+    ctf_chi2ndof_[ctf_n_] = tkref->normalizedChi2();
+    ctf_charge_[ctf_n_]   = tkref->charge();
+    ctf_qoverp_[ctf_n_]   = tkref->qoverp();
+    ctf_algo_[ctf_n_]    = tkref->algo();
+    ctf_qualityMask_[ctf_n_] = tkref->qualityMask();
+    ctf_xPCA_[ctf_n_]     = tkref->vertex().x();
+    ctf_yPCA_[ctf_n_]     = tkref->vertex().y();
+    ctf_zPCA_[ctf_n_]     = tkref->vertex().z(); 
+    
+    ctf_nLayers_[ctf_n_]   = int(tkref->hitPattern().trackerLayersWithMeasurement());
+    ctf_nPXBLayers_[ctf_n_] = int(tkref->hitPattern().pixelBarrelLayersWithMeasurement());
+    ctf_nPXFLayers_[ctf_n_] = int(tkref->hitPattern().pixelEndcapLayersWithMeasurement());
+    ctf_nLostHit_[ctf_n_]   = int(tkref->hitPattern().numberOfLostHits());
+    ctf_nLayers3D_[ctf_n_] = int(tkref->hitPattern().pixelLayersWithMeasurement() +
+				 tkref->hitPattern().numberOfValidStripLayersWithMonoAndStereo());
+    
     
     
     // Loop over all vertexs and fill the trackWeight
@@ -355,23 +353,10 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
     
-    // TrackQuality
-    //bool isloose = tkref->quality(reco::Track::loose); 
-    //bool istight = tkref->quality(reco::Track::tight);
-    //bool ishighpurity = tkref->quality(reco::Track::highPurity); 
-    //bool isconfirmed = tkref->quality(reco::Track::confirmed);
-    //bool isgoodIterative = tkref->quality(reco::Track::goodIterative);
-      
-    //std::string qualityName; 
-    //if(isloose) qualityName = tkref->qualityName(reco::Track::loose);
-    //if(istight) qualityName = tkref->qualityName(reco::Track::tight);
-    //if(ishighpurity) qualityName = tkref->qualityName(reco::Track::highPurity);
-    
-    ctf_isLoose_[ctf_n_] = int ( (tkref->qualityMask() & 1 ) == 1);
-    ctf_isTight_[ctf_n_] = int ( (tkref->qualityMask() & 2 ) == 2);
-    ctf_isHighPurity_[ctf_n_] = int ( (tkref->qualityMask() & 4 ) == 4);
-    if( (tkref->qualityMask() & 4 ) == 4) ++ctf_nHighPurity_;
-    
+    ctf_isLoose_[ctf_n_] = tkref->quality(reco::TrackBase::loose);
+    ctf_isTight_[ctf_n_] = tkref->quality(reco::TrackBase::tight);
+    ctf_isHighPurity_[ctf_n_] = tkref->quality(reco::TrackBase::highPurity); 
+    if(tkref->quality(reco::TrackBase::highPurity)) ++ctf_nHighPurity_;
     
     if(debug_) {
       cout << "ctfTrack "<< i << " : pT = "<< ctf_pt_<<" +/- "<< ctf_ptErr_ 
@@ -386,15 +371,10 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }   
     
     //------------------------------
-    // Loop over the track recHits :
+    // Loop over the recHits on Track:
     //------------------------------
     for ( trackingRecHit_iterator recHit = tkref->recHitsBegin(); recHit != tkref->recHitsEnd(); ++recHit ) {
       if ( !((*recHit)->isValid()) ) continue; 
-      
-      // PATRICE : pas compris
-      //total number of hits belonging to track (matched hits are resolved)
-      //if( dynamic_cast<const SiStripRecHit2D*>((*recHit).get()) ) nHit+=1;
-      //if( dynamic_cast<const SiStripMatchedRecHit2D*>((*recHit).get()) ) nHit+=2;
       
       ++ctf_nHit_[ctf_n_];
       DetId id((*recHit)->geographicalId());
@@ -453,30 +433,29 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	++ctf_nPXFhit_[ctf_n_];
       } // endif over sub-dets
       
-	// Loop over the track SiStripRecHit2D for clusterCharge :
-      
-      std::vector<SiStripRecHit2D*> output = getRecHitComponents((*recHit).get());
-      for(std::vector<SiStripRecHit2D*>::const_iterator rhit = output.begin(); rhit!=output.end(); ++ rhit) {
-	
-	uint16_t clusterCharge = ClusterCharge(*rhit);
-	ctf_clusterCharge_all_ += clusterCharge;
-	
+
+      // Loop over the track SiStripRecHit2D for clusterCharge on Track
+      std::vector<const SiStripRecHit2D*> output2DHit;
+      getRecHit2DComponents(output2DHit, (*recHit).get());
+      if(!output2DHit.empty()) {
+	for(std::vector<const SiStripRecHit2D*>::const_iterator rhit = output2DHit.begin(); rhit!=output2DHit.end(); ++ rhit) {
+	  uint16_t clusterCharge = ClusterCharge(*rhit);
+	  ctf_clusterCharge_all_ += clusterCharge;
 	  unsigned int clusterType  = 0;
 	  unsigned int clusterLayer = 0;
-	  
 	  DetId id_tmp((*rhit)->geographicalId());
-	  
 	  if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TIB ) {
 	    clusterType = 1;
 	    ctf_clusterCharge_TIB_ += clusterCharge;
 	    TIBDetId useDetId(id_tmp.rawId());
 	    clusterLayer = useDetId.layer();
 	  }
+
 	  else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TID ) {
 	    clusterType = 2;
 	    ctf_clusterCharge_TID_ += clusterCharge;
 	    TIDDetId useDetId(id_tmp.rawId());
-	   clusterLayer = useDetId.wheel();
+	    clusterLayer = useDetId.wheel();
 	  }
 	  else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TOB ) {
 	    clusterType = 3;
@@ -491,36 +470,77 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    clusterLayer = useDetId.wheel();
 	  }
 	  
-	 if ( ctfcluster_n_ < nMaxCTFclusters_ ) {
-	   ctfcluster_type_[ctfcluster_n_]   = clusterType;
-	   ctfcluster_layer_[ctfcluster_n_]  = clusterLayer;
-	   ctfcluster_charge_[ctfcluster_n_] = clusterCharge;
-	   // Cluster position available only after track refitting
-	   if ( afterRefitting_ ) {	
-	     edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-	     iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theTrackerRecHitBuilder); 
-	     const TransientTrackingRecHitBuilder* theTTRHBuilder = theTrackerRecHitBuilder.product();
-	     TransientTrackingRecHit::RecHitPointer tthit = theTTRHBuilder->build((*recHit).get());
-	     GlobalPoint recHitGlobalPosition = tthit->globalPosition();
-	     ctfcluster_x_[ctfcluster_n_] = recHitGlobalPosition.x();
-	     ctfcluster_y_[ctfcluster_n_] = recHitGlobalPosition.y();
-	     ctfcluster_z_[ctfcluster_n_] = recHitGlobalPosition.z();
-	   }
-	   ++ctfcluster_n_;
-	 } else {
-	   std::cout << " TrackTupleMaker::analyze() : Warning #cluster for CTF tracks: " << ctfcluster_n_ << " , greater than " << nMaxCTFclusters_ << std::endl;
-	 }
+	  if ( ctfcluster_n_ < nMaxCTFclusters_ ) {
+	    ctfcluster_type_[ctfcluster_n_]   = clusterType;
+	    ctfcluster_layer_[ctfcluster_n_]  = clusterLayer;
+	    ctfcluster_charge_[ctfcluster_n_] = clusterCharge;
+	    // Cluster position available only after track refitting
+	    if ( afterRefitting_ ) {	
+	      edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+	      iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theTrackerRecHitBuilder); 
+	      const TransientTrackingRecHitBuilder* theTTRHBuilder = theTrackerRecHitBuilder.product();
+	      TransientTrackingRecHit::RecHitPointer tthit = theTTRHBuilder->build((*recHit).get());
+	      GlobalPoint recHitGlobalPosition = tthit->globalPosition();
+	      ctfcluster_x_[ctfcluster_n_] = recHitGlobalPosition.x();
+	      ctfcluster_y_[ctfcluster_n_] = recHitGlobalPosition.y();
+	      ctfcluster_z_[ctfcluster_n_] = recHitGlobalPosition.z();
+	    }
+	    ++ctfcluster_n_;
+	  }
+	  else {
+	    std::cout << " TrackTupleMaker::analyze() : Warning #cluster for CTF tracks: " << ctfcluster_n_ << " , greater than " << nMaxCTFclusters_ << std::endl;
+	  }
 	} // end loop over track SiStripRecHit2D
-      } // end loop over ctf RecHits
+    } // end of checking output2D
+
+      // Access SiStripRecHit1D for clusterCharge on Track
+      const SiStripRecHit1D* striphit1D = dynamic_cast<const SiStripRecHit1D*>((*recHit).get());
+      if(striphit1D) {
+	uint16_t clusterCharge = ClusterCharge(striphit1D);
+	ctf_clusterCharge_all_ += clusterCharge;
+	unsigned int clusterType  = 0;
+	unsigned int clusterLayer = 0;
+	DetId id_tmp(striphit1D->geographicalId());
+	if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TIB ) {
+	  clusterType = 1;
+	  ctf_clusterCharge_TIB_ += clusterCharge;
+	  TIBDetId useDetId(id_tmp.rawId());
+	  clusterLayer = useDetId.layer();
+	}
+	else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TOB ) {
+	  clusterType = 3;
+	  ctf_clusterCharge_TOB_ += clusterCharge;
+	  TOBDetId useDetId(id_tmp.rawId());
+	  clusterLayer = useDetId.layer();
+	}
+	if ( ctfcluster_n_ < nMaxCTFclusters_ ) {
+	  ctfcluster_type_[ctfcluster_n_]   = clusterType;
+	  ctfcluster_layer_[ctfcluster_n_]  = clusterLayer;
+	  ctfcluster_charge_[ctfcluster_n_] = clusterCharge;
+	  // Cluster position available only after track refitting
+	  if ( afterRefitting_ ) {	
+	    edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+	    iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theTrackerRecHitBuilder); 
+	    const TransientTrackingRecHitBuilder* theTTRHBuilder = theTrackerRecHitBuilder.product();
+	    TransientTrackingRecHit::RecHitPointer tthit = theTTRHBuilder->build((*recHit).get());
+	    GlobalPoint recHitGlobalPosition = tthit->globalPosition();
+	    ctfcluster_x_[ctfcluster_n_] = recHitGlobalPosition.x();
+	    ctfcluster_y_[ctfcluster_n_] = recHitGlobalPosition.y();
+	    ctfcluster_z_[ctfcluster_n_] = recHitGlobalPosition.z();
+	  }
+	  ++ctfcluster_n_;
+	} else {
+	  std::cout << " TrackTupleMaker::analyze() : Warning #cluster for CTF tracks: " << ctfcluster_n_ << " , greater than " << nMaxCTFclusters_ << std::endl;
+	}
+      } // end of accessing track SiStripRecHit1D
+    } // end loop over ctf RecHits
       ++ctf_n_;
-    }
   } // End of Loop over the ctf tracks
   
   if(ctf_n_>0) {
     ctf_fHighPurity_ =  double(ctf_nHighPurity_)/double(ctf_n_);
-    //cout<<"ctf_n ="<<ctf_n_<<"; ctf_nHighPurity = "<<ctf_nHighPurity_<<"; ctf_fHighPurity = "<<ctf_fHighPurity_<<endl;
   }
-  
+
   //=======================================================
   // If run on secTrackCollection
   //=======================================================
@@ -589,23 +609,10 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       sectrk_nLostHit_[sectrk_n_]   = int(tkref->hitPattern().numberOfLostHits());
       sectrk_nLayers3D_[sectrk_n_] = int(tkref->hitPattern().pixelLayersWithMeasurement() +
 				  tkref->hitPattern().numberOfValidStripLayersWithMonoAndStereo());
-
-      // TrackQuality
-      //bool isloose = tkref->quality(reco::Track::loose); 
-      //bool istight = tkref->quality(reco::Track::tight);
-      //bool ishighpurity = tkref->quality(reco::Track::highPurity); 
-      //bool isconfirmed = tkref->quality(reco::Track::confirmed);
-      //bool isgoodIterative = tkref->quality(reco::Track::goodIterative);
-      
-      //std::string qualityName; 
-      //if(isloose) qualityName = tkref->qualityName(reco::Track::loose);
-      //if(istight) qualityName = tkref->qualityName(reco::Track::tight);
-      //if(ishighpurity) qualityName = tkref->qualityName(reco::Track::highPurity);
-      
-      sectrk_isLoose_[sectrk_n_] = int ( (tkref->qualityMask() & 1 ) == 1);
-      sectrk_isTight_[sectrk_n_] = int ( (tkref->qualityMask() & 2 ) == 2);
-      sectrk_isHighPurity_[sectrk_n_] = int ( (tkref->qualityMask() & 4 ) == 4);
-      
+    
+      sectrk_isLoose_[sectrk_n_] = tkref->quality(reco::TrackBase::loose);
+      sectrk_isTight_[sectrk_n_] = tkref->quality(reco::TrackBase::tight);
+      sectrk_isHighPurity_[sectrk_n_] = tkref->quality(reco::TrackBase::highPurity); 
       
       if(debug_) {
 	cout << "secTrack "<< i << " : pT = "<< sectrk_pt_<<" +/- "<< sectrk_ptErr_ 
@@ -686,31 +693,78 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  ++sectrk_nPixelHit_[sectrk_n_];
 	  ++sectrk_nPXFhit_[sectrk_n_];
 	} // endif over sub-dets
+
+	// Loop over the track SiStripRecHit2D for clusterCharge on Track
+	std::vector<const SiStripRecHit2D*> output2DHit;
+        getRecHit2DComponents(output2DHit, (*recHit).get());
+	if(!output2DHit.empty()) {
+	  for(std::vector<const SiStripRecHit2D*>::const_iterator rhit = output2DHit.begin(); rhit!=output2DHit.end(); ++ rhit) {
+	    uint16_t clusterCharge = ClusterCharge(*rhit);
+	    sectrk_clusterCharge_all_ += clusterCharge;
+	    unsigned int clusterType  = 0;
+	    unsigned int clusterLayer = 0;
+	    DetId id_tmp((*rhit)->geographicalId());
+	    if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TIB ) {
+	      clusterType = 1;
+	      sectrk_clusterCharge_TIB_ += clusterCharge;
+	      TIBDetId useDetId(id_tmp.rawId());
+	      clusterLayer = useDetId.layer();
+	    }
+	    else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TID ) {
+	      clusterType = 2;
+	      sectrk_clusterCharge_TID_ += clusterCharge;
+	      TIDDetId useDetId(id_tmp.rawId());
+	      clusterLayer = useDetId.wheel();
+	    }
+	    else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TOB ) {
+	      clusterType = 3;
+	      sectrk_clusterCharge_TOB_ += clusterCharge;
+	      TOBDetId useDetId(id_tmp.rawId());
+	      clusterLayer = useDetId.layer();
+	    }
+	    else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TEC ) {
+	      clusterType = 4;
+	      sectrk_clusterCharge_TEC_ += clusterCharge;
+	      TECDetId useDetId(id_tmp.rawId());
+	      clusterLayer = useDetId.wheel();
+	    }
+	    
+	    if ( sectrkcluster_n_ < nMaxSECTRKclusters_ ) {
+	      sectrkcluster_type_[sectrkcluster_n_]   = clusterType;
+	      sectrkcluster_layer_[sectrkcluster_n_]  = clusterLayer;
+	      sectrkcluster_charge_[sectrkcluster_n_] = clusterCharge;
+	      // Cluster position available only after track refitting
+	      if ( afterRefitting_ ) {	
+		edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+		iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theTrackerRecHitBuilder); 
+		const TransientTrackingRecHitBuilder* theTTRHBuilder = theTrackerRecHitBuilder.product();
+		TransientTrackingRecHit::RecHitPointer tthit = theTTRHBuilder->build((*recHit).get());
+		GlobalPoint recHitGlobalPosition = tthit->globalPosition();
+		sectrkcluster_x_[sectrkcluster_n_] = recHitGlobalPosition.x();
+		sectrkcluster_y_[sectrkcluster_n_] = recHitGlobalPosition.y();
+		sectrkcluster_z_[sectrkcluster_n_] = recHitGlobalPosition.z();
+	      }
+	      ++sectrkcluster_n_;
+	    }
+	    else {
+	      std::cout << " TrackTupleMaker::analyze() : Warning #cluster for SECTRK tracks: " << sectrkcluster_n_ << " , greater than " << nMaxSECTRKclusters_ << std::endl;
+	    }
+	  } // end loop over track SiStripRecHit2D
+	}// end of checking outpu2D
 	
-	// Loop over the track SiStripRecHit2D for clusterCharge :
-	
-	std::vector<SiStripRecHit2D*> output = getRecHitComponents((*recHit).get());
-	for(std::vector<SiStripRecHit2D*>::const_iterator rhit = output.begin(); rhit!=output.end(); ++ rhit) {
-	  
-	  uint16_t clusterCharge = ClusterCharge(*rhit);
+	// Access SiStripRecHit1D for clusterCharge on Track
+	const SiStripRecHit1D* striphit1D = dynamic_cast<const SiStripRecHit1D*>((*recHit).get());
+	if(striphit1D) {
+	  uint16_t clusterCharge = ClusterCharge(striphit1D);
 	  sectrk_clusterCharge_all_ += clusterCharge;
-	  
 	  unsigned int clusterType  = 0;
 	  unsigned int clusterLayer = 0;
-	  
-	  DetId id_tmp((*rhit)->geographicalId());
-	  
+	  DetId id_tmp(striphit1D->geographicalId());
 	  if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TIB ) {
 	    clusterType = 1;
 	    sectrk_clusterCharge_TIB_ += clusterCharge;
 	    TIBDetId useDetId(id_tmp.rawId());
 	    clusterLayer = useDetId.layer();
-	  }
-	  else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TID ) {
-	    clusterType = 2;
-	    sectrk_clusterCharge_TID_ += clusterCharge;
-	    TIDDetId useDetId(id_tmp.rawId());
-	    clusterLayer = useDetId.wheel();
 	  }
 	  else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TOB ) {
 	    clusterType = 3;
@@ -718,20 +772,12 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    TOBDetId useDetId(id_tmp.rawId());
 	    clusterLayer = useDetId.layer();
 	  }
-	  else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TEC ) {
-	    clusterType = 4;
-	    sectrk_clusterCharge_TEC_ += clusterCharge;
-	    TECDetId useDetId(id_tmp.rawId());
-	    clusterLayer = useDetId.wheel();
-	  }
-	  
 	  if ( sectrkcluster_n_ < nMaxSECTRKclusters_ ) {
 	    sectrkcluster_type_[sectrkcluster_n_]   = clusterType;
 	    sectrkcluster_layer_[sectrkcluster_n_]  = clusterLayer;
 	    sectrkcluster_charge_[sectrkcluster_n_] = clusterCharge;
-
 	    // Cluster position available only after track refitting
-	    if ( afterRefitting_ ) {
+	    if ( afterRefitting_ ) {	
 	      edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
 	      iSetup.get<TransientRecHitRecord>().get("WithTrackAngle",theTrackerRecHitBuilder); 
 	      const TransientTrackingRecHitBuilder* theTTRHBuilder = theTrackerRecHitBuilder.product();
@@ -745,183 +791,17 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  } else {
 	    std::cout << " TrackTupleMaker::analyze() : Warning #cluster for SECTRK tracks: " << sectrkcluster_n_ << " , greater than " << nMaxSECTRKclusters_ << std::endl;
 	  }
-	} // end loop over track SiStripRecHit2D
+	} // end of accessing track SiStripRecHit1D
       } // end loop over RecHits
     } // End of Loop over the secTrackColl tracks
   }
-  
-  //=======================================================
-  // All RecHits
-  //=======================================================
-  
-  if ( saveAllClusters_ ) { 
-    //=======================================================
-    // RecHits accessors: for AllHits
-    // WARNING: RECO data for collsion doesn't have "siStripMatchedRecHits"
-    //=======================================================
-    edm::Handle<SiStripRecHit2DCollection> rphiRecHits;
-    iEvent.getByLabel("siStripMatchedRecHits","rphiRecHit",rphiRecHits);
-    const SiStripRecHit2DCollection *rphiRecHitCollection = rphiRecHits.product();
-    
-    edm::Handle<SiStripRecHit2DCollection> stereorecHitHandle;
-    iEvent.getByLabel("siStripMatchedRecHits","stereoRecHit",stereorecHitHandle);
-    const SiStripRecHit2DCollection *stereoRecHitCollection = stereorecHitHandle.product();
-    
-    // Loop over Rphi Hits :
-    //======================
-    
-    if ( debug_ ) std::cout <<  " TrackTupleMaker::analyze() : Looping over " << rphiRecHitCollection->size() << " Rphi RecHits" << std::endl;
-    
-    for(SiStripRecHit2DCollection::DataContainer::const_iterator rhit=rphiRecHitCollection->data().begin(); rhit!=rphiRecHitCollection->data().end(); ++rhit) {
-      
-      if ( cluster_n_ >= nMaxClusters_ ) {
-	std::cout << " TrackTupleMaker::analyze() : Warning #cluster : " << cluster_n_ << " , greater than " << nMaxClusters_ << std::endl;
-	continue;
-      }
-      
-      ++cluster_n_all_;
-      
-      unsigned int clusterType  = 0;
-      unsigned int clusterLayer = 0;
-      uint16_t clusterCharge = ClusterCharge(&(*rhit));
-      
-      DetId id_tmp((&(*rhit))->geographicalId());
-      if        ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TIB ) {
-	clusterType = 1;
-	TIBDetId useDetId(id_tmp.rawId());
-	clusterLayer = useDetId.layer();
-	++cluster_n_tib_;
-      } else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TID ) {
-	clusterType = 2;
-	TIDDetId useDetId(id_tmp.rawId());
-	clusterLayer = useDetId.wheel();
-	++cluster_n_tid_;
-      } else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TOB ) {
-	clusterType = 3;
-	TOBDetId useDetId(id_tmp.rawId());
-	clusterLayer = useDetId.layer();
-	++cluster_n_tob_;
-      } else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TEC ) {
-	clusterType = 4;
-	TECDetId useDetId(id_tmp.rawId());
-	clusterLayer = useDetId.wheel();
-	++cluster_n_tec_;
-      }
-      
-      cluster_type_[cluster_n_]   = clusterType;
-      cluster_layer_[cluster_n_]  = clusterLayer;
-      cluster_charge_[cluster_n_] = clusterCharge;
-      ++cluster_n_;
-      
-    } // end loop over all rPhi RecHits
-    
-    // Loop over Stereo Hits :
-    //========================
-    
-    if ( debug_ ) std::cout <<  " TrackTupleMaker::analyze() : Looping over " << stereoRecHitCollection->size() << " Stereo RecHits" << std::endl;
-    
-    for(SiStripRecHit2DCollection::DataContainer::const_iterator rhit=stereoRecHitCollection->data().begin(); rhit!=stereoRecHitCollection->data().end(); ++rhit) {
-      
-      if ( cluster_n_ >= nMaxClusters_ ) {
-	std::cout << " TrackTupleMaker::analyze() : Warning #cluster : " << cluster_n_ << " , greater than " << nMaxClusters_ << std::endl;
-	continue;
-      }
-      
-      ++cluster_n_all_;
-      
-      unsigned int clusterType  = 0;
-      unsigned int clusterLayer = 0;
-      uint16_t clusterCharge = ClusterCharge(&(*rhit));
-      
-      DetId id_tmp((&(*rhit))->geographicalId());
-      if        ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TIB ) {
-	clusterType = 1;
-	TIBDetId useDetId(id_tmp.rawId());
-	clusterLayer = useDetId.layer();
-	++cluster_n_tib_;
-      } else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TID ) {
-	clusterType = 2;
-	TIDDetId useDetId(id_tmp.rawId());
-	clusterLayer = useDetId.wheel();
-	++cluster_n_tid_;
-      } else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TOB ) {
-	clusterType = 3;
-	TOBDetId useDetId(id_tmp.rawId());
-	clusterLayer = useDetId.layer();
-	++cluster_n_tob_;
-      } else if ( (unsigned int)id_tmp.subdetId() == StripSubdetector::TEC ) {
-	clusterType = 4;
-	TECDetId useDetId(id_tmp.rawId());
-	clusterLayer = useDetId.wheel();
-	++cluster_n_tec_;
-      }
-      
-      cluster_type_[cluster_n_]   = clusterType;
-      cluster_layer_[cluster_n_]  = clusterLayer;
-      cluster_charge_[cluster_n_] = clusterCharge;
-      ++cluster_n_;
-      
-    } // end loop over all Stereo RecHits
-    
-  } // endif save clusters
-
-  // Trigger Bits
-  bool techBitPass;
-  if(!selTechBit_) techBitPass = true;
-  else techBitPass = false;
-  
-  edm::ESHandle<L1GtTriggerMenu> menuRcd;
-  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
-  const L1GtTriggerMenu* menu = menuRcd.product();
-  edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
-  iEvent.getByLabel( edm::InputTag("gtDigis"), gtRecord);
-  
-  // Get dWord after masking disabled bits
-  DecisionWord dWord = gtRecord->decisionWord();
-  if ( ! dWord.empty() ) { // if board not there this is zero
-    // loop over dec. bit to get total rate (no overlap)
-    for ( int i = 0; i < 128; ++i ) {
-      if ( dWord[i] ) {
-	//cout<<"physics number "<<i<<"  "<<endl;
-	physics_bits_[nphysbits_]=i;
-	nphysbits_++;
-	//cout<<"physics bits number "<< physics_bits_[i]<<"  "<<endl;
-      }
-    }
-  }
-  
-  TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
-  if ( ! tw.empty() ) {
-    // loop over dec. bit to get total rate (no overlap)
-    for ( int i = 0; i < 64; ++i ) {
-      if ( tw[i] ) {
-	//cout<<"technical number "<<i<<"  "<<endl;
-	technical_bits_[ntechbits_]=i;
-	if (i == 40 || i == 41) isTechBit40_  = 1; 
-	// The beamHalo bits are 36-39
-	if (i < 40 && i > 35) isBeamHalo_ = 1; 
-	// if BSC activity, (technical bit) is between 32 and 43, set to true
-	if (i > 31 && i < 44 ) isBSC_ = 1;
-	if( selTechBit_) {
-	  if ( i == techBitToSelect_) { 
-	    techBitPass = true;
-	    if(debug_) cout<<"Selecting Technical Bit "<<i<<endl;
-	  }
-	}
-	ntechbits_++;
-      }
-    }
-  }
-  
-
-  if( techBitPass && nonFakePvtx ) // select on the event based on techBit and nonFakePvtx
-    rootTree_->Fill();
+  rootTree_->Fill();
 } 
 
 
 // ------------ method called once each job before begining the event loop  ------------
-void LhcTrackAnalyzer::beginJob()
-  {
+void LhcTrackAnalyzer::beginJob()  
+{
   edm::LogInfo("beginJob") << "Begin Job" << std::endl;
   // Define TTree for output
   rootFile_ = new TFile(filename_.c_str(),"recreate");
@@ -931,9 +811,7 @@ void LhcTrackAnalyzer::beginJob()
   rootTree_->Branch("glob_evtno",&glob_evtno_,"glob_evtno/I");
   rootTree_->Branch("glob_ls",&glob_ls_,"glob_ls/I");
   rootTree_->Branch("glob_bx",&glob_bx_,"glob_bx/I");
-   
  
-
   // BeamSpot
   rootTree_->Branch("bsX0",&bsX0_,"bsX0/D");
   rootTree_->Branch("bsY0",&bsY0_,"bsY0/D");
@@ -941,12 +819,13 @@ void LhcTrackAnalyzer::beginJob()
   rootTree_->Branch("bsSigmaZ",&bsSigmaZ_,"bsSigmaZ/D");
   rootTree_->Branch("bsDxdz",&bsDxdz_,"bsDxdz/D");
   rootTree_->Branch("bsDydz",&bsDydz_,"bsDydz/D");
-
+  rootTree_->Branch("bsWidthX",&bsWidthX_,"bsWidthX/D");
+  rootTree_->Branch("bsWidthY",&bsWidthY_,"bsWidthY/D");
+ 
   // PrimaryVertex
   rootTree_->Branch("nVertices",&nVertices_,"nVertices/I");  
   rootTree_->Branch("nTracks_pvtx",&nTracks_pvtx_,"nTracks_pvtx[nVertices]/I");
   rootTree_->Branch("ndof_pvtx",&ndof_pvtx_,"ndof_pvtx[nVertices]/D"); 
-  rootTree_->Branch("isValid_pvtx",&isValid_pvtx_,"isValid_pvtx[nVertices]/I"); 
   rootTree_->Branch("isFake_pvtx",&isFake_pvtx_,"isFake_pvtx[nVertices]/I"); 
   rootTree_->Branch("recx_pvtx",&recx_pvtx_,"recx_pvtx[nVertices]/D"); 
   rootTree_->Branch("recy_pvtx",&recy_pvtx_,"recy_pvtx[nVertices]/D"); 
@@ -959,7 +838,8 @@ void LhcTrackAnalyzer::beginJob()
   // PixelVertices
   rootTree_->Branch("nPixelVertices",&nPixelVertices_,"nPixelVertices/I"); 
   rootTree_->Branch("nTracks_pxlpvtx",&nTracks_pxlpvtx_,"nTracks_pxlpvtx[nPixelVertices]/I"); 
-  rootTree_->Branch("isFake_pxlpvtx",&isFake_pxlpvtx_,"isFake_pxlpvtx[nPixelVertices]/I");
+  rootTree_->Branch("isFake_pxlpvtx",&isFake_pxlpvtx_,"isFake_pxlpvtx[nPixelVertices]/I"); 
+  rootTree_->Branch("ndof_pxlpvtx",&ndof_pxlpvtx_,"ndof_pxlpvtx[nVertices]/D"); 
   rootTree_->Branch("recx_pxlpvtx",&recx_pxlpvtx_,"recx_pxlpvtx[nPixelVertices]/D");
   rootTree_->Branch("recy_pxlpvtx",&recy_pxlpvtx_,"recy_pxlpvtx[nPixelVertices]/D");  
   rootTree_->Branch("recz_pxlpvtx",&recz_pxlpvtx_,"recz_pxlpvtx[nPixelVertices]/D");
@@ -968,18 +848,6 @@ void LhcTrackAnalyzer::beginJob()
   rootTree_->Branch("recz_err_pxlpvtx",&recz_err_pxlpvtx_,"recz_err_pxlpvtx[nPixelVertices]/D"); 
   rootTree_->Branch("hasGoodPxlPvtx",&hasGoodPxlPvtx_,"hasGoodPxlPvtx/I"); 
   
-
-  // Trigger bits
-  rootTree_->Branch("ntechbits",&ntechbits_,"ntechbits/I");
-  rootTree_->Branch("nphysbits",&nphysbits_,"nphysbits/I");
-  rootTree_->Branch("technical_bits",&technical_bits_,"technical_bits[ntechbits]/I");
-  rootTree_->Branch("physics_bits",&physics_bits_,"physics_bits[nphysbits]/I");
-  rootTree_->Branch("isTechBit40",&isTechBit40_,"isTechBit40/I"); 
-  rootTree_->Branch("isBSC",&isBSC_,"isBSC/I"); 
-  rootTree_->Branch("isBeamHalo",&isBeamHalo_,"isBeamHalo/I"); 
-  rootTree_->Branch("belowPtThresold",&belowPtThresold_,"belowPtThresold/I"); 
-
-
 
   // CTF Track
   rootTree_->Branch("ctf_n",&ctf_n_,"ctf_n/I");
@@ -1057,7 +925,7 @@ void LhcTrackAnalyzer::beginJob()
   rootTree_->Branch("ctf_clusterCharge_TIB",&ctf_clusterCharge_TIB_,"ctf_clusterCharge_TIB/D");
   rootTree_->Branch("ctf_clusterCharge_TID",&ctf_clusterCharge_TID_,"ctf_clusterCharge_TID/D");
   rootTree_->Branch("ctf_clusterCharge_TOB",&ctf_clusterCharge_TOB_,"ctf_clusterCharge_TOB/D");
-  rootTree_->Branch("ctf_clusterCharge_TEC",&ctf_clusterCharge_TEC_,"ctf_clusterCharge_TEC/D");
+  rootTree_->Branch("ctf_clusterCharge_TEC",&ctf_clusterCharge_TEC_,"ctf_clusterCharge_TEC/D"); 
   rootTree_->Branch("ctfcluster_n",&ctfcluster_n_,"ctfcluster_n/I");
   rootTree_->Branch("ctfcluster_type",&ctfcluster_type_,"ctfcluster_type[ctfcluster_n]/I");
   rootTree_->Branch("ctfcluster_layer",&ctfcluster_layer_,"ctfcluster_layer[ctfcluster_n]/I");
@@ -1139,7 +1007,7 @@ void LhcTrackAnalyzer::beginJob()
     rootTree_->Branch("sectrk_clusterCharge_TIB",&sectrk_clusterCharge_TIB_,"sectrk_clusterCharge_TIB/D");
     rootTree_->Branch("sectrk_clusterCharge_TID",&sectrk_clusterCharge_TID_,"sectrk_clusterCharge_TID/D");
     rootTree_->Branch("sectrk_clusterCharge_TOB",&sectrk_clusterCharge_TOB_,"sectrk_clusterCharge_TOB/D");
-    rootTree_->Branch("sectrk_clusterCharge_TEC",&sectrk_clusterCharge_TEC_,"sectrk_clusterCharge_TEC/D");
+    rootTree_->Branch("sectrk_clusterCharge_TEC",&sectrk_clusterCharge_TEC_,"sectrk_clusterCharge_TEC/D"); 
     rootTree_->Branch("sectrkcluster_n",&sectrkcluster_n_,"sectrkcluster_n/I");
     rootTree_->Branch("sectrkcluster_type",&sectrkcluster_type_,"sectrkcluster_type[sectrkcluster_n]/I");
     rootTree_->Branch("sectrkcluster_layer",&sectrkcluster_layer_,"sectrkcluster_layer[sectrkcluster_n]/I");
@@ -1150,24 +1018,6 @@ void LhcTrackAnalyzer::beginJob()
     rootTree_->Branch("sectrkcluster_z",&sectrkcluster_z_,"sectrkcluster_z[sectrkcluster_n]/D");
     }
   }
-
-  if ( saveAllClusters_ ) { 
-    // all clusters
-    rootTree_->Branch("cluster_n_all",&cluster_n_all_,"cluster_n_all/I");
-    rootTree_->Branch("cluster_n_tib",&cluster_n_tib_,"cluster_n_tib/I");
-    rootTree_->Branch("cluster_n_tid",&cluster_n_tid_,"cluster_n_tid/I");
-    rootTree_->Branch("cluster_n_tob",&cluster_n_tob_,"cluster_n_tob/I");
-    rootTree_->Branch("cluster_n_tec",&cluster_n_tec_,"cluster_n_tec/I");
-    rootTree_->Branch("cluster_n",&cluster_n_,"cluster_n/I");
-    rootTree_->Branch("cluster_type",&cluster_type_,"cluster_type[cluster_n]/I");
-    rootTree_->Branch("cluster_layer",&cluster_layer_,"cluster_layer[cluster_n]/I");
-    rootTree_->Branch("cluster_charge",&cluster_charge_,"cluster_charge[cluster_n]/D");
-    if ( afterRefitting_ ) {
-      rootTree_->Branch("cluster_x",&cluster_x_,"cluster_x[cluster_n]/D");
-      rootTree_->Branch("cluster_y",&cluster_y_,"cluster_y[cluster_n]/D");
-      rootTree_->Branch("cluster_z",&cluster_z_,"cluster_z[cluster_n]/D");
-    }
-  }    
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -1177,9 +1027,6 @@ void LhcTrackAnalyzer::endJob()
      rootFile_->Write();
      rootFile_->Close();
    }
-
-
-
 }
 
 void LhcTrackAnalyzer::SetRootVar() {
@@ -1196,22 +1043,10 @@ void LhcTrackAnalyzer::SetRootVar() {
   bsZ0_ = 0;
   bsDxdz_ = 0;
   bsDydz_ = 0;
-  
-  // pt
-  belowPtThresold_ = 0;
-  // Trigger bits
-  isTechBit40_=0;
-  isBeamHalo_ = 0;
-  isBSC_ = 0;
-  ntechbits_=0;
-  nphysbits_=0;
-  for ( int i=0; i<nMaxbits_; ++i ) {
-    technical_bits_[i]= 0;
-  }
-  for ( int i=0; i<nMaxbits_; ++i ) {
-    physics_bits_[i]= 0;
-  }
-  
+  bsSigmaZ_ = 0;
+  bsWidthX_ = 0;
+  bsWidthY_ = 0;
+
   // PrimaryVertex
   hasGoodPvtx_ = 0;
   nVertices_ = 0;
@@ -1219,7 +1054,6 @@ void LhcTrackAnalyzer::SetRootVar() {
     nTracks_pvtx_[i] = 0; // Number of tracks in the pvtx
     ndof_pvtx_[i] = 0;
     sumptsq_pvtx_[i] = 0;
-    isValid_pvtx_[i] = 0;
     isFake_pvtx_[i] = 0;
     recx_pvtx_[i] = 0;
     recy_pvtx_[i] = 0;
@@ -1234,7 +1068,8 @@ void LhcTrackAnalyzer::SetRootVar() {
   nPixelVertices_ = 0;
   for ( int i=0; i<nMaxPixelPVs_; ++i ) { 
     nTracks_pxlpvtx_[i] = 0;
-    isFake_pxlpvtx_[i] = 0;
+    isFake_pxlpvtx_[i] = 0; 
+    ndof_pxlpvtx_[i] = 0;
     recx_pxlpvtx_[i] = 0;
     recy_pxlpvtx_[i] = 0;
     recz_pxlpvtx_[i] = 0; 
@@ -1321,7 +1156,7 @@ void LhcTrackAnalyzer::SetRootVar() {
   ctf_clusterCharge_TIB_ = 0;
   ctf_clusterCharge_TID_ = 0;
   ctf_clusterCharge_TOB_ = 0;
-  ctf_clusterCharge_TEC_ = 0;
+  ctf_clusterCharge_TEC_ = 0; 
   ctfcluster_n_  = 0;
   for ( int i=0; i<nMaxCTFclusters_; ++i ) {
     ctfcluster_type_[i]   = 0;
@@ -1405,7 +1240,7 @@ void LhcTrackAnalyzer::SetRootVar() {
   sectrk_clusterCharge_TIB_ = 0;
   sectrk_clusterCharge_TID_ = 0;
   sectrk_clusterCharge_TOB_ = 0;
-  sectrk_clusterCharge_TEC_ = 0;
+  sectrk_clusterCharge_TEC_ = 0;  
   sectrkcluster_n_  = 0;
   for ( int i=0; i<nMaxSECTRKclusters_; ++i ) {
     sectrkcluster_type_[i]   = 0;
@@ -1415,23 +1250,6 @@ void LhcTrackAnalyzer::SetRootVar() {
     sectrkcluster_y_[i] = 0;
     sectrkcluster_z_[i] = 0;
   }
-
-  // All Clusters
-  cluster_n_all_ = 0;
-  cluster_n_tib_ = 0;
-  cluster_n_tid_ = 0;
-  cluster_n_tob_ = 0;
-  cluster_n_tec_ = 0;
-  cluster_n_ = 0;
-  for ( int i=0; i<cluster_n_; ++i ) {
-    cluster_type_[i]   = 0;
-    cluster_layer_[i]  = 0;
-    cluster_charge_[i] = 0;
-    cluster_x_[i]      = 0;
-    cluster_y_[i]      = 0;
-    cluster_z_[i]      = 0;
-  }
-
 }
 
 
@@ -1447,28 +1265,35 @@ double LhcTrackAnalyzer::sumPtSquared(const reco::Vertex & v)  {
   return sum;
 }
 
-std::vector<SiStripRecHit2D*> LhcTrackAnalyzer::getRecHitComponents(const TrackingRecHit* rechit){
-   std::vector<SiStripRecHit2D*> output;
-   const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>(rechit);
-   const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>(rechit);
-   const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(rechit);
-   if(phit) hit=&(phit->originalHit());
-   if(matchedhit){
-      const SiStripRecHit2D* monohit   =  matchedhit->monoHit();
-      const SiStripRecHit2D* stereohit =  matchedhit->stereoHit();
-      output.push_back(monohit->clone());
-      output.push_back(stereohit->clone());
-   }
-   else if (hit){
-      output.push_back(hit->clone());
-   }
-   return output;
+void LhcTrackAnalyzer::getRecHit2DComponents(std::vector<const SiStripRecHit2D*> & output, const TrackingRecHit* rechit){
+  const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>(rechit);
+  const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>(rechit);
+  const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(rechit);
+  if(phit) hit=&(phit->originalHit());
+  if(matchedhit){
+    const SiStripRecHit2D* monohit   =  matchedhit->monoHit();
+    const SiStripRecHit2D* stereohit =  matchedhit->stereoHit();
+    output.push_back(monohit);
+    output.push_back(stereohit);
+  }
+  else if (hit){
+    output.push_back(hit);
+  }
 }
 
 uint16_t LhcTrackAnalyzer::ClusterCharge(const SiStripRecHit2D* hit){
   uint16_t charge = 0;
-  edm::Ref<edmNew::DetSetVector<SiStripCluster> ,SiStripCluster>
-    cluster = hit->cluster();
+  edm::Ref<edmNew::DetSetVector<SiStripCluster> ,SiStripCluster> cluster = hit->cluster();
+  std::vector<uint8_t>::const_iterator it;
+  for (it = (cluster->amplitudes()).begin(); it != (cluster->amplitudes()).end(); ++it){
+    charge += (*it);
+  }
+  return charge;
+}
+
+uint16_t LhcTrackAnalyzer::ClusterCharge(const SiStripRecHit1D* hit){
+  uint16_t charge = 0;
+  edm::Ref<edmNew::DetSetVector<SiStripCluster> ,SiStripCluster> cluster = hit->cluster();
   std::vector<uint8_t>::const_iterator it;
   for (it = (cluster->amplitudes()).begin(); it != (cluster->amplitudes()).end(); ++it){
     charge += (*it);

@@ -16,6 +16,10 @@
 #include "TTree.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -40,7 +44,6 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
 //FOR CLUSTERINFO
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 //#include "DataFormats/SiStripCluster/interface/SiStripClusterInfo.h"
@@ -97,11 +100,13 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   double sumPtSquared(const reco::Vertex& );
-  std::vector<SiStripRecHit2D*> getRecHitComponents(const TrackingRecHit* rechit);
+  void getRecHit2DComponents(std::vector<const SiStripRecHit2D*> & , const TrackingRecHit*);
+  
   uint16_t ClusterCharge(const SiStripRecHit2D* hit);
-
+  uint16_t ClusterCharge(const SiStripRecHit1D* hit); 
+   
   // ----------member data ---------------------------
-  edm::InputTag bsSrc;
+  edm::InputTag  bsSrc;
   edm::InputTag  ctfTrackCollectionTag_;
   edm::InputTag  vertexCollectionTag_;
   edm::InputTag  secTrackCollectionTag_;
@@ -109,11 +114,7 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
 
   bool debug_;
   bool afterRefitting_;
-  bool saveAllClusters_;
   bool runSecTrackColl_;
-  bool selTechBit_;
-  int  techBitToSelect_;
-  bool selNonFakePvtx_;
  
 
   // Output
@@ -137,19 +138,8 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double bsSigmaZ_;
   double bsDxdz_;
   double bsDydz_;
-
-
-  // Trigger Bits
-  static const int nMaxbits_ = 128;
-  int ntechbits_;
-  int nphysbits_;
-  int technical_bits_[nMaxbits_];
-  int physics_bits_[nMaxbits_];
-  int isTechBit40_; // boolean to see if TechBit40 is fired
-  int isBSC_; // boolean to see if any BSC TB fired (32->43)
-  int isBeamHalo_;  // boolean to see if any BSC TB fired (36->39)
-  int belowPtThresold_; // boolean to check if the tracks are all above a thresold
-
+  double bsWidthX_;
+  double bsWidthY_;
 
   // PrimaryVertices
   static const int nMaxPVs_ = 100;
@@ -158,7 +148,6 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int nTracks_pvtx_[nMaxPVs_]; // Number of tracks in the pvtx 
   double ndof_pvtx_[nMaxPVs_];
   double sumptsq_pvtx_[nMaxPVs_];
-  int isValid_pvtx_[nMaxPVs_];
   int isFake_pvtx_[nMaxPVs_];
   double recx_pvtx_[nMaxPVs_];
   double recy_pvtx_[nMaxPVs_];
@@ -173,6 +162,7 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int hasGoodPxlPvtx_;
   int nTracks_pxlpvtx_[nMaxPixelPVs_];
   int isFake_pxlpvtx_[nMaxPixelPVs_];
+  int ndof_pxlpvtx_[nMaxPixelPVs_];
   double recx_pxlpvtx_[nMaxPixelPVs_];
   double recy_pxlpvtx_[nMaxPixelPVs_];  
   double recz_pxlpvtx_[nMaxPixelPVs_];
@@ -181,7 +171,7 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double recz_err_pxlpvtx_[nMaxPixelPVs_];  
 
   // ctf Tracks 
-  static const int nMaxCTFtracks_ = 10000;
+  static const int nMaxCTFtracks_ = 1000;
   int ctf_n_;
   int ctf_nHighPurity_;
   double ctf_fHighPurity_;
@@ -190,8 +180,8 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double ctf_phi_[nMaxCTFtracks_];
   double ctf_dz_[nMaxCTFtracks_];
   double ctf_dxy_[nMaxCTFtracks_];
-  double ctf_dzCorr_[nMaxCTFtracks_];
-  double ctf_dxyCorr_[nMaxCTFtracks_];
+  double ctf_dzCorr_[nMaxCTFtracks_]; // Corrected by BS
+  double ctf_dxyCorr_[nMaxCTFtracks_]; //Corrected by BS
   double ctf_dzCorr_pvtx_[nMaxCTFtracks_];
   double ctf_dzCorrErr_pvtx_[nMaxCTFtracks_];
   double ctf_dxyCorr_pvtx_[nMaxCTFtracks_];
@@ -252,7 +242,7 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int ctf_nTEC9hit_[nMaxCTFtracks_];
   int ctf_nPXBhit_[nMaxCTFtracks_];         //======= Pixel ==================
   int ctf_nPXFhit_[nMaxCTFtracks_];
-  // Cluster
+  // Cluster on Track
   double ctf_clusterCharge_all_;
   double ctf_clusterCharge_TIB_;
   double ctf_clusterCharge_TID_;
@@ -268,15 +258,15 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double ctfcluster_z_[nMaxCTFclusters_];
 
   // second track Collection
-  static const int nMaxSECTRKtracks_ = 10000;
+  static const int nMaxSECTRKtracks_ = 1000;
   int sectrk_n_;
   double sectrk_pt_[nMaxSECTRKtracks_];       
   double sectrk_eta_[nMaxSECTRKtracks_];
   double sectrk_phi_[nMaxSECTRKtracks_];
   double sectrk_dz_[nMaxSECTRKtracks_];
-  double sectrk_dxy_[nMaxSECTRKtracks_];
-  double sectrk_dzCorr_[nMaxSECTRKtracks_];
-  double sectrk_dxyCorr_[nMaxSECTRKtracks_];
+  double sectrk_dxy_[nMaxSECTRKtracks_]; 
+  double sectrk_dzCorr_[nMaxSECTRKtracks_]; // Corrected by BS
+  double sectrk_dxyCorr_[nMaxSECTRKtracks_]; // Corrected by BS
   double sectrk_dzCorr_pvtx_[nMaxSECTRKtracks_];
   double sectrk_dxyCorr_pvtx_[nMaxSECTRKtracks_];
   double sectrk_ptErr_[nMaxSECTRKtracks_];       
@@ -334,12 +324,12 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int sectrk_nTEC9hit_[nMaxSECTRKtracks_];
   int sectrk_nPXBhit_[nMaxSECTRKtracks_];   //======= Pixel ==================
   int sectrk_nPXFhit_[nMaxSECTRKtracks_];
-  // Cluster
+  // Cluster on Track
   double sectrk_clusterCharge_all_;
   double sectrk_clusterCharge_TIB_;
   double sectrk_clusterCharge_TID_;
   double sectrk_clusterCharge_TOB_;
-  double sectrk_clusterCharge_TEC_;
+  double sectrk_clusterCharge_TEC_;  
   static const int nMaxSECTRKclusters_ = 10000;
   int    sectrkcluster_n_;
   int    sectrkcluster_type_[nMaxSECTRKclusters_];
@@ -348,21 +338,6 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double sectrkcluster_x_[nMaxSECTRKclusters_];
   double sectrkcluster_y_[nMaxSECTRKclusters_];
   double sectrkcluster_z_[nMaxSECTRKclusters_];
-
-  // All Hits Cluster
-  int cluster_n_all_;
-  int cluster_n_tib_;
-  int cluster_n_tid_;
-  int cluster_n_tob_;
-  int cluster_n_tec_;
-  static const int nMaxClusters_ = 5000;
-  int cluster_n_;
-  int    cluster_type_[nMaxClusters_];
-  int    cluster_layer_[nMaxClusters_];
-  double cluster_charge_[nMaxClusters_];
-  double cluster_x_[nMaxClusters_];
-  double cluster_y_[nMaxClusters_];
-  double cluster_z_[nMaxClusters_];
 
 };
 
