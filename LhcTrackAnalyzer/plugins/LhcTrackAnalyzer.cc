@@ -40,7 +40,7 @@
 #include "TChain.h"
 #include "TNtuple.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
 #include <DataFormats/GeometrySurface/interface/Surface.h>
