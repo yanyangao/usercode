@@ -30,7 +30,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.2 $'),
+        version = cms.untracked.string('$Revision: 1.3 $'),
             annotation = cms.untracked.string('promptCollisionReco nevts:100'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -76,14 +76,24 @@ process.trackana.secTrackCollectionTag = "SECTRKCOLLECTION"
 process.trackana.OutputFileName = cms.string("OUTPUTDIR/SAMPLE_GLOBALTAG_SEQUENCE.root")
 process.trackana.vertexCollection = "PVTXCOLLECTION"
 process.trackana.pixelVertexCollectionTag = "PIXELVERTEXCOLLECTION"
-process.trackana.selTechBit = True # if select event based on TechBit
-process.trackana.techBitToSelect = 0 # This corresponds to a good BX
+
+
+#======================================
+# Trigger Filter
+#======================================
+process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
+process.bit40 = hltLevel1GTSeed.clone(
+        L1TechTriggerSeeding = cms.bool(True),
+            L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
+            )
+
 
 # only_analyze
-process.only_analyze = cms.Sequence(process.trackana)
+process.only_analyze = cms.Sequence(process.bit40*process.trackana)   
 
 # re_tracking
-process.re_tracking = cms.Sequence(
+process.re_tracking = cms.Sequence(process.bit40*
     ( process.siPixelRecHits * process.siStripMatchedRecHits ) *
     process.ckftracks *
     process.ctfTracksPixelLess
@@ -92,7 +102,7 @@ process.re_tracking = cms.Sequence(
 
 
 # re_reconstruction: 
-process.re_reco = cms.Sequence(
+process.re_reco = cms.Sequence(process.bit40*
     ( process.siPixelRecHits * process.siStripMatchedRecHits ) *
     process.offlineBeamSpot *
     process.ckftracks *
@@ -101,7 +111,7 @@ process.re_reco = cms.Sequence(
     )
 
 # re_fitting
-process.refitting = cms.Sequence(
+process.refitting = cms.Sequence(process.bit40*
     process.ckftracks *
     process.ctfTracksPixelLess
     * process.trackana
