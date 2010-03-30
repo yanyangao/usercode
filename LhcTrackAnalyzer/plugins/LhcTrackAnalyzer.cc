@@ -244,18 +244,21 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   nVertices_ = 0; 
   for(reco::VertexCollection::const_iterator v=vertexColl->begin(); 
-      v!=vertexColl->end(); ++v, ++nVertices_) {
-    nTracks_pvtx_[nVertices_] = v->tracksSize();
-    ndof_pvtx_[nVertices_] = v->ndof();	
-    sumptsq_pvtx_[nVertices_] = sumPtSquared(*v);
-    isFake_pvtx_[nVertices_] =  int(v->isFake());
-    if(!v->isFake()) hasGoodPvtx_ = 1; 
-    recx_pvtx_[nVertices_] = v->x();
-    recy_pvtx_[nVertices_] = v->y();
-    recz_pvtx_[nVertices_] = v->z();
-    recx_err_pvtx_[nVertices_] = v->xError();
-    recy_err_pvtx_[nVertices_] = v->yError();
-    recz_err_pvtx_[nVertices_] = v->zError();
+      v!=vertexColl->end(); ++v) { 
+    if(!v->isFake()) {
+      hasGoodPvtx_ = 1; 
+      nTracks_pvtx_[nVertices_] = v->tracksSize();
+      ndof_pvtx_[nVertices_] = v->ndof();	
+      sumptsq_pvtx_[nVertices_] = sumPtSquared(*v);
+      recx_pvtx_[nVertices_] = v->x();
+      recy_pvtx_[nVertices_] = v->y();
+      recz_pvtx_[nVertices_] = v->z();
+      recx_err_pvtx_[nVertices_] = v->xError();
+      recy_err_pvtx_[nVertices_] = v->yError();
+      recz_err_pvtx_[nVertices_] = v->zError();
+      chi2ndof_pvtx_[nVertices_] = v->normalizedChi2();
+      ++nVertices_;
+    }
   }
   
 
@@ -265,20 +268,22 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   if(debug_)
     cout<<"LhcTrackAnalyzer::analyze() looping over "<< pixelVertexCollectionHandle->size()<< "pixelVertices." << endl;    
-  
   nPixelVertices_ = 0; 
   for(reco::VertexCollection::const_iterator v=pixelVertexColl->begin(); 
-      v!=pixelVertexColl->end(); ++v, ++nPixelVertices_) {
-    nTracks_pxlpvtx_[nPixelVertices_] = v->tracksSize();
-    isFake_pxlpvtx_[nPixelVertices_] =  int(v->isFake()); 
-    ndof_pxlpvtx_[nPixelVertices_] = v->ndof();	
-    if(!v->isFake()) hasGoodPxlPvtx_ = 1;
-    recx_pxlpvtx_[nPixelVertices_] = v->x();
-    recx_err_pxlpvtx_[nPixelVertices_] = v->xError();
-    recy_pxlpvtx_[nPixelVertices_] = v->y();
-    recy_err_pxlpvtx_[nPixelVertices_] = v->yError();
-    recz_pxlpvtx_[nPixelVertices_] = v->z();
-    recz_err_pxlpvtx_[nPixelVertices_] = v->zError();
+      v!=pixelVertexColl->end(); ++v) {
+    if(!v->isFake()) {
+      hasGoodPxlPvtx_ = 1;
+      nTracks_pxlpvtx_[nPixelVertices_] = v->tracksSize();
+      ndof_pxlpvtx_[nPixelVertices_] = v->ndof();	
+      recx_pxlpvtx_[nPixelVertices_] = v->x();
+      recx_err_pxlpvtx_[nPixelVertices_] = v->xError();
+      recy_pxlpvtx_[nPixelVertices_] = v->y();
+      recy_err_pxlpvtx_[nPixelVertices_] = v->yError();
+      recz_pxlpvtx_[nPixelVertices_] = v->z();
+      recz_err_pxlpvtx_[nPixelVertices_] = v->zError();   
+      chi2ndof_pxlpvtx_[nVertices_] = v->normalizedChi2();
+      ++nPixelVertices_;
+    }
   }
   
   
@@ -826,29 +831,28 @@ void LhcTrackAnalyzer::beginJob()
   rootTree_->Branch("nVertices",&nVertices_,"nVertices/I");  
   rootTree_->Branch("nTracks_pvtx",&nTracks_pvtx_,"nTracks_pvtx[nVertices]/I");
   rootTree_->Branch("ndof_pvtx",&ndof_pvtx_,"ndof_pvtx[nVertices]/D"); 
-  rootTree_->Branch("isFake_pvtx",&isFake_pvtx_,"isFake_pvtx[nVertices]/I"); 
   rootTree_->Branch("recx_pvtx",&recx_pvtx_,"recx_pvtx[nVertices]/D"); 
   rootTree_->Branch("recy_pvtx",&recy_pvtx_,"recy_pvtx[nVertices]/D"); 
   rootTree_->Branch("recz_pvtx",&recz_pvtx_,"recz_pvtx[nVertices]/D");
   rootTree_->Branch("recx_err_pvtx",&recx_err_pvtx_,"recx_err_pvtx[nVertices]/D"); 
   rootTree_->Branch("recy_err_pvtx",&recy_err_pvtx_,"recy_err_pvtx[nVertices]/D"); 
   rootTree_->Branch("recz_err_pvtx",&recz_err_pvtx_,"recz_err_pvtx[nVertices]/D");
+  rootTree_->Branch("chi2ndof_pvtx",&chi2ndof_pvtx_,"chi2ndof_pvtx[nVertices]/D");
   rootTree_->Branch("hasGoodPvtx",&hasGoodPvtx_,"hasGoodPvtx/I");  
 
   // PixelVertices
   rootTree_->Branch("nPixelVertices",&nPixelVertices_,"nPixelVertices/I"); 
   rootTree_->Branch("nTracks_pxlpvtx",&nTracks_pxlpvtx_,"nTracks_pxlpvtx[nPixelVertices]/I"); 
-  rootTree_->Branch("isFake_pxlpvtx",&isFake_pxlpvtx_,"isFake_pxlpvtx[nPixelVertices]/I"); 
-  rootTree_->Branch("ndof_pxlpvtx",&ndof_pxlpvtx_,"ndof_pxlpvtx[nVertices]/D"); 
+  rootTree_->Branch("ndof_pxlpvtx",&ndof_pxlpvtx_,"ndof_pxlpvtx[nPixelVertices]/D"); 
   rootTree_->Branch("recx_pxlpvtx",&recx_pxlpvtx_,"recx_pxlpvtx[nPixelVertices]/D");
   rootTree_->Branch("recy_pxlpvtx",&recy_pxlpvtx_,"recy_pxlpvtx[nPixelVertices]/D");  
   rootTree_->Branch("recz_pxlpvtx",&recz_pxlpvtx_,"recz_pxlpvtx[nPixelVertices]/D");
   rootTree_->Branch("recx_err_pxlpvtx",&recx_err_pxlpvtx_,"recx_err_pxlpvtx[nPixelVertices]/D");
   rootTree_->Branch("recy_err_pxlpvtx",&recy_err_pxlpvtx_,"recy_err_pxlpvtx[nPixelVertices]/D");  
   rootTree_->Branch("recz_err_pxlpvtx",&recz_err_pxlpvtx_,"recz_err_pxlpvtx[nPixelVertices]/D"); 
+  rootTree_->Branch("chi2ndof_pxlpvtx",&chi2ndof_pxlpvtx_,"chi2ndof_pxlpvtx[nPixelVertices]/D"); 
   rootTree_->Branch("hasGoodPxlPvtx",&hasGoodPxlPvtx_,"hasGoodPxlPvtx/I"); 
   
-
   // CTF Track
   rootTree_->Branch("ctf_n",&ctf_n_,"ctf_n/I");
   rootTree_->Branch("ctf_nHighPurity",&ctf_nHighPurity_,"ctf_nHighPurity/I"); 
@@ -1054,7 +1058,7 @@ void LhcTrackAnalyzer::SetRootVar() {
     nTracks_pvtx_[i] = 0; // Number of tracks in the pvtx
     ndof_pvtx_[i] = 0;
     sumptsq_pvtx_[i] = 0;
-    isFake_pvtx_[i] = 0;
+    chi2ndof_pvtx_[i] = 0;
     recx_pvtx_[i] = 0;
     recy_pvtx_[i] = 0;
     recz_pvtx_[i] = 0;
@@ -1068,7 +1072,7 @@ void LhcTrackAnalyzer::SetRootVar() {
   nPixelVertices_ = 0;
   for ( int i=0; i<nMaxPixelPVs_; ++i ) { 
     nTracks_pxlpvtx_[i] = 0;
-    isFake_pxlpvtx_[i] = 0; 
+    chi2ndof_pxlpvtx_[i] = 0; 
     ndof_pxlpvtx_[i] = 0;
     recx_pxlpvtx_[i] = 0;
     recy_pxlpvtx_[i] = 0;
