@@ -148,20 +148,19 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int nTracks_pvtx_[nMaxPVs_]; // Number of tracks in the pvtx 
   double ndof_pvtx_[nMaxPVs_];
   double sumptsq_pvtx_[nMaxPVs_];
-  int isFake_pvtx_[nMaxPVs_];
   double recx_pvtx_[nMaxPVs_];
   double recy_pvtx_[nMaxPVs_];
   double recz_pvtx_[nMaxPVs_];
   double recx_err_pvtx_[nMaxPVs_];
   double recy_err_pvtx_[nMaxPVs_];
   double recz_err_pvtx_[nMaxPVs_];
-
+  double chi2ndof_pvtx_[nMaxPVs_];
+  
   // PixelVertices
   static const int nMaxPixelPVs_ = 100;
   int nPixelVertices_;
   int hasGoodPxlPvtx_;
   int nTracks_pxlpvtx_[nMaxPixelPVs_];
-  int isFake_pxlpvtx_[nMaxPixelPVs_];
   int ndof_pxlpvtx_[nMaxPixelPVs_];
   double recx_pxlpvtx_[nMaxPixelPVs_];
   double recy_pxlpvtx_[nMaxPixelPVs_];  
@@ -169,7 +168,8 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   double recx_err_pxlpvtx_[nMaxPixelPVs_];
   double recy_err_pxlpvtx_[nMaxPixelPVs_];
   double recz_err_pxlpvtx_[nMaxPixelPVs_];  
-
+  double chi2ndof_pxlpvtx_[nMaxPixelPVs_]; 
+  
   // ctf Tracks 
   static const int nMaxCTFtracks_ = 1000;
   int ctf_n_;
