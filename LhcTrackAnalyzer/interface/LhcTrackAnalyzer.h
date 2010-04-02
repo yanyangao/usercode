@@ -161,7 +161,7 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
   int nPixelVertices_;
   int hasGoodPxlPvtx_;
   int nTracks_pxlpvtx_[nMaxPixelPVs_];
-  int ndof_pxlpvtx_[nMaxPixelPVs_];
+  double ndof_pxlpvtx_[nMaxPixelPVs_];
   double recx_pxlpvtx_[nMaxPixelPVs_];
   double recy_pxlpvtx_[nMaxPixelPVs_];  
   double recz_pxlpvtx_[nMaxPixelPVs_];
