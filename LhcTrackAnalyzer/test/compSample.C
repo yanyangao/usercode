@@ -17,8 +17,8 @@ void COMPTRK()
   int normScale = NORMSCALE; // == 0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral 3: normalizeByEvents
 
   // Plots filled per event:
-  createPlot(canvas, file, reffile, "perEvt", "n", 200, 0, 200, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perEvt", "nHighPurity", , 0, 150, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perEvt", "n", 100, 0, 200, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perEvt", "nHighPurity", 50, 0, 100, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "nVertices", 10, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "nPixelVertices", 10, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "bsX0", 50, -0.5, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
