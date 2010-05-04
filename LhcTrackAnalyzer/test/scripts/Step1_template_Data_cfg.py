@@ -23,7 +23,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.4 $'),
+        version = cms.untracked.string('$Revision: 1.1 $'),
             annotation = cms.untracked.string('promptCollisionReco nevts:100'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -67,8 +67,8 @@ process.load("UserCode.LhcTrackAnalyzer.LhcTrackAnalyzer_cff")
 process.trackana = process.LhcTrackAnalyzer.clone()
 process.trackana.Debug = False
 process.trackana.ctfTrackCollectionTag = "generalTracks"
-process.trackana.runSecTrackColl = True
-process.trackana.secTrackCollectionTag = "ctfPixelLess"
+process.trackana.runSecTrackColl = False
+process.trackana.secTrackCollectionTag = "generalTracks"
 process.trackana.OutputFileName = cms.string("OUTFILE")
 process.trackana.vertexCollection = "offlinePrimaryVertices"
 process.trackana.pixelVertexCollectionTag = "pixelVertices"
