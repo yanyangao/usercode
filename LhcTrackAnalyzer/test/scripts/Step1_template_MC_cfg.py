@@ -64,8 +64,8 @@ process.load("UserCode.LhcTrackAnalyzer.LhcTrackAnalyzer_cff")
 process.trackana = process.LhcTrackAnalyzer.clone()
 process.trackana.Debug = False
 process.trackana.ctfTrackCollectionTag = "generalTracks"
-process.trackana.runSecTrackColl = False
-process.trackana.secTrackCollectionTag = "generalTracks"
+process.trackana.runSecTrackColl = True
+process.trackana.secTrackCollectionTag = "pixelTracks"
 process.trackana.OutputFileName = cms.string("OUTFILE")
 process.trackana.vertexCollection = "offlinePrimaryVertices"
 process.trackana.pixelVertexCollectionTag = "pixelVertices"
@@ -76,17 +76,31 @@ process.trackana.pixelVertexCollectionTag = "pixelVertices"
 process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
 from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
 process.bit40 = hltLevel1GTSeed.clone(
-        L1TechTriggerSeeding = cms.bool(True),
-            L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
-            )
+    L1TechTriggerSeeding = cms.bool(True),
+    L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
+    )
 
+# require scraping filter
+process.scrapingVeto = cms.EDFilter("FilterOutScraping",
+                                    applyfilter = cms.untracked.bool(True),
+                                    debugOn = cms.untracked.bool(False),
+                                    numtrack = cms.untracked.uint32(10),
+                                    thresh = cms.untracked.double(0.25)
+                                    )
+
+process.primaryVertexFilter = cms.EDFilter("VertexSelector",
+                                           src = cms.InputTag("offlinePrimaryVertices"),
+                                           cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"), # tracksSize() > 3 for the older cut
+                                           filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
+                                           )
+
+process.GOODCOLL = cms.Sequence(process.bit40*(process.primaryVertexFilter+process.scrapingVeto))
 
 # only_analyze
-process.only_analyze = cms.Sequence(process.bit40*process.trackana)   
+process.only_analyze = cms.Sequence(process.trackana)   
 
 # re_tracking
-process.re_tracking = cms.Sequence(process.bit40*
-    ( process.siPixelRecHits * process.siStripMatchedRecHits ) *
+process.re_tracking = cms.Sequence(    ( process.siPixelRecHits * process.siStripMatchedRecHits ) *
     process.ckftracks *
     process.ctfTracksPixelLess
     * process.trackana
@@ -94,8 +108,7 @@ process.re_tracking = cms.Sequence(process.bit40*
 
 
 # re_reco
-process.re_reco = cms.Sequence(process.bit40*
-    ( process.siPixelRecHits * process.siStripMatchedRecHits ) *
+process.re_reco = cms.Sequence(    ( process.siPixelRecHits * process.siStripMatchedRecHits ) *
     process.offlineBeamSpot *
     process.ckftracks *
     process.ctfTracksPixelLess
@@ -103,11 +116,10 @@ process.re_reco = cms.Sequence(process.bit40*
     )
 
 # re_fitting
-process.refitting = cms.Sequence(process.bit40*
-    process.ckftracks *
+process.refitting = cms.Sequence(    process.ckftracks *
     process.ctfTracksPixelLess
     * process.trackana
     )
 
 ### final path and endPath
-process.p = cms.Path(process.SEQUENCE)
+process.p = cms.Path(process.GOODCOLL*process.SEQUENCE)
