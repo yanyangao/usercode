@@ -19,7 +19,7 @@ void COMPTRK()
   // Plots filled per event:
   createPlot(canvas, file, reffile, "perEvt", "n", 100, 0, 200, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "n", 100, 0, 200, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perEvt", "nHighPurity", 100, 0, 200, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perEvt", "ctf_nHighPurity", 100, 0, 200, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "ctf_fHighPurity", 100, 0, 1.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "nVertices", 10, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "nPixelVertices", 10, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
@@ -66,13 +66,13 @@ void COMPTRK()
 
   // Plots filled per Real Vertex  
   createPlot(canvas, file, reffile, "perGoodPvtx",  "nTracks_pvtx", 100, 0, 100, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perGoodPvtx",  "recx_pvtx", 100, 0.1, 0.3, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale); 
-  createPlot(canvas, file, reffile, "perGoodPvtx",  "recy_pvtx", 100, 0.3, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perGoodPvtx",  "recx_pvtx", 100, -0.1, 0.3, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale); 
+  createPlot(canvas, file, reffile, "perGoodPvtx",  "recy_pvtx", 100, -0.1, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perGoodPvtx",  "recz_pvtx", 100, -20, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
 
   // Plots filled per Vertex
-  createPlot(canvas, file, reffile, "perVtx",  "recx_pxlpvtx", 100, 0.1, 0.3, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perVtx",  "recy_pxlpvtx", 100, 0.3, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale); 
+  createPlot(canvas, file, reffile, "perVtx",  "recx_pxlpvtx", 100, -0.1, 0.3, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perVtx",  "recy_pxlpvtx", 100, -0.1, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale); 
   createPlot(canvas, file, reffile, "perVtx",  "recz_pxlpvtx", 100, -20, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
 
   // Plots filled per SiStripHit
@@ -109,7 +109,8 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
   evtcutstring.Append("&&EVTSELECTION");
   TString trkcutstring=basecut;
   trkcutstring.Append("&&EVTSELECTION&&TRKSELECTION");
-  trkcutstring.Append("&&EVTSELECTION&&TRKSELECTION&&abs(ctf_dzCorr_pvtx/ctf_dzErr)<10&&abs(ctf_dxyCorr_pvtx/ctf_dxyErr)<10&&ctf_ptErr/ctf_pt<0.05");
+  //trkcutstring.Append("&&EVTSELECTION&&TRKSELECTION&&ctf_pt>0.6");
+  //trkcutstring.Append("&&EVTSELECTION&&TRKSELECTION&&abs(ctf_dzCorr_pvtx/ctf_dzErr)<10&&abs(ctf_dxyCorr_pvtx/ctf_dxyErr)<10&&ctf_ptErr/ctf_pt<0.05");
 
   // Get the nEvents
   TH1F *hn1 = new TH1F("hn1", "hn1", 300, 0, 300);
@@ -161,12 +162,17 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
 	    || name.Contains("ctf_nHighPurity",TString::kExact)	     
 	    || name.Contains("ctf_fHighPurity",TString::kExact)	 
 	    || name.Contains("nTracks_pvtx",TString::kExact)
+	    || name == "n"
 	    ) {
-    tree->Project("h1",name, evtcutstring);
-    reftree->Project("h2",name, evtcutstring);
+    hist_name = name;
+    if(name=="n" && algo == 1)
+      hist_name.Prepend("ctf_"); 
+    tree->Project("h1",hist_name, evtcutstring);
+    reftree->Project("h2",hist_name, evtcutstring);
     y_title = "Number of Events";
   }
 
+  
   else { 
     if(algo == 1)  hist_name = "ctf_"; 
     if(algo == 2)  hist_name = "sectrk_";
