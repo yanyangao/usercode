@@ -17,25 +17,23 @@ import commands
 
 #####
 release = os.environ["CMSSW_VERSION"]
-workdir = "/afs/cern.ch/cms/tracking/workareas/yygao/LhcTrackAnalyzer/"+release+"/"
+#workdir = "/afs/cern.ch/cms/tracking/workareas/yygao/LhcTrackAnalyzer/"+release+"/"
+workdir = "/uscms_data/d1/ygao/LhcTrackAnalyzer/"+release+"/" 
 sequence = "only_analyze"
 nevent = "50000"
-dataset = "/MinBias/Spring10-START3X_V25B_356ReReco-v1/GEN-SIM-RECO"
-#"/MinimumBias/Commissioning10-CollisionRecoSequence-v7/RECO"
-#"/MinimumBias/Commissioning10-PromptReco-v7/RECO"
-#"/ExpressPhysics/Commissioning10-Express-v7/FEVT"
-dataname ="MinBias_Spring10_START3X_V25B_356ReReco_v1"
-#"Run132440_CollisionSequence"
 
-#"MinBias_Spring10_START3X_V25_354p1ReReco_v1"
-#"MinBias_Spring10_START3X_V25B_v1"
-#"MinBias900GeV_Mar24thReReco"
-globaltag = "GR10_H_V4"
-#"START3X_V25B"
-#"GR10_P_V4"
-#"START3X_V25B"
-#"GR09_R_35X_V4"
+dataset = "/MinBias_TuneD6T_7TeV-pythia6/Spring10-START3X_V26B_preproduction-v1/GEN-SIM-RECO"
+dataname = "MinBias_START3X_V26B_preprod"
+globaltag = "START3X_V26B"
 
+#dataset = "/MinimumBias/Commissioning10-May3rdReReco_of_Apr20ValSkim_PreProduction_v1/RECO"
+#dataname = "May3rdReReco_of_Apr20ValSkim"
+#globaltag = "GR_R_35X_V8A"
+
+
+#dataset = "/MinimumBias/Commissioning10-Apr20Skim_ValSkim-v1/RAW-RECO"
+#dataname = "Apr20ValSkim"
+#globaltag = "GR_R_35X_V8A"
 
 ######
 ntupledir = workdir+"ntuple/"
