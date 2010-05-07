@@ -18,36 +18,40 @@ void COMPTRK()
 
   // Plots filled per event:
   createPlot(canvas, file, reffile, "perEvt", "n", 100, 0, 200, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perEvt", "n", 100, 0, 200, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "nHighPurity", 100, 0, 200, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perEvt", "ctf_fHighPurity", 100, 0, 1.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "nVertices", 10, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "nPixelVertices", 10, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  // BeamSpot
   createPlot(canvas, file, reffile, "perEvt", "bsX0", 50, -0.5, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "bsY0", 50, -0.5, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "bsZ0", 50, -5, 5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "bsSigmaZ", 50, 0, 15, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);  
   createPlot(canvas, file, reffile, "perEvt", "bsWidthX", 50, 0, 0.2, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perEvt", "bsWidthY", 50, 0, 0.2, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perEvt", "ctf_fHighPurity", 100, 0, 1.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+
   
     // Plots filled per track
   createPlot(canvas, file, reffile, "perTrk",  "nHit", 40, 0, 40, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perTrk",  "nLostHit", 10, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perTrk",  "nPXBhit", 20, 0, 20, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perTrk",  "nPXFhit", 20, 0, 20, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "nPXBhit", 20, 0, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "nPXFhit", 20, 0, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perTrk",  "nTIBhit", 20, 0, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perTrk",  "nTOBhit", 20, 0, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perTrk",  "nTIDhit", 20, 0, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perTrk",  "nTEChit", 20, 0, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perTrk",  "nLayers", 30, 0, 30, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perTrk",  "nPXBLayers", 10, 0, 10, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perTrk",  "nPXFLayers", 10, 0, 10, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perTrk",  "nPixelHit", 10, 0, 10, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "nPXBLayers", 10, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "nPXFLayers", 10, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "nPixelHit", 10, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perTrk",  "nLayers3D", 30, 0, 30, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
     
   createPlot(canvas, file, reffile, "perTrk",  "eta", 60, -3, 3, te,"UU",0.15,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "pt", 100, 0, 10, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perTrk",  "pt", 100, 0, 10, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perTrk",  "phi", 70, -3.5, 3.5, te,"UU",0.15,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perTrk",  "dxyCorr", 100, -0.5, 0.5, te,"UU",0.55,0.70,false,false,true,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perTrk",  "dxyCorr", 100, -0.5, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perTrk",  "dz", 100, -20, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
 
   createPlot(canvas, file, reffile, "perTrk",  "xPCA", 100, -0.5, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
@@ -62,13 +66,13 @@ void COMPTRK()
 
   // Plots filled per Real Vertex  
   createPlot(canvas, file, reffile, "perGoodPvtx",  "nTracks_pvtx", 100, 0, 100, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perGoodPvtx",  "recx_pvtx", 100, -0.1, 0.6, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale); 
-  createPlot(canvas, file, reffile, "perGoodPvtx",  "recy_pvtx", 100, -0.1, 0.6, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perGoodPvtx",  "recx_pvtx", 100, 0.1, 0.3, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale); 
+  createPlot(canvas, file, reffile, "perGoodPvtx",  "recy_pvtx", 100, 0.3, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
   createPlot(canvas, file, reffile, "perGoodPvtx",  "recz_pvtx", 100, -20, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
 
   // Plots filled per Vertex
-  createPlot(canvas, file, reffile, "perVtx",  "recx_pxlpvtx", 100, -0.1, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
-  createPlot(canvas, file, reffile, "perVtx",  "recy_pxlpvtx", 100, -0.1, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale); 
+  createPlot(canvas, file, reffile, "perVtx",  "recx_pxlpvtx", 100, 0.1, 0.3, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
+  createPlot(canvas, file, reffile, "perVtx",  "recy_pxlpvtx", 100, 0.3, 0.5, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale); 
   createPlot(canvas, file, reffile, "perVtx",  "recz_pxlpvtx", 100, -20, 20, te,"UU",0.55,0.70,false,false,false,do_CTF_SecTrk, normScale);
 
   // Plots filled per SiStripHit
@@ -250,7 +254,8 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
   h1->SetLineWidth(3);
   h1->GetXaxis()->SetTitle(x_title); 
   h1->GetYaxis()->SetTitle(y_title);
-  
+  setOverFlowBin(h1);
+
   h2->SetLineColor(2);
   h2->SetMarkerColor(2);
   h2->SetMarkerStyle(21);
@@ -259,7 +264,8 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
   h2->SetLineWidth(3);
   h2->GetXaxis()->SetTitle(x_title);  
   h2->GetYaxis()->SetTitle(y_title);
-  
+  setOverFlowBin(h2);
+
   setStats(h1, h2, startingY,  startingX, fit);
   
   if(normScale!=3)
@@ -287,12 +293,16 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
   TString pngdirname ="PNGDIR";
   TString pngfilename = pngdirname;
   pngfilename.Append(name);
+  if(logy)
+    pngfilename.Append("_log");
   pngfilename.Append(".png");
   canvas->Print(pngfilename);
 
   TString epsdirname ="EPSDIR";
   TString epsfilename = epsdirname;
   epsfilename.Append(name);
+  if(logy)
+    epsfilename.Append("_log");
   epsfilename.Append(".eps");
   canvas->Print(epsfilename);
 
@@ -423,4 +433,10 @@ void fixRangeY(TH1* r,TH1* s){
     r->GetBinContent(r->GetMaximumBin()) : s->GetBinContent(s->GetMaximumBin());
   r->GetYaxis()->SetRangeUser(ymin*0.9,ymax*1.1);
   s->GetYaxis()->SetRangeUser(ymin*0.9,ymax*1.1);
+}
+
+void setOverFlowBin(TH1 *& h1) {
+  int lastBin = h1->GetNbinsX();
+  h1->SetBinContent(lastBin, h1->GetBinContent(lastBin) + h1->GetBinContent(lastBin+1));
+  h1->SetBinContent(1, h1->GetBinContent(1) + h1->GetBinContent(0));
 }

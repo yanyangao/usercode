@@ -30,8 +30,8 @@ set Events=-1
 set cfg="trackana_data_cfg.py"
 
 ###==== Set work directory
-set workdir="/store/disk02/yanyangao/LhcTrackAnalyzer/$Release" # at cms-tas03
-#set workdir="/uscms_data/d1/ygao/LhcTrackAnalyzer/$Release" # uscms
+#set workdir="/store/disk02/yanyangao/LhcTrackAnalyzer/$Release" # at cms-tas03
+set workdir="/uscms_data/d1/ygao/LhcTrackAnalyzer/$Release" # uscms
 set cfgfiledir="$workdir/cfgfiles"
 set outputdir="$workdir/ntuple"
 set logdir="$workdir/log/"
@@ -48,11 +48,11 @@ mkdir -p $pngdir
 mkdir -p $epsdir
 
 ###==== Set publish dir
-set ifpublish="false"
+set ifpublish="true"
 
 if ($ifpublish == "true") then 
-  #set publishdir="/afs/fnal.gov/files/home/room2/ygao/public_html/CMS/Tracking/LhcTrackAnalyzer/$Release" # At fnal
-  set publishdir="/afs/cern.ch/user/y/yygao/www/LhcTrackAnalyzer/$Release" # at cern
+  set publishdir="/afs/fnal.gov/files/home/room2/ygao/public_html/CMS/Tracking/LhcTrackAnalyzer/$Release" # At fnal
+  #set publishdir="/afs/cern.ch/user/y/yygao/www/LhcTrackAnalyzer/$Release" # at cern
   mkdir -p $publishdir
 endif
 
@@ -250,25 +250,19 @@ else if ($1 == 4) then
 
  set comptrk="compdatamc"
 
-set newfile="work/ntuple/MinBias900GeV_BSCNOBEAMHALO_Dec19thSkim_v1_GR09_R_V5_only_analyze.root"
-set reffile="work/ntuple/MinBias_Summer09_MC_STARTUP3X_V8K_900GeV_v1_STARTUP3X_V8K_CMSSW_3_3_6_patch3.root"
+set newfile="work/ntuple/MinBias_START3X_V26B_preprod_only_analyze.root"
+set newlabel="MB7TeV_V26B358p2"
 
-set newlabel="MB900GeV_Dec19ReReco"
-#set reflabel="MB900GeV"
-#set newlabel="Run124120"
-set reflabel="STARTUPV8K"
+set reffile="/uscms_data/d2/ygao/LhcTrackAnalyzer/CMSSW_3_5_7/ntuple/MinBias_Spring10_START3X_V26A_357ReReco_only_analyze.root"
+set reflabel="V26A357ReReco"
 
 
  set ctfOrSecTrk="1" #1: ctf; 2: sectrk
  set normScale="3" #0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral  3: normalizationByEvents  
  
- ## Specify the cuts
+## Specify the cuts
 #set cutstring="nocut"
-# set cutstring="GoodPvtxCutfHighPurity"
-#set cutstring="GoodPvtxCutfHPnLayers"
 set cutstring="GoodPvtxHighPurity"
-#set cutstring="HighPurityGoodPvtx" 
-#set cutstring="GoodPvtxCutnTracks"
 
 switch ($cutstring)
    case "nocut"
