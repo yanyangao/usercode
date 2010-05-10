@@ -23,7 +23,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.3 $'),
+        version = cms.untracked.string('$Revision: 1.4 $'),
             annotation = cms.untracked.string('promptCollisionReco nevts:100'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -86,10 +86,13 @@ process.bit40 = hltLevel1GTSeed.clone(
     L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
     )
 # require physics declared
-process.physDecl = cms.EDFilter("PhysDecl",
-                                applyfilter = cms.untracked.bool(True)
-                                )
+# OutDated
+#process.physDecl = cms.EDFilter("PhysDecl",
+#                                applyfilter = cms.untracked.bool(True)
+#                                )
 
+process.load('HLTrigger.special.hltPhysicsDeclared_cfi')
+process.hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'
 # require scraping filter
 process.scrapingVeto = cms.EDFilter("FilterOutScraping",
                                     applyfilter = cms.untracked.bool(True),
@@ -105,7 +108,7 @@ process.primaryVertexFilter = cms.EDFilter("VertexSelector",
                                            # otherwise it won't filter the events, just produce an empty vertex collection.
                                            )
 
-process.GOODCOLL = cms.Sequence(process.bit40*process.physDecl*(process.primaryVertexFilter+process.scrapingVeto))
+process.GOODCOLL = cms.Sequence(process.bit40*process.hltPhysicsDeclared*(process.primaryVertexFilter+process.scrapingVeto))
 
 
 
