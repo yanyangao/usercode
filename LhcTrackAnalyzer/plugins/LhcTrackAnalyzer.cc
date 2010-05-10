@@ -281,7 +281,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       recy_err_pxlpvtx_[nPixelVertices_] = v->yError();
       recz_pxlpvtx_[nPixelVertices_] = v->z();
       recz_err_pxlpvtx_[nPixelVertices_] = v->zError();   
-      chi2ndof_pxlpvtx_[nVertices_] = v->normalizedChi2();
+      chi2ndof_pxlpvtx_[nPixelVertices_] = v->normalizedChi2();
       ++nPixelVertices_;
     }
   }
