@@ -250,12 +250,11 @@ else if ($1 == 4) then
 
  set comptrk="compdatamc"
 
-set newfile="work/ntuple/MinBias_START3X_V26B_preprod_only_analyze.root"
-set newlabel="MB7TeV_V26B358p2"
+set newfile="work/ntuple/MinBias_RelVal_370valskim_132601_only_analyze.root"
+set newlabel="370valsim"
 
-set reffile="/uscms_data/d2/ygao/LhcTrackAnalyzer/CMSSW_3_5_7/ntuple/MinBias_Spring10_START3X_V26A_357ReReco_only_analyze.root"
-set reflabel="V26A357ReReco"
-
+set reffile="/uscms_data/d1/ygao/LhcTrackAnalyzer/CMSSW_3_5_8_patch3/ntuple/MinBias_May6thPDSkim_valskim_132601_only_analyze.root"
+set reflabel="358p3valskim"
 
  set ctfOrSecTrk="1" #1: ctf; 2: sectrk
  set normScale="3" #0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral  3: normalizationByEvents  
@@ -364,8 +363,9 @@ switch ($cutstring)
       > ! $comppublishdir/makeHtml.py
 
    chmod u+x $comppublishdir/makeHtml.py 
-
    $comppublishdir/makeHtml.py $comppublishdir
+   cp trackingcomp.html $comppublishdir/index.html
+
  endif
 
 
