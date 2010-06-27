@@ -17,73 +17,39 @@ import commands
 
 #####
 release = os.environ["CMSSW_VERSION"]
-#workdir = "/afs/cern.ch/cms/tracking/workareas/yygao/LhcTrackAnalyzer/"+release+"/"
-workdir = "/uscms_data/d1/ygao/LhcTrackAnalyzer/"+release+"/" 
+workdir = "."
+dataset = ''
+lumi = ''
 sequence = "only_analyze"
 nevent = "50000"
-
-dataset = "/MinBias_TuneD6T_7TeV-pythia6/Spring10-START3X_V26B_preproduction-v1/GEN-SIM-RECO"
-dataname = "MinBias_START3X_V26B_preprod"
-globaltag = "START3X_V26B"
-
-#dataset = "/MinimumBias/Commissioning10-May3rdReReco_of_Apr20ValSkim_PreProduction_v1/RECO"
-#dataname = "May3rdReReco_of_Apr20ValSkim"
-#globaltag = "GR_R_35X_V8A"
-
-
-#dataset = "/MinimumBias/Commissioning10-Apr20Skim_ValSkim-v1/RAW-RECO"
-#dataname = "Apr20ValSkim"
-#globaltag = "GR_R_35X_V8A"
-
-######
-ntupledir = workdir+"ntuple/"
-cfgdir = workdir+"cfgfiles/"
-logdir = workdir+"log/"
-epsdir = workdir+"epsfiles/"
-pngdir = workdir+"epsfiles/"
-
-os.system("mkdir -p "+workdir)
-os.system("mkdir -p "+cfgdir)
-os.system("mkdir -p "+logdir) 
-os.system("mkdir -p "+epsdir)
-os.system("mkdir -p "+pngdir)
-os.system("mkdir -p "+ntupledir)
-
-cfidir = "../../python/"
-cfifilepath = "UserCode.LhcTrackAnalyzer."
-
+global_tag_flag = ''#"GR10_P_V7::All"
+global_tag = '' 
 ##### End of setting variables
 
-def get_list_files(datamode,mode):
-
+def runjob(datamode):
     lfiles = []
-    inputtmp = open("Input_template_cfi.py","r")
+    dataname = dataset.split('/')[1]+'_'+dataset.split('/')[2]
+    print dataname
     
     if datamode == "mc":
         dbsquery = "dbs search --noheader --query=\"find file where dataset="+dataset+"\" > tmplist.txt"
-        cfiname = cfidir+dataname+"_cfi"
     elif datamode == "data":
         dbsquery = "dbs search --noheader --query=\"find file where dataset="+dataset+"\" > tmplist.txt"
-        cfiname = cfidir+dataname+"_cfi"
     else:
         dbsquery = "dbs search --noheader --query=\"find file where dataset="+dataset+" and run = "+datamode + " \" > tmplist.txt"
-        cfiname = cfidir+dataname+"_"+datamode+"_cfi"
+
     print dbsquery
     os.system(dbsquery)
-    print cfiname
 
     n=0
     fileHandle = open("tmplist.txt")
     lineList = fileHandle.readlines()
     nfiles = len(lineList)-1
-
     lineList = map(string.strip, lineList)
     prefix = ""
 
     for f in lineList:
-        #print n
         if f.find("store") != -1:
-            #print f
             if n < nfiles:
                 if n % 256 == 0:
                     if n == 0:
@@ -96,163 +62,109 @@ def get_list_files(datamode,mode):
             else:
                 lfiles.append("      '" + prefix + f + "'\n")
         n=n+1
-    fileHandle.close()
+    fileHandle.close() 
+                        
+    dataname = dataset.split('/')[1]+'_'+dataset.split('/')[2]
+    
+    ntupledir = workdir+"/"+release+"/ntuple/"
+    cfgdir = workdir+"/"+release+"/cfgfiles/"
+    logdir = workdir+"/"+release+"/log/"
+    epsdir = workdir+"/"+release+"/epsfiles/"
+    pngdir = workdir+"/"+release+"/pngfiles/"
+    
+    os.system("mkdir -p "+cfgdir)
+    os.system("mkdir -p "+logdir) 
+    os.system("mkdir -p "+epsdir)
+    os.system("mkdir -p "+pngdir)
+    os.system("mkdir -p "+ntupledir)
 
-    fout = open(cfiname+".py","w")
-    for line in inputtmp:
-        if line.find("INPUTFILES")!=-1:
-            for f in lfiles:
-                fout.write(f)
-        if not "INPUTFILES" in line:
-            fout.write(line)
-    fout.close()
-        
-    ## Copy cfi file to run directories
-    os.system("rm -f  tmplist.txt")    
-    os.system("cp "+cfiname+".py "+cfgdir)
-
-###############################
-####### Run cmsRUN
-###############################
-        
-def runjob(datamode,jobmode):
-
-    if datamode == "data":
-        cfiname = cfifilepath+dataname+"_cfi"
-        cfgfileName = cfgdir+dataname+"_"+sequence+"_cfg.py"
-
-    elif datamode == "mc":
-        cfiname = cfifilepath+dataname+"_cfi"
-        cfgfileName = cfgdir+dataname+"_"+sequence+"_cfg.py"
-
-    else:
-        cfiname = cfifilepath+dataname+"_"+datamode+"_cfi"
-        cfgfileName = cfgdir+dataname+"_"+datamode+"_"+sequence+"_cfg.py"
-
-    print cfiname
-    print cfgfileName
-
-    ## For MC
     if datamode == "mc":
-        cfgfile = open(cfgfileName, "w")
-        cfgtmp = open("Step1_template_MC_cfg.py")
-        replacetag = [
-            ('INPUT_FILE',cfiname),
-            ('NEVENT',nevent),
-            ('SEQUENCE',sequence), 
-            ('OUTFILE',ntupledir+dataname+"_"+sequence+".root"),
-            ('GLOBALTAG',globaltag) 
-            ]
-        for line in cfgtmp:
-            for itag in replacetag:
-                line = line.replace(itag[0],itag[1])
-            cfgfile.write(line)
-            
-    elif datamode == "data":
-        cfgfileName = cfgdir+dataname+"_"+sequence+"_cfg.py"
-        cfgfile = open(cfgfileName, "w")
-        cfgtmp = open("Step1_template_Data_cfg.py")
-        lumilist = open("runlumi.txt")
-        lineList = lumilist.readlines()
-        nLines = len(lineList)-1 
-        lumirange = ""
-
-        for f in lineList:
-            lumirange += f
-        
-        replacetag = [
-            ('INPUT_FILE',cfiname),
-            ('NEVENT',nevent),
-            ('LUMIRANGE',lumirange),
-            ('SEQUENCE',sequence),
-            ('OUTFILE',ntupledir+dataname+"_"+sequence+".root"),
-            ('GLOBALTAG',globaltag)
-            ]
-
-        for line in cfgtmp:
-            for itag in replacetag:
-                line = line.replace(itag[0],itag[1])
-            cfgfile.write(line)
-
+        cmsswSkelFile = "trackana_template_MC_cfg.py"
     else:
-        print cfiname
-        cfgfileName = cfgdir+dataname+"_"+datamode+"_"+sequence+"_cfg.py"
-        cfgfile = open(cfgfileName, "w")
-        cfgtmp = open("Step1_template_Data_cfg.py")
-        lumilist = open("runlumi.txt")
-        lineList = lumilist.readlines()
-        nLines = len(lineList)-1 
-        lumirange = ""
-
-        for f in lineList:
-            lumirange += f
+        cmsswSkelFile = "trackana_template_Data_cfg.py"
+    if os.path.exists(cmsswSkelFile) == False:
+        print 'CMSSW skeleton file does not exist. Exiting'
+        sys.exit()
         
-        replacetag = [
-            ('INPUT_FILE',cfiname),
-            ('NEVENT',nevent),
-            ('LUMIRANGE',lumirange),
-            ('SEQUENCE',sequence),
-            ('OUTFILE',ntupledir+dataname+"_"+datamode+"_"+sequence+".root"),
-            ('GLOBALTAG',globaltag)
-            ]
+    inFile = open(cmsswSkelFile, 'r').read().split('\n')
+    outFileName = cfgdir+dataname+"_"+datamode+"_"+sequence+"_cfg.py"
 
-        for line in cfgtmp:
-            for itag in replacetag:
-                line = line.replace(itag[0],itag[1])
-            cfgfile.write(line)       
+    print 'Writing CMS2 CMSSW python config file : ' + outFileName
+    outFile = open(outFileName, 'w')
+
+    for i in inFile:
+        if i.find("INPUTFILES") != -1:
+            for f in lfiles:
+                outFile.write(f);
+            continue
+        if i.find('GLOBALTAG') != -1:
+            outFile.write('process.GlobalTag.globaltag = "' + global_tag + '"\n'); continue
+        if i.find('NEVENT') != -1:
+           outFile.write('process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(' + str(nevent) + '))\n'); continue
+        if i.find('SEQUENCE') != -1:
+            outFile.write('process.p = cms.Path(process.GOODCOLL*process.' + sequence +  ')\n'); continue
+        if i.find('LUMIRANGE') != -1:
+            if lumi != '': 
+                outFile.write('process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange( \'' + lumi +  '\')\n'); continue
+            else:
+                outFile.write(''); continue
+        if i.find('OUTFILE') != -1:
+            outFile.write('process.trackana.OutputFileName = cms.string("' + ntupledir + dataname + '_' + sequence + '.root")\n'); continue                
                 
-    cfgfile.close()    ### Finish writing cfg files
+        outFile.write(i+'\n')        
 
+    outFile.close()
 
-###Run cmsRun
-    if jobmode == "local":
-        #scriptdir = os.environ['PWD']
-        #print scriptdir
-        os.system("cd $CMSSW_BASE/src/ ; scramv1 b ;")
-        runjobcmd = "cmsRun "+cfgfileName+" >& "+logdir+dataname+"_"+sequence+".log &"
-        print runjobcmd
-        os.system(runjobcmd)
+    os.system("cd $CMSSW_BASE/src/ ; scramv1 b ;")
+    runjobcmd = "cmsRun "+outFileName+" >& "+logdir+dataname+"_"+sequence+".log &"
+    print runjobcmd
+    os.system(runjobcmd)
                                                                 
 ###############################
 ####### Main Program
 ###############################
 
-def main():
+if len(sys.argv) < 5 :
+    print 'Usage: trackana_submitJob.py [OPTIONS]'
+    print '\nWhere the required options are: '
+    print '\t-dataset\t\tname of dataset'
+    print '\t-datamode\t\tdata mode <data/mc/runno(interger)>'
+    print '\nOptional arguments:'
+    print '\t-dir\tworkdir. Default is the current directory'
+    print '\t-nEvts\tNumber of Events.Default is 50000'
+    print '\t-lumi\tLumi range. Default is the entire run'
+    print '\t-gtag\tglobaltag. If not specfied, will take it directly from the DBS'
+    sys.exit()
     
-    if len(sys.argv) < 5:
-        print "\n [Usage] python SubmitJobs.py <data/mc/runno> <getinput/runjob/comptrk> <caf/lxplus/cmslpc> <local/batch>"
+for i in range(0, len(sys.argv)):
+    if sys.argv[i] == '-dataset':
+        dataset = sys.argv[i+1]
+    if sys.argv[i] == '-datamode':
+        datamode = sys.argv[i+1]
+    if sys.argv[i] == '-dir':
+        workdir = sys.argv[i+1]
+    if sys.argv[i] == '-nEvts':
+        nevent = sys.argv[i+1]
+    if sys.argv[i] == '-lumi':
+        lumi = sys.argv[i+1]
+    if sys.argv[i] == '-gtag':
+        global_tag_flag = sys.argv[i+1]
+
+#print '\nGetting global tag from DBS...'
+if( global_tag_flag != '' ):
+    print '\nUsing \'' + global_tag_flag + '\' specified by -gtag flag.\n'
+    global_tag = global_tag_flag
+else:       
+    print '\nGetting global tag from DBS...'
+    dbs_result = '';
+    command = 'dbsql find config.name,config.content where dataset=' + dataset + '>config.content; while read line; do globaltag=`echo $line | sed -n \'s/^.*process.GlobalTag.globaltag = \([^p]*\).*$/\\1/p\'`; if [ "$globaltag" != "" ]; then echo $globaltag; break; fi; done <config.content; rm config.content';
+    lines = os.popen(command);
+    for i in lines.readlines():
+        dbs_result = re.sub('\n', '', i)
+        global_tag = re.sub('#.+$', '', dbs_result)
+    print global_tag       
+    if global_tag == "":
+        print '\n GlobalTag is empty from the DBS, please specifiy globalTag manually by -gtag options in the format of(TAG::All) '
         sys.exit()
 
-    datamode = sys.argv[1]
-    jobtype = sys.argv[2]
-    mode = sys.argv[3]
-    jobmode = sys.argv[4]
-    
-    if mode == "caf":
-        fmode = 0
-    elif mode == "lxplus":
-        fmode = 1
-    elif mode == "cmslpc":
-        fmode = 2
-        jobmode = "local" ## temporary
-    else:
-        print "Mode not supported"
-        sys.exit()
-        
-    if jobtype == "getinput":
-        #print jobtype
-        get_list_files(datamode,mode)
-    elif jobtype == "runjob":
-        runjob(datamode,jobmode)
-        
-        
-    else:
-       sys.exit()
-        
-
-                        
-#_________________________________    
-if __name__ =='__main__':
-    sys.exit(main())
-
-
+runjob(datamode)
