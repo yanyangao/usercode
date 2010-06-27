@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 #____________________________________________________________
 #
-#  SubmitJobs
+#  SubmitJobs locally
 #
-# A very simple way to submit jobs
+# Example:
+# python trackana_submitJob.py  -dataset   /MinimumBias/Run2010A-PromptReco-v4/RECO -datamode 138747 -lumi 138747:1-138747:max -gtag GR10_P_V7::All -nEvts -1 -dir work/
 #
 # Yanyan Gao
 # Yanyan.Gao@cern.ch
@@ -150,7 +151,6 @@ for i in range(0, len(sys.argv)):
     if sys.argv[i] == '-gtag':
         global_tag_flag = sys.argv[i+1]
 
-#print '\nGetting global tag from DBS...'
 if( global_tag_flag != '' ):
     print '\nUsing \'' + global_tag_flag + '\' specified by -gtag flag.\n'
     global_tag = global_tag_flag
