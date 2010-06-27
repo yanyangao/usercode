@@ -116,7 +116,7 @@ def runjob(datamode):
     outFile.close()
 
     os.system("cd $CMSSW_BASE/src/ ; scramv1 b ;")
-    runjobcmd = "cmsRun "+outFileName+" >& "+logdir+dataname+"_"+sequence+".log &"
+    runjobcmd = "cmsRun "+outFileName+" >& "+logdir+dataname+"_"+datamode+"_"+sequence+".log &"
     print runjobcmd
     os.system(runjobcmd)
                                                                 
