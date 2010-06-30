@@ -31,7 +31,9 @@ set cfg="trackana_data_cfg.py"
 
 ###==== Set work directory
 #set workdir="/store/disk02/yanyangao/LhcTrackAnalyzer/$Release" # at cms-tas03
-set workdir="/uscms_data/d1/ygao/LhcTrackAnalyzer/$Release" # uscms
+#set workdir="/uscms_data/d1/ygao/LhcTrackAnalyzer/$Release" # uscms
+set workdir="/afs/cern.ch/cms/tracking/workareas/yygao/$Release" # at lxplus
+
 set cfgfiledir="$workdir/cfgfiles"
 set outputdir="$workdir/ntuple"
 set logdir="$workdir/log/"
@@ -51,8 +53,8 @@ mkdir -p $epsdir
 set ifpublish="true"
 
 if ($ifpublish == "true") then 
-  set publishdir="/afs/fnal.gov/files/home/room2/ygao/public_html/CMS/Tracking/LhcTrackAnalyzer/$Release" # At fnal
-  #set publishdir="/afs/cern.ch/user/y/yygao/www/LhcTrackAnalyzer/$Release" # at cern
+  #set publishdir="/afs/fnal.gov/files/home/room2/ygao/public_html/CMS/Tracking/LhcTrackAnalyzer/$Release" # At fnal
+  set publishdir="/afs/cern.ch/user/y/yygao/www/LhcTrackAnalyzer/$Release" # at cern
   mkdir -p $publishdir
 endif
 
@@ -250,11 +252,11 @@ else if ($1 == 4) then
 
  set comptrk="compdatamc"
 
-set newfile="work/ntuple/MinBias_RelVal_370valskim_132601_only_analyze.root"
-set newlabel="370valsim"
+set newfile="scripts/work/CMSSW_3_6_1_patch4/ntuple/MinimumBias_Run2010A-PromptReco-v4_138746_only_analyze.root"
+set newlabel="138746"
 
-set reffile="/uscms_data/d1/ygao/LhcTrackAnalyzer/CMSSW_3_5_8_patch3/ntuple/MinBias_May6thPDSkim_valskim_132601_only_analyze.root"
-set reflabel="358p3valskim"
+set reffile="scripts/work/CMSSW_3_6_1_patch4/ntuple/MinimumBias_Run2010A-PromptReco-v4_138747_only_analyze.root"
+set reflabel="138747lsBelow133"
 
  set ctfOrSecTrk="1" #1: ctf; 2: sectrk
  set normScale="3" #0: do nothing; 1: normalizeByEntries; 2: normalizeByIntegral  3: normalizationByEvents  

@@ -110,7 +110,7 @@ def runjob(datamode):
             else:
                 outFile.write(''); continue
         if i.find('OUTFILE') != -1:
-            outFile.write('process.trackana.OutputFileName = cms.string("' + ntupledir + dataname + '_' + sequence + '.root")\n'); continue                
+            outFile.write('process.trackana.OutputFileName = cms.string("' + ntupledir + dataname + '_' + datamode + "_" + sequence + '.root")\n'); continue                
                 
         outFile.write(i+'\n')        
 

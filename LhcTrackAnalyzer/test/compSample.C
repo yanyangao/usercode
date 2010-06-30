@@ -104,13 +104,11 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
   // If the histogram is filled per track, cut on the event and track.
   // Otherwise, cut only on the event level
   
-  TString basecut="hasGoodPvtx==1&&ctf_fHighPurity>0.2";
+  TString basecut="hasGoodPvtx==1&&ctf_fHighPurity>0.25";
   TString evtcutstring=basecut;
   evtcutstring.Append("&&EVTSELECTION");
   TString trkcutstring=basecut;
   trkcutstring.Append("&&EVTSELECTION&&TRKSELECTION");
-  //trkcutstring.Append("&&EVTSELECTION&&TRKSELECTION&&ctf_pt>0.6");
-  //trkcutstring.Append("&&EVTSELECTION&&TRKSELECTION&&abs(ctf_dzCorr_pvtx/ctf_dzErr)<10&&abs(ctf_dxyCorr_pvtx/ctf_dxyErr)<10&&ctf_ptErr/ctf_pt<0.05");
 
   // Get the nEvents
   TH1F *hn1 = new TH1F("hn1", "hn1", 300, 0, 300);
@@ -120,8 +118,6 @@ void createPlot(TCanvas *canvas, TFile *file, TFile *reffile, TString type, TStr
   reftree->Project("hn2","ctf_nHighPurity", evtcutstring); 
   int nEvents1 = hn1->GetEntries();
   int nEvents2 = hn2->GetEntries();
-  //cout<<nEvents1<<endl;
-  //cout<<nEvents2<<endl;
 
   TString hist_name;
   
