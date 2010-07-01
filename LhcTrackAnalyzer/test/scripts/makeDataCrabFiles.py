@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 #____________________________________________________________
 #
-#  SubmitJobs locally
+# SubmitJobs through crab
+# 
+# For usage help
 #
+# python makeDataCrabFiles.py  
+# 
 # Example:
-# python makeDataCrabFiles.py -dataset /JetMETTau/Run2010A-PromptReco-v2/RECO -l JSON_Run136100.txt -m condor
 #
+# python makeDataCrabFiles.py -dataset /JetMETTau/Run2010A-PromptReco-v2/RECO -l JSON_Run136100.txt -m condor -dir work -j Run136100 -gtag GR10_P_V6::All
+#
+#######
 # Yanyan Gao
 # Yanyan.Gao@cern.ch
 #
@@ -29,9 +35,9 @@ sequence = "only_analyze"
 nevent = "50000"
 global_tag_flag = ''#"GR10_P_V7::All"
 global_tag = ''
-crabdir = workdir + "/" + release + '/'
-ntupleName = 'ntuple_'+ sequence + '.root' 
-os.system("mkdir -p "+ crabdir)
+jobname = ''
+ntupleName = 'ntuple.root' 
+
 
 ##### End of setting variables
 
@@ -45,8 +51,10 @@ def makeCMSSWConfig(cmsswSkelFile):
         sys.exit()
         
     inFile = open(cmsswSkelFile, 'r').read().split('\n')
-
-    outFileName = dataname + '_' + sequence + '_cfg.py'
+    if jobname != '':
+        outFileName = dataname + '_' + jobname + '_' + sequence + '_cfg.py'
+    else:
+        outFileName = dataname + '_' + sequence + '_cfg.py'
     print 'Writing CMS2 CMSSW python config file : ' + outFileName
     outFile = open(outFileName, 'w')
 
@@ -54,10 +62,7 @@ def makeCMSSWConfig(cmsswSkelFile):
         if i.find("INPUTFILES") != -1:
             outFile.write('\'\'\n'); continue
         if i.find('GLOBALTAG') != -1:
-            if sequence != 'only_analyze':
-                outFile.write('process.GlobalTag.globaltag = "' + global_tag + '"\n'); continue
-            else:
-                outFile.write(''); continue
+            outFile.write('process.GlobalTag.globaltag = "' + global_tag + '"\n'); continue
         if i.find('NEVENT') != -1:
            outFile.write('process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(' + str(nevent) + '))\n'); continue
         if i.find('SEQUENCE') != -1:
@@ -73,7 +78,12 @@ def makeCMSSWConfig(cmsswSkelFile):
 
 #
 def makeCrabConfig():
-    outFileName = dataset.split('/')[1]+'_'+dataset.split('/')[2] + '_' + sequence
+    crabdir = workdir + "/" + release + '/crabdir/'
+    os.system("mkdir -p "+ crabdir)
+    if jobname != '':
+        outFileName = dataset.split('/')[1]+'_'+dataset.split('/')[2] + '_' + jobname + '_' + sequence
+    else:
+        outFileName = dataset.split('/')[1]+'_'+dataset.split('/')[2] + '_' + sequence
     outFile = open(outFileName + '.cfg', 'w')
     print 'Writing CRAB config file: ' + outFileName + '.cfg'
     outFile.write('[CRAB]\n')
@@ -126,7 +136,7 @@ if len(sys.argv) < 4 :
     print 'Usage: makeDataCrabFiles.py [OPTIONS]'
     print '\nWhere the required options are: '
     print '\t-dataset\t\tname of dataset'
-    print '\t-l\t\tJason File to specify the run/lumi'
+    print '\t-l\t\tJSON File to specify the run/lumi'
     print '\nOptional arguments:'
     print '\t-nLumis\t\tTotal number of lumis you want to run on. Default is -1'
     print '\t-lumisPerJob\tNumber of lumis per job. Default is 25'
@@ -143,7 +153,9 @@ for i in range(0, len(sys.argv)):
     if sys.argv[i] == '-l':
         lumimask = str(sys.argv[i+1])        
     if sys.argv[i] == '-cfg':
-        cmsswSkelFile = sys.argv[i+1]        
+        cmsswSkelFile = sys.argv[i+1]
+    if sys.argv[i] == '-j':
+        jobname = sys.argv[i+1]        
     if sys.argv[i] == '-nLumis':
         nLumis = sys.argv[i+1]
     if sys.argv[i] == '-lumisPerJob':
@@ -157,23 +169,21 @@ for i in range(0, len(sys.argv)):
     if sys.argv[i] == '-s':
         sequence = sys.argv[i+1]        
 
-
 if( global_tag_flag != '' ):
     print '\nUsing \'' + global_tag_flag + '\' specified by -gtag flag.\n'
     global_tag = global_tag_flag
 else:       
-    if sequence != 'only_analyze':
-        print '\nGetting global tag from DBS...'
-        dbs_result = '';
-        command = 'dbsql find config.name,config.content where dataset=' + dataset + '>config.content; while read line; do globaltag=`echo $line | sed -n \'s/^.*process.GlobalTag.globaltag = \([^p]*\).*$/\\1/p\'`; if [ "$globaltag" != "" ]; then echo $globaltag; break; fi; done <config.content; rm config.content';
-        lines = os.popen(command);
-        for i in lines.readlines():
-            dbs_result = re.sub('\n', '', i)
-            global_tag = re.sub('#.+$', '', dbs_result)
-            print global_tag       
-        if global_tag == "":
-            print '\n GlobalTag is empty from the DBS, please specifiy globalTag manually by -gtag options in the format of(TAG::All) '
-            sys.exit()
+    print '\nGetting global tag from DBS...'
+    dbs_result = '';
+    command = 'dbsql find config.name,config.content where dataset=' + dataset + '>config.content; while read line; do globaltag=`echo $line | sed -n \'s/^.*process.GlobalTag.globaltag = \([^p]*\).*$/\\1/p\'`; if [ "$globaltag" != "" ]; then echo $globaltag; break; fi; done <config.content; rm config.content';
+    lines = os.popen(command);
+    for i in lines.readlines():
+        dbs_result = re.sub('\n', '', i)
+        global_tag = re.sub('#.+$', '', dbs_result)
+        print global_tag       
+    if global_tag == "":
+        print '\n GlobalTag is empty from the DBS, please specifiy globalTag manually by -gtag options in the format of(TAG::All) '
+        sys.exit()
             
 makeCMSSWConfig(cmsswSkelFile)
 makeCrabConfig() 
