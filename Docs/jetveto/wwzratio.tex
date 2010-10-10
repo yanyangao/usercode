@@ -1,0 +1,186 @@
+In this section, we describe the $WW/Z$ jet-veto efficiency 
+ratio $R_{WW/Z}$ (Equation~\ref{eq:wweff}) estimation. 
+The $WW$ production has a different kinematic from the $Z$, as 
+the energy scale in the former is much larger than the latter 
+(see Figure~\ref{fig:wwz_pthat}, left).
+%The virtual $Z$ propagator in the $WW$ production 
+%has larger energy transfer than the on-shell $Z$ production, 
+This indicates that the incoming partons $q\bar{q}$ in the $WW$ 
+production have a larger energy on average than the $Z$ productions. 
+This results in a harder ISR parton energy spectrum, 
+shown in Figure~\ref{fig:wwz_pthat} (right). 
+
+
+Figure~\ref{fig:wwzratio}-\ref{fig:wwzratio_JEC} show 
+the $WW/Z$ jet-veto efficiency ratio dependence on the 
+leading jet \pt\,, using the uncorrected and corrected jets respectively. 
+The predictions from the Madgraph agree with the MC@NLO within 1-2\%.
+%at a difference level $\approx 1$\%.% at the jet \pt cut above 20 GeV. 
+The predictions from the Pythia MC differ from the 
+other two in the order of 10\% on average. 
+Note that the jet-veto efficiencies in the $Z$ control region 
+from Pythia and Madgraph MC samples agree within 3\% (section~\ref{sec:zeff}). 
+The large Pythia/Madgraph difference in the $R_{WW/Z}$ 
+is due to the different leading jet \pt\, spectrum in the 
+$WW$ productions. 
+%is due to the different handling of ISR partons in $WW$ production. 
+More specifically, Pythia predicts a much softer 
+jet energy spectrum than Madgraph in the $WW$ production. 
+
+In Pythia, the matrix element calculation for $WW$ production 
+includes only the leading order contributions. 
+The ISR is modeled through the parton 
+showering in the soft-collinear limit. 
+On the other hand, both the Madgraph and mc@nlo MCs 
+take into account upto 1 parton ISR in the matrix element calculation.
+The large Pythia/Madgraph difference could be due to the 
+imperfect modelling of the ISR in Pythia parton showering. 
+%the LO in Pythia are not properly modelled 
+%through the parton showering for the process $pp\to WW$. 
+%The good agreement between those two samples is not surprising. 
+The good agreement between the Pythia and Madgraph in the 
+$Z$ jet-veto efficiency is likely because the Pythia parton 
+showering is tuned well on $Z$ region using data. 
+
+
+%To disentangle the jet reconstruction differences, we studied the 
+%$WW/Z$ jet-veto efficiency ratio dependence on both the generator level 
+%jet energy and the parton energy, shown in Figure~\ref{fig:wwzratio_mcfm}. 
+%The large difference of the Pythia predictions from Madgraph and mc@nlo 
+%persists at the generator level. 
+%We use the MCFM\cite{ref:mcfm} MC generator to probe the $WW/Z$ jet-veto 
+%efficency ration dependence on the matrix element level parton energy. 
+%The events are generated with up to 1 extra parton in the final states. 
+%The parton $\pt$ is taken as the magnitude of the recoiling four or two 
+%leptons \pt in the $WW\to 2l2\nu$ or $pp\to Z\to 2l$ decays. 
+
+
+%To see the theorectical uncertainties of the NLO calcuations, 
+%we change the normalization ($\mu_R$) and factorization ($\mu_F$) 
+%scales in the calcuation to $1/2$ and $2$ times the conventional 
+%chosen values. 
+%The larger difference from the values obtained with the nominal 
+%$\mu_R$ and $\mu_F$ can be quoted as the theorectial uncertainties. 
+
+Therefore, we choose the Madgraph as the MC sample to calculate the 
+%nominal value of 
+$WW/Z$ jet-veto efficiency ratio $R_{WW/Z}^{MC}$. 
+We assign half the Pythia/Madgraph difference  as its systematic error. 
+The $R_{WW/Z}^{MC}$ results are tabulated 
+Table~\ref{tab:wwzratio_results}-\ref{tab:wwzratio_jec_results} 
+using the uncorrected and corrected PFJets 
+for three different jet energy cut (20, 25, 30) GeV. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[htb]
+\begin{center}
+\begin{tabular}{c}
+\epsfig{figure=figures/pthat.eps, width=3in} 
+\epsfig{figure=figures/wwz_genjet_pt.eps, width=3in} 
+
+\end{tabular}
+\caption{
+Left: The $\hat{s}$ for the $pp\to WW$ (Blue) and $pp\to Z$ (Red). 
+Right: The GenJet max jet energy spectrum for the $pp\to WW$ (Blue) and $pp\to Z$ (Red). 
+}
+\label{fig:wwz_pthat}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[htb]
+\begin{center}
+\begin{tabular}{ccc}
+\epsfig{figure=figures/wwzratio_hmaxPFJetPt_all.eps, width=3in}
+\epsfig{figure=figures/wwzratio_hmaxJPTPt_all.eps, width=3in}
+\end{tabular}
+\caption{
+Left: The $WW/Z$ jet-veto efficiency ratio $R_{WW/Z}$ using the PFJet;
+Right: The $WW/Z$ jet-veto efficiency ratio $R_{WW/Z}$ using the PFJet;
+}
+\label{fig:wwzratio}
+\end{center}
+%\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{figure}[htb]
+\begin{center}
+\begin{tabular}{ccc}
+\epsfig{figure=figures/wwzratio_hmaxPFJetPt_all_JEC.eps, width=3in}
+\epsfig{figure=figures/wwzratio_hmaxJPTPt_all_JEC.eps, width=3in}
+\end{tabular}
+\caption{
+Left: The $WW/Z$ jet-veto efficiency ratio $R_{WW/Z}$ using the corrected PFJet;
+Right: The $WW/Z$ jet-veto efficiency ratio $R_{WW/Z}$ using the corrected PFJet;
+}
+\label{fig:wwzratio_JEC}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{figure}[htb]
+%\begin{center}
+%\begin{tabular}{c}
+%\epsfig{figure=figures/wwzratio_hmaxGenJetPt_all.eps, width=3in}
+%\epsfig{figure=figures/wwzratio_Parton.eps, width=3in}
+%\end{tabular}
+%\caption{
+%Left: The $WW/Z$ jet-veto efficiency ratio $R_{WW/Z}$ using the GenJet;
+%Right: The $WW/Z$ jet-veto efficiency ratio $R_{WW/Z}$ using the 
+%parton \pt. The parton four-momentum is calculated as the 
+%sum of the four (two) leptons in the case of $WW\to 2l2\nu_l$ ($Z\to 2l$).
+%}
+%\label{fig:wwzratio_mcfm}
+%\end{center}
+%\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%5
+\begin{table}[htbp]
+\caption{ The $WW/Z$ jet-veto signal efficiency ratio using the uncorrected PFJet. 
+The efficiency ratio is quoted as the value using PFcJets based on Madgraph MC sample. 
+The uncertainty on $R_{WW/Z}^{M}$ is taken as half of the difference 
+between Pythia and Madgraph.}
+\begin{center}
+\label{tab:wwzratio_results}
+\begin{tabular}{cc}
+\hline
+\hline
+Jet-veto Cut (GeV) & $\sigma R_{WW/Z}^{MC}$ (\%) \\
+    20 &  76.3$\pm$ 0.7$\pm$ 6.2 \\
+    25 &  79.1$\pm$ 0.6$\pm$ 4.9 \\
+    30 &  80.9$\pm$ 0.6$\pm$ 4.2 \\
+\hline
+\hline
+\end{tabular}
+\end{center}
+%\end{table}
+%%%%%%%%%%%%%%%%%%%%%5
+%%%%%%%%%%%%%%%%%%%%%5
+%\begin{table}[htbp]
+\caption{ The $WW/Z$ jet-veto signal efficiency ratio using L2L3 corrected PFJet. 
+The efficiency ratio is quoted as the value using PFcJets based on Madgraph MC sample. 
+The uncertainty on $R_{WW/Z}^{M}$ is taken as half of the difference 
+between Pythia and Madgraph.}
+\begin{center}
+\label{tab:wwzratio_jec_results}
+\begin{tabular}{cc}
+\hline
+\hline
+Jet-veto Cut (GeV) & $\sigma R_{WW/Z}^{MC}$ (\%) \\
+    20 &  74.9$\pm$ 0.7$\pm$ 6.5 \\
+    25 &  77.5$\pm$ 0.7$\pm$ 5.7 \\
+    30 &  79.7$\pm$ 0.6$\pm$ 4.8 \\
+\hline
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%5
+
