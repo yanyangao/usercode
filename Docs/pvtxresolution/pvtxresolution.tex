@@ -13,7 +13,7 @@
 \setlength{\topmargin}{0.7in}
 
 \newcommand{\pt} {\ensuremath{P_T}}
-\newcommand{\ptm} {\ensuremath{\bar{P}_T}}
+
 
 \begin{document}
 
@@ -24,7 +24,7 @@
 % \cmsnote{2005/000}
 % \internalnote{2009/version1a}
 \begin{titlepage}
-\cmsnote{2010/version1}
+\cmsnote{2010/version0}
 \date{\today}
 
 \title{Primary Vertex Resolution Measured with Data Driven Two-Vertex Method at $\sqrt{s} = $ 0.9/2.36 TeV}
@@ -34,22 +34,24 @@
     \Instfoot{pisa}{INFN Sezione di Pisa, Pisa, Italy}    
     K.~Burkett, Y.~Gao
     \Instfoot{fnal}{Fermi National Accelerator Laboratory, Batavia, USA}
-    G.~ Hanson, G.Y.~ Jeng
+    G.Y.~ Jeng
     \Instfoot{ucriverside}{University of California, Riverside, Riverside, USA}
 
   \end{Authlist}
 
 \begin{abstract}
 
-This note introduces a data driven algorithm, referred as two-vertex method, to 
-measure the primary vertex spatial resolution. 
-The resolution is measured as a function of the number of tracks used in fitting the 
-vertex and the average \pt of those tracks. 
-%The method is based on the application of the \emph{Adaptive Vertex Filter}, the most robust vertex finding algorithm developed by the CMS collaboration, on two independent sets of tracks belonging to the same hard interaction.
-The method is validated on Monte Carlo simulated data and applied to 
-the first LHC collision data collected at $\sqrt{s}$ = 0.9 and 2.36 TeV in CMS. 
-The primary vertex resolution in mininum bias data is measured to be 
-close to 50 $\mu m$ in $x$ and $y$, and 70 $\mu m$ in $z$. 
+This note introduces a data driven algorithm, referred as two-vertex method, 
+to measure primary vertex postion resolution. 
+In two-vertex method, the tracks used in the primary vertex fitter 
+are split into two different sets and used to independently
+fit the primary vertex. The distribution of the difference in the
+fitted vertex positions can then be used to extract the resolution. 
+The primary vertex resolution dependence on the number of tracks used 
+in fitting the vertex and the \pt of those tracks are 
+presented for the data collected at $\sqrt{s}$ = 0.9 and 2.36 TeV collsion 
+during 2009 in CMS.
+
 \end{abstract}
 \end{titlepage}
 
@@ -73,32 +75,32 @@ close to 50 $\mu m$ in $x$ and $y$, and 70 $\mu m$ in $z$.
 \label{sec:twovertex}
 \input{twovertex}
 %------------------
-\clearpage
+%\pagebreak
 
 %------------------
-\section{Two-vertex Method Validation on MC Samples}
+\section{Two-vertex method validation on MC samples}
 \label{sec:mcvalidation}
 \input{mcvalidation}
 %------------------
-\clearpage
+\pagebreak
 
 %------------------
-\section{Resolution and Pull on Collision Data}
+\section{Resolution and pull on collision data}
 \label{sec:dataresults}
 \input{dataresults}
 %------------------
-\clearpage
+\pagebreak
 
 %------------------
-\section{Systematic Effects and Cross Checks}
+\section{Systematic effects and cross checks}
 \label{sec:systematics}
 \input{systematics}
 %------------------
-\clearpage
 
 \section{Conclusion}
 \label{sec:conclusion}
 \input{conclusion}
+
 
 % References
 \input{note-ref.tex}

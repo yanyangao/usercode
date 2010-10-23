@@ -1,13 +1,12 @@
 
-We validate the two-vertex method on MC data, 
-by comparing the resolution and pulls obtained between 
-two-vertex method and MC method. 
-In MC method, the primary vertex resolution is evaluated by 
-comparing the reconstructed and simulated positions 
-$x_{\tt rec}-x_{\tt sim}$. 
+We can validate the procedure of the two-vertex method by comparing the 
+results using the two-vertex method to the results obtained with MC method.
+In Monte Carlo, the resolution of the primary vertex positions can be easily 
+evaluated by comparing the reconstructed positions with the simulated 
+positions. This is also referred as MC method later. In the MC method, 
+the residual is defined as $x_{\tt rec}-x_{\tt sim}$. 
 
 \subsection{Resolution and Pulls vs Number of Tracks}
-\label{sub:mcrespull}
 
 Figure~\ref{fig:resvsntrk-900MC}-~\ref{fig:pullvsntrk-900MC} show 
 the resolution and pull as a function of the nubmer of tracks used 
@@ -15,24 +14,19 @@ in the primary vertex for four different methods.
 In each plot, the results of the following four methods are overlaid:
 %%%%%%%%%%%%%%%%%%
 \begin{itemize}
-\item Black: MC method applied on the original unsplit vertex collection
-\item Red: MC method applied on the split vertex collection A
-\item Green: MC method applied on the split vertex collection B
-\item Blue: Two-vertex method
+\item Black: MC method applied on the unsplit vertex collection
+\item Red: MC method applied on the first split vertex collection
+\item Green: MC method results applied on the second split vertex collection
+\item Blue: Two-vertex method results
 \end{itemize}
 %%%%%%%%%%%%%%%%%%
 
-We see good agreement between the results obtained with MC and 
-two-vertex methods. There is slight difference at large number of 
-track bins ($>$10) between the resolutions obtained by applying MC method to 
+We see good agreement between the resolution obtained using MC method and 
+two-vertex method. There is slight difference at large number of track bins ($>$10) 
+between the resolutions obtained by applying MC method to 
 the unsplit trackset and the rest of the methods. 
-It is because of the average \pt\, of the split track sets are in general 
+It is because of the <\pt> of the split track sets are in general 
 100\,MeV larger than the original {\it generalTracks}. 
-At low energy at $\sqrt{s}=900$ GeV, the average track \pt\, is 
-close to 0.5 GeV, this small difference in \pt\, introduces 
-difference in the track impact parameter resolution, hence 
-translated into the difference in vertex resolution. 
-This effect is expected to become much smaller on high energy collisions. 
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[htb]
@@ -67,25 +61,5 @@ fitted vertex.}
 
 
 \subsection{Resolution and Pulls vs Number of Tracks at Different \pt\, Ranges}
-\label{sub:mcpt}
 
-Using the alternative split algorithm described in section~\ref{sub:mpt} we can compare the 
-two-vertex metod outcomes with the MC truth in different \ptm bins. Here we consider three o.4 GeV/c \ptm bins, from 0 to 1.2 GeV/c.
-
-Figure \ref{fig:mcVsmcsplit} shows the comparison of the resolutions obtained with the split sets and the MC true vertex. The difference in the resolution at high number of tracks discussed in \ref{sub:mcrespull} disappear comparing the MC truth and the data driven metho at the same \ptm. We have to notice there there is still a relevant difference between the MC truth and the data driven method for small numbers of tracks ($<$ 4). For the lowest \ptm bin the difference in resolution is about 100 $\mu$ m in X,Y and 150 $\mu$ m in Z in the case that two tracks are used in the primary vertex fit. This is to be ascribed to the different \emph{physical} content of the events considered in the two cases: for the MC the primary vertex is originally reconstructed with only two tracks, hence with the same weight in the fit \footnote{The Adaptive Vertex Filter in the case of only two tracks reduces to the Kalman Vertex Filter.}. On the other side, for the two vertex method, the original vertex in the event has been reconstructed using four tracks at least, that in principle can have very different weights in the fit. A further discussion about the effect of the weights in the resolution is presented in section \ref{sub:weight}. However once the number of tracks increase this effect is ruled out. 
-
-%%%%%%%%%%%%%%%%%%%%%%%
-\begin{figure}[!h]
-\begin{center}
-\centerline{
-\epsfig{figure=figures/ResXpt2V1VSplit.eps,height=2.0in}
-\epsfig{figure=figures/ResYpt2V1VSplit.eps,height=2.0in}
-\epsfig{figure=figures/ResZpt2V1VSplit.eps,height=2.0in}
-}
-\caption{\sl
-Primary vertex resolution as a function of the number of tracks used in the fit in three diffetent \ptm bins. 
-}
-\label{fig:mcVsmcsplit}
-\end{center}
-\end{figure}  
-%%%%%%%%%%%%%%%%%%%%%%%
+{\it Actiion Item for PISA.}
