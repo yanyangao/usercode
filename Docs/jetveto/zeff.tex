@@ -1,5 +1,6 @@
 In this section, we describe the jet-veto efficiency measurement on 
-the $pp\to Z\to ll$, comparing the data with various Monte Carlo samples (Table~\ref{tab:datasets}). 
+the $pp\to Z\to ll$, comparing the data with various Monte Carlo samples 
+(Table~\ref{tab:datasets}). 
 %We consider three jet reconstruction algorithms, namely the 
 %CaloJet, JPT and PFJets. % need a reference
 
@@ -17,19 +18,23 @@ one with di-lepton mass closest to the $Z$ mass is chosen
 \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Aside from the maximum leading jet \pt\,, the choice of $\eta$ range 
-to which the jet-veto is applied is also important.
-Applying the jet-veto in the full $\eta$ range ($|\eta|<5$) 
-gives the best signal over background performance. 
+\subsection {Jet-veto $\eta$ region}
+
+Aside from the maximum leading jet \pt\,, the choice of $\eta$ range where 
+the jet-veto is applied is also important. 
+In the summer08 analysis of $WW$~\cite{wwanalysis}, 
+the jet-veto region is $|\eta|<3.0$. 
+However, applying the jet-veto in the full $\eta$ 
+range ($|\eta|<5$) gives the best signal over background performance. 
 %improves the signal over background performance, compared to 
 %applying only the jet veto on central jets with $|\eta|<3.0$. 
 %By applying the jet veto in the $3<|\eta|<5$
-%It also helps in estimating the remaining top-background after 
-%the full selection, as it is harder to estimate the top background 
-%in the region $3<|\eta|<5$ outside the tracking acceptance. 
-%As the jets in the region $3<|\eta|<5$ have worse resolution 
-%than the central jets with $|\eta|<3$, we check the data/MC 
-%performance for the forward jets specifically. 
+It also helps in estimating the remaining top-background after 
+the full selection, as it is harder to estimate the top background 
+in the region $3<|\eta|<5$ outside the tracking acceptance. 
+As the jets in the region $3<|\eta|<5$ have worse resolution 
+than the central jets with $|\eta|<3$, we check the data/MC performance.
+
 Figure~\ref{fig:fwdjetet} shows the leading jet \pt\, in the 
 region of $3<|\eta|<5$, and Figure~\ref{fig:fwdjeteff} 
 shows the respective jet-veto efficiencies and the MC/data ratios. 
@@ -37,6 +42,9 @@ We find the MC/data jet-veto efficiency ratios are close to unity
 for all the jet algorithms in all the MC samples considered.
 Therefore, we choose to apply the jet veto in the full 
 $\eta$ range $|\eta|<5.0$.
+
+
+\subsection{Jet-veto efficiency estimate on the full $|\eta|<5$ region}
 
 Figure~\ref{fig:jeteff} shows the jet-veto efficiencies and 
 the MC/data ratios, using the uncorrected JPT jets and PFJet~\cite{jetalgo}.
@@ -61,11 +69,9 @@ are tabulated in Table~\ref{tab:zeff_results}-\ref{tab:zeff_jec_results}.
 \epsfig{figure=figures/hmaxJPTPtHF_all.eps, width=2.1in}
 \end{tabular}
 \caption{
-Left: The maximum energy of the calo jets with $3<|\eta|<5$. 
-Middle: The maximum energy of the calo jets with $3<|\eta|<5$. 
-Right: The maximum energy of the JPT jets with $3<|\eta|<5$. 
-The MC samples are normalized to the data by the number of events 
-in the full jet et range. 
+The leading jet \pt\, using uncorrected CaloJets (left), PFJets (middle) and 
+JPTs (right) within $3<|\eta|<5$. 
+The MC samples are normalized to the data by the number of events. 
 }
 \label{fig:fwdjetet}
 \end{center}
@@ -80,9 +86,8 @@ in the full jet et range.
 \epsfig{figure=figures/hmaxJPTPtHF_all_eff.eps, width=2.1in}
 \end{tabular}
 \caption{
-Left: The jet-veto efficiency of the calo jets with $3<|\eta|<5$. 
-Middle: The jet-veto efficiency of the pf jets with $3<|\eta|<5$. 
-Right: The jet-veto efficiency of the pf jets with $3<|\eta|<5$. 
+The jet-veto efficiency and MC/data ratios using uncorrected 
+CaloJets (left), PFJets (middle) and JPTs (right) within $3<|\eta|<5$. 
 }
 \label{fig:fwdjeteff}
 \end{center}
@@ -101,8 +106,8 @@ Right: The jet-veto efficiency of the pf jets with $3<|\eta|<5$.
 %\epsfig{figure=figures/hmaxTrkJetPt_all_eff.eps, width=3in} 
 \end{tabular}
 \caption{
-Left: The jet-veto efficiency of the pf jets with $|\eta|<5$. 
-Right: The jet-veto efficiency of the JPT jets with $|\eta|<5$. 
+The jet-veto efficiency and MC/data ratios using uncorrected PFJets 
+(left) and JPTs (right) within $|\eta|<5$. 
 }
 \label{fig:jeteff}
 \end{center}
@@ -120,8 +125,9 @@ Right: The jet-veto efficiency of the JPT jets with $|\eta|<5$.
 \epsfig{figure=figures/hmaxTrkJetPt_all_eff_JEC.eps, width=3in} 
 \end{tabular}
 \caption{
-Left: The jet-veto efficiency of the pf jets with $|\eta|<5$. 
-Right: The jet-veto efficiency of the JPT jets with $|\eta|<5$. 
+The jet-veto efficiency and MC/data ratios using corrected 
+CaloJets (top left), PFJets (top right), 
+JPTs (bottom left) and TrkJets (bottom right) within $|\eta|<5$. 
 }
 \label{fig:jeteff_jec}
 \end{center}
@@ -130,7 +136,8 @@ Right: The jet-veto efficiency of the JPT jets with $|\eta|<5$.
 
 %%%%%%%%%%%%%%%%%%%%%5
 \begin{table}[htbp]
-\caption{Jet-veto signal efficiency on $Z$ data and the MC/data ratios using the uncorrected PFJet. 
+\caption{The jet-veto efficiency and the MC/data ratios on the $Z$ events, 
+using the uncorrected PFJet. 
 }
 \begin{center}
 \label{tab:zeff_results}
@@ -149,8 +156,9 @@ Jet-veto Cut (GeV) & Pythia/Data (\%) & Madgraph/Data (\%) & MC@NLO/Data (\%) & 
 %%%%%%%%%%%%%%%%%%%%%5
 %%%%%%%%%%%%%%%%%%%%%5
 %\begin{table}[htbp]
-\caption{Jet-veto signal efficiency on $Z$ data and the MC/data ratios using the corrected PFJet with L2L3, plus 
-the residual corrections for data. 
+\caption{
+The jet-veto efficiency and the MC/data ratios on the $Z$ events, 
+using the corrected PFJet with L2L3, plus the residual corrections for data. 
 }
 \begin{center}
 \label{tab:zeff_jec_results}

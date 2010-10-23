@@ -1,13 +1,28 @@
 For the cross section measurement of $pp\to WW\to 2l 2\nu_l$
 ~\cite{wwanalysis}, one of the dominant backgrounds is the top-background. 
-The only difference between the top-background and the $WW$ signal is the 
+The main difference between the top-background and $WW$ signal is the 
 presence of one or two extra $b$-jets in the final states. Thus, one 
 efficienct way to suppress the top-background is to apply 
-jet-veto, vetoing the events with leading jet \pt\, above a thresold. 
-%In the $WW$ analysis, we choose 25 GeV as the working point. 
+jet-veto, vetoing the events with leading jet \pt\, above a thresold at a 
+given $\eta$ range. The specific \pt\, thresolds and the $\eta$ 
+ranges are discussed in this note. 
+%In $WW$ analysis, we choose 25 GeV as the working point. 
 
-%The jet-veto efficiency of the $WW$ signal needs to be carefully evaluated 
-%for the $WW$ cross section measurement. 
+The jet-veto efficiency of $WW$ can not be measured directly 
+from the data. We have to use the MC to certain extent. 
+%signal needs to be carefully evaluated 
+%for $WW$ cross section measurement. 
+In this note, we describe a partially data-driven approach to 
+measure $WW$ jet-veto signal effcicieny in data. 
+In this approach, we use the well-defined process 
+$pp\to Z\to 2l$ as a control region to test the agreement 
+in the jet spectrum between data and MC. 
+We then estimate the jet-veto signal efficiency on $WW$ as the 
+jet-veto efficiency of $pp\to Z\to 2l$ on data multiplied 
+by the $WW/Z$ jet-veto efficiency ratio estimated on the Monte Carlo, 
+shown in Equation~\ref{eq:wweff}. 
+Table~\ref{tab:datasets} summarizes the data and MC samples used in this note. 
+
 The uncertainties of jet-veto signal efficiency come from 
 both the matrix element calculations % uncertainties and 
 and the jet reconstruction. %uncertainties. 
@@ -16,20 +31,23 @@ the $pp\to WW\to 2l2\nu$ process does not contain jet.
 Extra jets are primarily due to the initial 
 state radition. It makes the jet energy spectrum 
 sensitive to the corrections beyond the LO. 
+We could estimate this systematic error by 
+comparing the predictions from various MC generators, 
+such as, the Pythia, Madgraph and the MC@NLO. 
 On the jet reconstruction side, the effects from the jet energy correction 
 and its uncertainties can propagate towards the jet-veto efficiency 
 estimation as well. Validation of the jet response between the 
-data and MC is thus required. 
+data and MC is thus required.
 
-In this note, we describe a partially data-driven approach to 
-measure the $WW$ jet-veto signal effcicieny.
-In this method, we exploit the similarity of the 
-$pp\to WW\to 2l 2\nu_l$ and $pp\to Z\to 2l$ processes.
-We estimate the jet-veto signal efficiency on $WW$ 
-as the jet-veto efficiency of
-$pp\to Z\to 2l$ on data multiplied by the $WW/Z$ jet-veto efficiency 
-ratio estimated on the Monte Carlo, shown in Equation~\ref{eq:wweff}. 
-Table~\ref{tab:datasets} summarizes the data and MC samples used in this note. 
+The note is organized as follows. In section~\ref{sec:zeff}, we discuss the jet-veto 
+efficiency measurement on $Z$ data, in which 
+the choice of the jet-veto $\eta$ region is examined. 
+In section~\ref{sec:wwzratio}, we describe the $WW/Z$ jet-veto 
+efficiency ratio estimate and its uncertainties. 
+In section~\ref{sec:jetresponse}, we discuss the effect of the 
+jet energy response to the results. Finally, in section~\ref{sec:conclusion}, 
+we present the jet-veto efficiency measurement for $WW$ in data. 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \begin{eqnarray}
