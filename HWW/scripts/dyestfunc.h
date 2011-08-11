@@ -283,6 +283,7 @@ bool higgsmtcut(int mH, float mt)
 }
 
 void mcEstimation(TChain *& chMC, float lumi, int type, TCut cut, double& yield, double & yieldError) {
+  // EE
   TH1F *mass_ee = new TH1F("mass_ee", "mass_ee", 10, 0, 200);
   mass_ee->Sumw2();
   chMC->Project("mass_ee", "dilep.mass()", Form("scale1fb*sfWeightPU*sfWeightEff*sfWeightTrig*%f*(type==%i&&%s)", lumi, type, cut.GetTitle()));
@@ -352,8 +353,16 @@ void ofsubt_single(TChain *& chData, TCut cut,  ofstream &text, double k_ee, dou
 void ratio_syst(TH1F* & ratio_vs_met, double & R, double & RE_stat, double & RE_syst)
 {
   int nbins = ratio_vs_met->GetNbinsX();
+  // add protection agains the last bin with > 80% error. 
   R = ratio_vs_met->GetBinContent(nbins);
   RE_stat = ratio_vs_met->GetBinError(nbins);
+  
+  if (RE_stat/R > 0.65) {
+    nbins = nbins -1;
+    R = ratio_vs_met->GetBinContent(nbins);
+    RE_stat = ratio_vs_met->GetBinError(nbins);
+  }
+  
   RE_syst = 0.0;
   
   for(int i=1;i<=nbins;i++) {
