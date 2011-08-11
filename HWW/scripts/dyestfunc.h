@@ -283,10 +283,9 @@ bool higgsmtcut(int mH, float mt)
 }
 
 void mcEstimation(TChain *& chMC, float lumi, int type, TCut cut, double& yield, double & yieldError) {
-  // EE
   TH1F *mass_ee = new TH1F("mass_ee", "mass_ee", 10, 0, 200);
   mass_ee->Sumw2();
-  chMC->Project("mass_ee", "dilep.mass()", Form("scale1fb*%f*(type==%i&&%s)", lumi, type, cut.GetTitle()));
+  chMC->Project("mass_ee", "dilep.mass()", Form("scale1fb*sfWeightPU*sfWeightEff*sfWeightTrig*%f*(type==%i&&%s)", lumi, type, cut.GetTitle()));
   yield = mass_ee->IntegralAndError(0,100, yieldError);
   delete mass_ee;
 }
