@@ -16,7 +16,7 @@
 #include "TMath.h"
 #include "TCut.h"
 #include "dyestfunc.h"
-//#include "goodrun.cc"
+#include "goodrun.cc"
 
 ofstream text;
 
@@ -24,15 +24,19 @@ ofstream text;
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector; 
 
-void dycalc(int mH = 0, int njet = 0, float metcut = 40.0, float lumi = 1.092, 
-	  TString dataDir = "/Users/yanyan/CMS/SnT/WW/DYEst/311MC/SmurfV6data/ww_nozveto_met20/", 
-	  TString useMCRValue = true,  bool fillRoutin=false)
+void dycalc(int mH = 0, int njet = 0, float metcut = 40.0, float lumi = 1.545, 
+	    TString dataDir = "/Users/yanyan/CMS/SnT/WW/DYEst/LP2011/data/",
+	    TString useMCRValue = true,  bool fillRoutin=true)
 {
-    
+  gROOT->ProcessLine(".L goodrun.h+");    
   gROOT->ProcessLine(".L dyestfunc.h+");
-
+  
+    // set json
+  set_goodrun_file("LP2011_json_1545pb.txt");
+  TCut c_goodrun("dstype != 0 || goodrun(run,lumi)");
+  
   // define the cuts used later
-  TCut c_wwloosecut("c_wwloosecut", Form("njets==%i&&((cuts&%i)==%i)",njet,ww_nozveto_nomet,ww_nozveto_nomet)); 
+  TCut c_wwloosecut(Form("njets==%i&&((cuts&%i)==%i)",njet,ww_nozveto_nomet,ww_nozveto_nomet)+c_goodrun);
   TCut c_higgsprecut(Form("higgsprecut(%i,lep1.Pt(), lep2.Pt(), dPhi)", mH)+c_higgsextra); // this extra cut is the dPhiDiLepJet1
   TCut c_higgsmllcut(Form("higgsmllcut(%i,dilep.M())", mH));
   TCut c_higgsmtcut(Form("higgsmtcut(%i,mt)", mH));
@@ -52,14 +56,10 @@ void dycalc(int mH = 0, int njet = 0, float metcut = 40.0, float lumi = 1.092,
     
   // load the data file
   TChain *chData = new TChain("tree");
-  chData->Add(dataDir + "data-met20-1092ipb.root");
+  chData->Add(dataDir + "data.root");
   assert(chData);
-
-  // set json
-  // set_goodrun_file("Cert_160404-166861_7TeV_PromptReco_Collisions11_JSON.jmu");
-  // TCut c_goodrun("dstype != 0 || goodrun_json(run,lumi)");
-  // log files
   
+  // log files
   text.open(Form("dyest_%iJet_Metcut%.0f_mH%i_%.0fpb.txt", njet, metcut,mH,lumi*1000));
     
   // ======================================================
@@ -279,21 +279,21 @@ void dycalc(int mH = 0, int njet = 0, float metcut = 40.0, float lumi = 1.092,
   
   double sf_ww(0.), sf_wwE_syst(0.), sf_wwE_stat(0.);
   if (njet == 0) {
-    sf_ww = 3.24;
-    sf_wwE_stat = 1.71;
-    sf_wwE_syst = 0.58;
+    sf_ww = 3.02;
+    sf_wwE_stat = 0;
+    sf_wwE_syst = 1.85;
   }
 
   if (njet == 1) {
-    sf_ww = 2.28;
-    sf_wwE_stat = 0.50;
-    sf_wwE_syst = 1.58;
+    sf_ww = 2.81;
+    sf_wwE_stat = 0.;
+    sf_wwE_syst = 1.40;
   }
   
   if (njet == 2) {
-    sf_ww = 3.70;
+    sf_ww = 4.84;
     sf_wwE_stat = 0.40;
-    sf_wwE_syst = 2.60;
+    sf_wwE_syst = 1.83;
   }
 
   double pred_b = nMC * sf_ww;
