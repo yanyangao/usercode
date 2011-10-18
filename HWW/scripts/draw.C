@@ -1,5 +1,25 @@
 #include "TH1F.h"
-#include "histTool.C"
+#include "TChain.h"
+#include "TH1F.h"
+#include "TCanvas.h"
+#include "TROOT.h"
+#include "TLegend.h"
+#include "THStack.h"
+#include "TStyle.h"
+#include "TLatex.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TArrow.h"
+#include "TStyle.h"
+#include <vector>
+#include <math.h>
+#include <iostream>
+#include <fstream>
+#include "TH2F.h"
+#include "TF1.h"
+
+
+void setStyle(TH1F *& hist, int rebin, bool scale, Color_t color, Style_t marker, TString x_title, TString y_title, float xMin, float xMax);
 
 void draw(int mH = 0, int njet=0, float lumi = 1.092, TString dysample="dy" ) {
 
@@ -8,7 +28,6 @@ void draw(int mH = 0, int njet=0, float lumi = 1.092, TString dysample="dy" ) {
   
   gStyle->SetOptFit(1);
 
-  lumi = lumi*1000.0; 
   TFile *file = TFile::Open(Form("Routin_%iJet_mH%i_%.0fpb.root", njet, mH, lumi ), "READ");
   assert(file);
   gROOT->cd();
@@ -17,19 +36,24 @@ void draw(int mH = 0, int njet=0, float lumi = 1.092, TString dysample="dy" ) {
   TH1F *Rmm_vs_met_mc = (TH1F*) file->Get(Form("Rmm_vs_met_mc_%iJet", njet));
   TH1F *R_vs_met_mc = (TH1F*) file->Get(Form("R_vs_met_mc_%iJet", njet));
   
-  setStyle(Ree_vs_met_mc, 1, false, kBlue, 21, "min(proj_{tk-MET}, proj_{pfMET}) (GeV)", "R_{out/in}", 0, 50);
+  setStyle(Ree_vs_met_mc, 1, false, kRed, 21, "min(proj_{tk-MET}, proj_{pfMET}) (GeV)", "R_{out/in}", 0, 50);
   setStyle(Rmm_vs_met_mc, 1, false, kRed, 21, "min(proj_{tk-MET}, proj_{pfMET}) (GeV)", "R_{out/in}", 0, 50);
   setStyle(R_vs_met_mc, 1, false, kRed, 24, "min(proj_{tk-MET}, proj_{pfMET}) (GeV)", "R_{out/in}", 0, 50);
 
+  Ree_vs_met_mc->SetMarkerSize(1.5);
+  Rmm_vs_met_mc->SetMarkerSize(1.5);
   R_vs_met_mc->SetMarkerSize(1.5);
   
   TH1F *Ree_vs_met_data = (TH1F*) file->Get(Form("Ree_vs_met_data_%iJet", njet));
   TH1F *Rmm_vs_met_data = (TH1F*) file->Get(Form("Rmm_vs_met_data_%iJet", njet));
   TH1F *R_vs_met_data = (TH1F*) file->Get(Form("R_vs_met_data_%iJet", njet));
 
-  setStyle(Ree_vs_met_data, 1, false, kBlue, 20, "min(proj_{tk-MET}, proj_{pfMET}) (GeV)", "R_{out/in}", 0, 50);
-  setStyle(Rmm_vs_met_data, 1, false, kRed, 20, "min(proj_{tk-MET}, proj_{pfMET}) (GeV)", "R_{out/in}", 0, 50);
+  setStyle(Ree_vs_met_data, 1, false, kBlack, 20, "min(proj_{tk-MET}, proj_{pfMET}) (GeV)", "R_{out/in}", 0, 50);
+  setStyle(Rmm_vs_met_data, 1, false, kBlack, 20, "min(proj_{tk-MET}, proj_{pfMET}) (GeV)", "R_{out/in}", 0, 50);
   setStyle(R_vs_met_data, 1, false, kBlack, 20, "min(proj_{tk-MET}, proj_{pfMET}) (GeV)", "R_{out/in}", 0, 50);
+
+  Ree_vs_met_data->SetMarkerSize(1.5);
+  Rmm_vs_met_data->SetMarkerSize(1.5);
   R_vs_met_data->SetMarkerSize(1.5);
 
   float yMax = 1.0;
@@ -132,7 +156,21 @@ void draw(int mH = 0, int njet=0, float lumi = 1.092, TString dysample="dy" ) {
   c1->Print(Form("Routin_%iJet_mH%i_%.0fpb_%s.eps", njet, mH,lumi,dysample.Data()));
   c1->Print(Form("Routin_%iJet_mH%i_%.0fpb_%s.png", njet, mH,lumi,dysample.Data()));
   
-
+  // draw ee
+  c1->Clear();
+  Ree_vs_met_data->Draw("HISTE1FUNC");
+  Ree_vs_met_mc->Draw("SAMEHISTE1");
+  leg->Draw();
+  c1->Print(Form("Routin_ee_%iJet_mH%i_%.0fpb_%s.eps", njet, mH,lumi,dysample.Data()));
+  c1->Print(Form("Routin_ee_%iJet_mH%i_%.0fpb_%s.png", njet, mH,lumi,dysample.Data()));
+  
+  // draw mm
+  c1->Clear();
+  Rmm_vs_met_data->Draw("HISTE1FUNC");
+  Rmm_vs_met_mc->Draw("SAMEHISTE1");
+  leg->Draw();
+  c1->Print(Form("Routin_mm_%iJet_mH%i_%.0fpb_%s.eps", njet, mH,lumi,dysample.Data()));
+  c1->Print(Form("Routin_mm_%iJet_mH%i_%.0fpb_%s.png", njet, mH,lumi,dysample.Data()));
 
 
   delete c1;
@@ -145,5 +183,41 @@ void draw(int mH = 0, int njet=0, float lumi = 1.092, TString dysample="dy" ) {
   delete metsig;
   
   file->Close();
+  
+}
+
+void setStyle(TH1F *& hist, int rebin, bool scale, Color_t color, Style_t marker, TString x_title, TString y_title, float xMin, float xMax)
+{
+  hist->Rebin(rebin);
+  if(scale)
+    hist->Scale(1.0/rebin);
+  hist->SetLineColor(color);
+  hist->SetLineWidth(3);
+  hist->SetMarkerColor(color);
+  hist->SetMarkerStyle(marker);
+  hist->SetMarkerSize(1.0);
+  hist->GetXaxis()->SetRangeUser(xMin,xMax);
+
+  hist->GetXaxis()->SetTitle(x_title);
+  hist->GetXaxis()->SetTitleFont(42);
+  hist->GetXaxis()->SetTitleSize(0.05);
+  hist->GetXaxis()->SetLabelFont(42);
+  hist->GetXaxis()->SetLabelSize(0.04);
+
+  hist->GetYaxis()->SetTitle(y_title);
+  hist->GetYaxis()->SetTitleFont(42);
+  hist->GetYaxis()->SetTitleSize(0.05);
+  hist->GetYaxis()->SetLabelFont(42);
+  hist->GetYaxis()->SetLabelSize(0.04);
+
+  hist->SetTitleOffset(1.5,"Y");
+  hist->SetTitleOffset(1.1,"X");
+  hist->SetTitleFont(42);
+
+  hist->SetStats(0);
+  hist->SetFillColor(0);
+  //hist->SetBinContent(1, hist->GetBinContent(0)+hist->GetBinContent(1));
+  hist->GetXaxis()->SetNdivisions(505);
+  hist->GetYaxis()->SetNdivisions(505);
   
 }

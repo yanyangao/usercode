@@ -352,20 +352,20 @@ void ofsubt_single(TChain *& chData, TCut cut,  ofstream &text, double k_ee, dou
 
 void ratio_syst(TH1F* & ratio_vs_met, double & R, double & RE_stat, double & RE_syst)
 {
-  int nbins = ratio_vs_met->GetNbinsX();
+  int nbinsX = ratio_vs_met->GetNbinsX();
   // add protection agains the last bin with > 80% error. 
-  R = ratio_vs_met->GetBinContent(nbins);
-  RE_stat = ratio_vs_met->GetBinError(nbins);
+  R = ratio_vs_met->GetBinContent(nbinsX);
+  RE_stat = ratio_vs_met->GetBinError(nbinsX);
   
   if (RE_stat/R > 0.65) {
-    nbins = nbins -1;
-    R = ratio_vs_met->GetBinContent(nbins);
-    RE_stat = ratio_vs_met->GetBinError(nbins);
+    nbinsX = nbinsX -1;
+    R = ratio_vs_met->GetBinContent(nbinsX);
+    RE_stat = ratio_vs_met->GetBinError(nbinsX);
   }
   
   RE_syst = 0.0;
   
-  for(int i=1;i<=nbins;i++) {
+  for(int i=1;i<=nbinsX;i++) {
     RE_syst = RE_syst > TMath::Abs(ratio_vs_met->GetBinContent(i) - R) ? RE_syst : TMath::Abs(ratio_vs_met->GetBinContent(i) - R); 
   }
 }
@@ -380,7 +380,7 @@ void lookupR(int njet, TString fileName, TString suffix,
   TFile *file = TFile::Open(fileName,"READ");
   if (file == 0x0) 
     std::cout << "CANNOT Find " << fileName << "...! You need to fill the Rout/in..\n";
-  assert(file);
+  //assert(file);
   gROOT->cd();
   TH1F *hRee = (TH1F*) file->Get(Form("Ree_vs_met_%s_%iJet", suffix.Data(), njet)); 
   ratio_syst(hRee, R_ee, R_eeE, R_eeE_syst);
@@ -522,13 +522,19 @@ void fillratioData(  TChain* & chData, TFile *& ratioFile, int njet,
   for (int i=1;i <nbins+1; i++ ) {
     // define the MET cut
     float metcut_low = R_data->GetBinLowEdge(i);
-    if (metcut_low >= sigmetcut) continue; // avoid looking at the signal box
+    //if (metcut_low >= sigmetcut) continue; // avoid looking at the signal box
     float metcut_high = R_data->GetBinLowEdge(i) + R_data->GetBinWidth(i);
     TCut c_metcut("c_metcut", Form("min(pmet,pTrackMet)>%f&&min(pmet,pTrackMet)<%f", metcut_low, metcut_high));
     
-    std::cout << Form("***Calculating R for Met Cut (%.0f-%.0f):\n", metcut_low, metcut_high);
-    text << Form("***Calculating R for Met Cut (%.0f-%.0f):\n", metcut_low, metcut_high);
-    
+    if(i==nbins && metcut_low >= sigmetcut) {
+      c_metcut = TCut("c_metcut", Form("min(pmet,pTrackMet)>%f", sigmetcut));
+      std::cout << Form("***Calculating R for Met Cut (> %.0f):\n", metcut_low);
+      text << Form("***Calculating R for Met Cut (> %.0f):\n", metcut_low);
+    }
+    else {
+      std::cout << Form("***Calculating R for Met Cut (%.0f-%.0f):\n", metcut_low, metcut_high);
+      text << Form("***Calculating R for Met Cut (%.0f-%.0f):\n", metcut_low, metcut_high);
+    }
     double Nin_mm(0.), Nin_mmE(0.0), Nin_ee(0.), Nin_eeE(0.0), Nin(0.0), NinE(0.0);
     double Nout_mm(0.), Nout_mmE(0.0), Nout_ee(0.), Nout_eeE(0.0), Nout(0.0), NoutE(0.0);
     ofsubt_single(chData, c_wwloosecut+c_higgsprecut+c_zwindow+c_metcut, text, k_ee, k_eeE, Nin_ee, Nin_eeE, Nin_mm, Nin_mmE, Nin, NinE, true);

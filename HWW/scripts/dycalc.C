@@ -24,15 +24,17 @@ ofstream text;
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector; 
 
-void dycalc(int mH = 0, int njet = 0, float metcut = 40.0, float lumi = 1.545, 
+void dycalc(int mH = 0, int njet = 0, float metcut = 40.0, float lumiinpb = 1545, 
 	    TString dataDir = "/Users/yanyan/CMS/SnT/WW/DYEst/LP2011/data/",
 	    TString useMCRValue = true,  bool fillRoutin=true)
 {
   gROOT->ProcessLine(".L goodrun.h+");    
   gROOT->ProcessLine(".L dyestfunc.h+");
   
+  float lumi = lumiinpb / 1000.;
     // set json
-  set_goodrun_file("LP2011_json_1545pb.txt");
+  //set_goodrun_file("LP2011_json_1545pb.txt");
+  set_goodrun_file("2011a_2121pb.txt");
   TCut c_goodrun("dstype != 0 || goodrun(run,lumi)");
   
   // define the cuts used later
@@ -197,7 +199,7 @@ void dycalc(int mH = 0, int njet = 0, float metcut = 40.0, float lumi = 1.545,
   // ======================================================
   // Read the Rout file and get the nominal value
 
-  std::cout << ratioFileName << std::endl;
+  std::cout << "Looking up R from " << ratioFileName << std::endl;
   double R_ee(0.), R_eeE(0.), R_eeE_syst(0.0),  R_mm(0.), R_mmE(0.), R_mmE_syst(0.), R(0.), RE(0.), RE_syst(0.);
   if (useMCRValue)
     lookupR(njet, ratioFileName, "mc", R_ee, R_eeE, R_eeE_syst, R_mm, R_mmE, R_mmE_syst, R, RE, RE_syst);
@@ -224,17 +226,11 @@ void dycalc(int mH = 0, int njet = 0, float metcut = 40.0, float lumi = 1.545,
 	       pred_mm, pred_mmE, pred_mmE_syst, pred_ee, pred_eeE, pred_eeE_syst, pred, predE, predE_syst);
   text << Form("data-driven estimate:\n %.2f +/- %.2f +/- %.2f(MM)\t %.2f +/- %.2f +/- %.2f (EE)\t %.2f +/- %.2f +/- %.2f (EE+MM)\n", 
 	       pred_mm, pred_mmE, pred_mmE_syst, pred_ee, pred_eeE, pred_eeE_syst, pred, predE, predE_syst);
-
- 
-
   
-
   // ======================================================
   // == 5. Check MC based predictions and data/MC scale-factors
   // ======================================================
   
-
-
   // == Signal region
   double nmmMC(0.), nmmMCE(0.0), neeMC(0.), neeMCE(0.0), nMC(0.0), nMCE(0.);
   mcEstimation(chMC, lumi, 0, c_higgsfincut+c_zmmmc, nmmMC, nmmMCE);
