@@ -22,8 +22,8 @@ TCut c_zwindow("c_zwindow", "abs(dilep.M()-91.1876)<15");
 TCut c_higgsextra("c_higgsextra", "(jet1.Pt()<15||dPhiDiLepJet1<165*TMath::Pi()/180.)");
 
 // declare the R histograms
-const int nbins= 5;  
-const float bins [6] = {20, 22, 26, 31, 40, 50};
+const int nbins= 4;  
+const float bins [6] = {20, 25, 30, 37, 50};
 
 enum Selection {
   BaseLine          = 1UL<<0,  // pt(reco)>20/10, acceptance,!STA muon, mll>12
