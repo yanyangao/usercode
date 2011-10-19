@@ -42,8 +42,10 @@ void dycalc(int mH = 0, int njet = 0, float metcut = 40.0, float lumiinpb = 1545
   TCut c_higgsprecut(Form("higgsprecut(%i,lep1.Pt(), lep2.Pt(), dPhi)", mH)+c_higgsextra); // this extra cut is the dPhiDiLepJet1
   TCut c_higgsmllcut(Form("higgsmllcut(%i,dilep.M())", mH));
   TCut c_higgsmtcut(Form("higgsmtcut(%i,mt)", mH));
-  TCut c_higgsinZ = Form("njets==%i&&((cuts&%i)==%i)&&(min(pmet,pTrackMet)-0.5*nvtx)>%f", njet, ww_nozveto, ww_nozveto, metcut)+c_higgsprecut+c_zwindow+c_higgsmtcut+c_goodrun;
-  TCut c_higgsfincut = Form("njets==%i&&((cuts&%i)==%i)&&(min(pmet,pTrackMet)-0.5*nvtx)>%f", njet, ww, ww, metcut)+c_higgsprecut+c_higgsmllcut+c_higgsmtcut+c_goodrun;
+  TCut c_higgsinZ = Form("(min(pmet,pTrackMet)-0.5*nvtx)>%f", metcut)+c_wwloosecut+c_higgsprecut+c_zwindow+c_higgsmtcut; 
+  TCut c_higgsfincut = Form("(min(pmet,pTrackMet)-0.5*nvtx)>%f", metcut)+c_wwloosecut+c_higgsprecut+c_higgsmllcut+c_higgsmtcut; 
+
+  //  TCut c_higgsfincut = Form("njets==%i&&((cuts&%i)==%i)&&(min(pmet,pTrackMet)-0.5*nvtx)>%f", njet, ww, ww, metcut)+c_higgsprecut+c_higgsmllcut+c_higgsmtcut+c_goodrun;
   
   // load relevant data files
   TChain *chMC = new TChain("tree");
