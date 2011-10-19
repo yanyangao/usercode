@@ -2,7 +2,7 @@
 
 export NJETS=$1;
 
-LUMI=1143
+LUMI=2121
 
 if [ ! $# -eq 1 ]; then
         echo "USAGE: ./print.sh NJETS
@@ -15,7 +15,7 @@ echo "| selection | *R* | N(in)-raw |*N(in) (OF/VZ subt)*| N(in) data/MC|* N(out
 #for MASS in 0 115 120 130 140 150 160 170 180 190 200 250 300 350 400 450 500 550 600; do
 for MASS in 0 115 120 130 140 150 160 170 180 190 200 250 300; do
 #for MASS in 115 ; do
-    FILE=dyest_${NJETS}Jet_Metcut40_mH${MASS}_${LUMI}pb.txt
+    FILE=dyest_${NJETS}Jet_Metcut37_mH${MASS}_${LUMI}pb.txt
     SELECTION=$MASS
     #`echo $FILE | sed 's/dyest_\(.*\).txt/\1/'`
     R=`grep 'R(EE+MM)' $FILE | awk '{print $3""$4""$5""$6""$7}'`
