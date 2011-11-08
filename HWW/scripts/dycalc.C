@@ -26,26 +26,25 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
 
 void dycalc(int mH = 0, int njet = 0, float metcut = 40.0, float lumiinpb = 1545, 
 	    TString dataDir = "/Users/yanyan/CMS/SnT/WW/DYEst/LP2011/data/",
-	    TString useMCRValue = true,  bool fillRoutin=true)
+	    bool useMCRValue = true,  bool fillRoutin=true)
 {
   gROOT->ProcessLine(".L goodrun.h+");    
   gROOT->ProcessLine(".L dyestfunc.h+");
   
   float lumi = lumiinpb / 1000.;
     // set json
-  //set_goodrun_file("LP2011_json_1545pb.txt");
-  set_goodrun_file("2011a_2121pb.txt");
-  TCut c_goodrun("dstype != 0 || goodrun(run,lumi)");
+  //set_goodrun_file("2011.json.txt");
+  //TCut c_goodrun("dstype != 0 || goodrun(run,lumi)");
+  TCut c_goodrun("1");
   
   // define the cuts used later
-  TCut c_wwloosecut(Form("njets==%i&&((cuts&%i)==%i)&&lep2.pt()>15&&dilep.pt()>45",njet,ww_nozveto_nomet,ww_nozveto_nomet) + c_goodrun);
+  TCut c_wwloosecut(Form("njets==%i&&((cuts&%i)==%i)&&lep2.pt()>15&&dilep.pt()>45&&dilep.M()>20",njet,ww_nozveto_nomet,ww_nozveto_nomet) + c_goodrun);
   TCut c_higgsprecut(Form("higgsprecut(%i,lep1.Pt(), lep2.Pt(), dPhi)", mH)+c_higgsextra); // this extra cut is the dPhiDiLepJet1
   TCut c_higgsmllcut(Form("higgsmllcut(%i,dilep.M())", mH));
   TCut c_higgsmtcut(Form("higgsmtcut(%i,mt)", mH));
   TCut c_higgsinZ = Form("(min(pmet,pTrackMet)-0.5*nvtx)>%f", metcut)+c_wwloosecut+c_higgsprecut+c_zwindow+c_higgsmtcut; 
   TCut c_higgsfincut = Form("(min(pmet,pTrackMet)-0.5*nvtx)>%f", metcut)+c_wwloosecut+c_higgsprecut+c_higgsmllcut+c_higgsmtcut; 
 
-  //  TCut c_higgsfincut = Form("njets==%i&&((cuts&%i)==%i)&&(min(pmet,pTrackMet)-0.5*nvtx)>%f", njet, ww, ww, metcut)+c_higgsprecut+c_higgsmllcut+c_higgsmtcut+c_goodrun;
   
   // load relevant data files
   TChain *chMC = new TChain("tree");
@@ -55,7 +54,7 @@ void dycalc(int mH = 0, int njet = 0, float metcut = 40.0, float lumiinpb = 1545
 
   TChain *chMCVZ = new TChain("tree");
   chMCVZ->Add(dataDir + "wz.root");
-  chMCVZ->Add(dataDir + "zz.root");
+  chMCVZ->Add(dataDir + "zz_py.root");
    
     
   // load the data file
@@ -250,25 +249,17 @@ void dycalc(int mH = 0, int njet = 0, float metcut = 40.0, float lumiinpb = 1545
   // (5B) from the out-peak
   double sf_ee = pred_ee / neeMC;
   double sf_eeE_syst = sf_ee * pred_eeE_syst/pred_ee;
-  double sf_eeE = sf_ee * sqrt( pow(pred_eeE/pred_ee,2) + pow(neeMCE/neeMC,2));
-  if (useMCRValue)
-    sf_eeE = sf_ee * (sfIn_eeE/sfIn_ee);
+  double sf_eeE = sf_ee * pred_eeE/pred_ee;
   
   double sf_mm = pred_mm / nmmMC;
   double sf_mmE_syst = sf_mm * pred_mmE_syst/pred_mm;
-  double sf_mmE = sf_mm * sqrt( pow(pred_mmE/pred_mm,2) + pow(nmmMCE/nmmMC,2));
-  if (useMCRValue)
-    sf_mmE = sf_mm * (sfIn_mmE/sfIn_mm);
-    
-
-  double sf = pred / nMC;
-  double sfE = sf * sqrt( pow(predE/pred,2) + pow(nMCE/nMC,2));
-  double sfE_syst = sf * predE_syst/pred;
-  if (useMCRValue)
-    sfE = sf * (sfInE/sfIn);
+  double sf_mmE = sf_mm *pred_mmE/pred_mm;
   
-  printf("data/MC scale factor from Rout/in method:\n %.2f +/- %.2f +/- %.2f (MM)\t  %.2f +/- %.2f +/- %.2f (EE)\t %.2f +/- %.2f +/- %.2f (EE+MM)\n",
-	 sf_mm, sf_mmE, sf_mmE_syst, sf_ee, sf_eeE, sf_eeE_syst, sf, sfE, sfE_syst);
+  double sf = pred / nMC;
+  double sfE_syst = sf * predE_syst/pred;
+  double sfE = sf * predE/pred;
+
+  
   text << Form("data/MC scale factor from Rout/in method:\n %.2f +/- %.2f (MM)\t  %.2f +/- %.2f (EE)\t %.2f +/- %.2f (EE+MM)\n",
 	       sf_mm, sqrt(sf_mmE*sf_mmE + sf_mmE_syst*sf_mmE_syst), sf_ee, sqrt(sf_eeE*sf_eeE + sf_eeE_syst*sf_eeE_syst), sf, sqrt(sfE*sfE + sfE_syst*sfE_syst));
   text << "----------------------------------------------------------------------------\n";
