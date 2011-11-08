@@ -18,12 +18,12 @@
 
 TCut c_zeemc("((lep1MotherMcId==23&&lep2MotherMcId==23&&dstype!=46)||dstype==46)");
 TCut c_zmmmc("((lep1MotherMcId==23&&lep2MotherMcId==23&&dstype!=45)||dstype==45)");
-TCut c_zwindow("c_zwindow", "abs(dilep.M()-91.1876)<15");
+TCut c_zwindow("c_zwindow", "abs(dilep.M()-91.1876)<7.5");
 TCut c_higgsextra("c_higgsextra", "(jet1.Pt()<15||dPhiDiLepJet1<165*TMath::Pi()/180.)");
 
 // declare the R histograms
 const int nbins= 4;  
-const float bins [6] = {20, 25, 30, 37, 50};
+const float bins [5] = {20, 25, 30, 37, 50};
 
 enum Selection {
   BaseLine          = 1UL<<0,  // pt(reco)>20/10, acceptance,!STA muon, mll>12
@@ -174,7 +174,7 @@ bool higgsprecut(int mH, float pt1, float pt2, float dphi)
 
 bool higgsmllcut(int mH, float mll)
 {
-  if (TMath::Abs(mll - 91.1876) < 15) return false;
+  if (TMath::Abs(mll - 91.1876) < 15 ) return false;
   
   switch (mH) {
   case 115: 
@@ -353,19 +353,17 @@ void ofsubt_single(TChain *& chData, TCut cut,  ofstream &text, double k_ee, dou
 void ratio_syst(TH1F* & ratio_vs_met, double & R, double & RE_stat, double & RE_syst)
 {
   int nbinsX = ratio_vs_met->GetNbinsX();
-  // add protection agains the last bin with > 80% error. 
-  R = ratio_vs_met->GetBinContent(nbinsX);
-  RE_stat = ratio_vs_met->GetBinError(nbinsX);
-  
-  if (RE_stat/R > 0.65) {
-    nbinsX = nbinsX -1;
-    R = ratio_vs_met->GetBinContent(nbinsX);
-    RE_stat = ratio_vs_met->GetBinError(nbinsX);
-  }
-  
+
+  // take the R from the bin before the signal region
+  R = ratio_vs_met->GetBinContent(nbinsX-1);
+  RE_stat = ratio_vs_met->GetBinError(nbinsX-1);
   RE_syst = 0.0;
   
   for(int i=1;i<=nbinsX;i++) {
+    // do not consider the last bin if the error is > 40%
+    if ( i== nbinsX && ratio_vs_met->GetBinContent(i) > 0) {
+      if ( ratio_vs_met->GetBinError(i) / ratio_vs_met->GetBinContent(i) > 0.4)  continue;
+    }
     RE_syst = RE_syst > TMath::Abs(ratio_vs_met->GetBinContent(i) - R) ? RE_syst : TMath::Abs(ratio_vs_met->GetBinContent(i) - R); 
   }
 }
@@ -408,9 +406,9 @@ void getEstimates(double Di_subt, double  Di_subtE, double R, double RE, double 
 // calculate the k
 void fillkee(TChain *chData, float & k_ee, float & k_eeE, int njet) 
 { 
-  float Ninee = chData->GetEntries(Form("njets==%i&&((cuts&%i)==%i)&&type==3&&abs(dilep.mass()-91.1876)<15&&min(pmet,pTrackMet)>%f", njet, ww_nozveto_nomet,ww_nozveto_nomet, 0.0));
+  float Ninee = chData->GetEntries(Form("njets==%i&&((cuts&%i)==%i)&&type==3&&abs(dilep.mass()-91.1876)<15&&min(pmet,pTrackMet)>20&&((cuts&4719111)==4719111)", njet, ww_nozveto_nomet,ww_nozveto_nomet));
   float NineeE = sqrt(Ninee);
-  float Ninmm = chData->GetEntries(Form("njets==%i&&((cuts&%i)==%i)&&type==0&&abs(dilep.mass()-91.1876)<15&&min(pmet,pTrackMet)>%f", njet, ww_nozveto_nomet,ww_nozveto_nomet, 0.0));
+  float Ninmm = chData->GetEntries(Form("njets==%i&&((cuts&%i)==%i)&&type==0&&abs(dilep.mass()-91.1876)<15&&min(pmet,pTrackMet)>20&&((cuts&4719111)==4719111)", njet, ww_nozveto_nomet,ww_nozveto_nomet));
   float NinmmE = sqrt(Ninmm);
 
   k_ee = sqrt(Ninee/Ninmm);
