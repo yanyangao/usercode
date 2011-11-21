@@ -14,10 +14,8 @@ rm -f ${CARDDIR}/limits.txt
 echo "Mass  Median Expected 68% C.L. band 95%% C.L. band" >> ${CARDDIR}/limits.log
 
 for MASS in 250 300 350 400 500 600; do 
-#for MASS in 250; do
     CARDEE=`ls ${CARDDIR}/${MASS}/*.txt | grep ee`
     CARDMM=`ls ${CARDDIR}/${MASS}/*.txt | grep mm`
-    echo $CARDEE $CARDMM
     combineCards.py mm=${CARDMM} ee=${CARDEE} > ${CARDDIR}/card_${MASS}.txt
     combine -d ${CARDDIR}/card_${MASS}.txt -M Asymptotic > ${CARDDIR}/${MASS}_result.log
     OBSERVED=`grep 'Observed Limit' ${CARDDIR}/${MASS}_result.log | awk '{printf "%4.1f\n", $5}'`
@@ -30,3 +28,17 @@ for MASS in 250 300 350 400 500 600; do
     echo "$MASS & $OBSERVED & $MEDIAN & [${MINUS1SIG}, ${PLUS1SIG}] & [${MINUS2SIG}, ${PLUS2SIG}] \\\\" >> ${CARDDIR}/limits.log
     echo "$MASS $OBSERVED ${MINUS2SIG} ${MINUS1SIG} $MEDIAN ${PLUS1SIG} ${PLUS2SIG}" >> ${CARDDIR}/limits.txt
 done
+
+# Plot the limits
+# write the script to analyze the outputs
+rm -f makePlots.cxx
+echo "void makePlots(const char* file=\"${CARDDIR}/limits.txt\", const char* title=\"H #rightarrow ZZ #rightarrow 2l2#nu all jet bins\")" >> makePlots.cxx
+echo "{" >> makePlots.cxx
+echo "  gSystem->Load(\"lands.so\");" >> makePlots.cxx
+echo "  gSystem->CompileMacro(\"PlotExpectedLimits.C\",\"k\");" >> makePlots.cxx
+echo "  PlotExpectedLimits(file,title);" >> makePlots.cxx
+echo "}" >> makePlots.cxx 
+
+root -q -b -l makePlots.cxx
+epstopdf limits.eps
+mv limits.eps limits.pdf ${CARDDIR}/
