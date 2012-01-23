@@ -16,8 +16,8 @@
 #include "TMath.h"
 #include "TCut.h"
 
-TCut c_zeemc("((lep1MotherMcId==23&&lep2MotherMcId==23&&dstype!=46)||dstype==46)");
-TCut c_zmmmc("((lep1MotherMcId==23&&lep2MotherMcId==23&&dstype!=45)||dstype==45)");
+TCut c_zeemc("((lep1MotherMcId==23&&lep2MotherMcId==23&&dstype!=45)||dstype==45)");
+TCut c_zmmmc("((lep1MotherMcId==23&&lep2MotherMcId==23&&dstype!=46)||dstype==46)");
 TCut c_zwindow("c_zwindow", "abs(dilep.M()-91.1876)<7.5");
 TCut c_higgsextra("c_higgsextra", "(jet1.Pt()<15||dPhiDiLepJet1<165*TMath::Pi()/180.)");
 
