@@ -16,14 +16,15 @@
 #include "TMath.h"
 #include "TCut.h"
 
-TCut c_zeemc("((lep1MotherMcId==23&&lep2MotherMcId==23&&dstype!=45)||dstype==45)");
-TCut c_zmmmc("((lep1MotherMcId==23&&lep2MotherMcId==23&&dstype!=46)||dstype==46)");
+TCut c_zeemc("((lep1MotherMcId==23&&lep2MotherMcId==23&&dstype!=46)||dstype==46)");
+TCut c_zmmmc("((lep1MotherMcId==23&&lep2MotherMcId==23&&dstype!=45)||dstype==45)");
 TCut c_zwindow("c_zwindow", "abs(dilep.M()-91.1876)<7.5");
-TCut c_higgsextra("c_higgsextra", "(jet1.Pt()<15||dPhiDiLepJet1<165*TMath::Pi()/180.)");
+TCut c_higgsextra("c_higgsextra", "(njets<2&&(jet1.Pt()<15||dPhiDiLepJet1<165*TMath::Pi()/180.))||(njets==2&&acos(cos(atan2(jet1.py()+jet2.py(), jet1.px()+jet2.py())-dilep.Phi()))<165.*TMath::Pi()/180.)");
+//TCut c_higgsextra("c_higgsextra", "jet1.Pt()<15||dPhiDiLepJet1<165*TMath::Pi()/180.");
 
 // declare the R histograms
 const int nbins= 4;  
-const float bins [5] = {20, 25, 30, 37, 50};
+const float bins [5] = {20, 23, 28, 37, 50};
 
 enum Selection {
   BaseLine          = 1UL<<0,  // pt(reco)>20/10, acceptance,!STA muon, mll>12
@@ -290,6 +291,15 @@ void mcEstimation(TChain *& chMC, float lumi, int type, TCut cut, double& yield,
   yield = mass_ee->IntegralAndError(0,100, yieldError);
   delete mass_ee;
 }
+
+void mcEstimationnonnlo(TChain *& chMC, float lumi, int type, TCut cut, double& yield, double & yieldError) {
+  // EE
+  TH1F *mass_ee = new TH1F("mass_ee", "mass_ee", 10, 0, 200);
+  mass_ee->Sumw2();
+  chMC->Project("mass_ee", "dilep.mass()", Form("sfWeightPU*sfWeightEff*sfWeightTrig*%f*(type==%i&&%s)", lumi, type, cut.GetTitle()));
+  yield = mass_ee->IntegralAndError(0,100, yieldError);
+  delete mass_ee;
+}
  
 void combll(double nee, double neeE, double nmm, double nmmE, double & n, double & nE) 
 {
@@ -406,9 +416,9 @@ void getEstimates(double Di_subt, double  Di_subtE, double R, double RE, double 
 // calculate the k
 void fillkee(TChain *chData, float & k_ee, float & k_eeE, int njet) 
 { 
-  float Ninee = chData->GetEntries(Form("njets==%i&&((cuts&%i)==%i)&&type==3&&abs(dilep.mass()-91.1876)<15&&min(pmet,pTrackMet)>20&&((cuts&4719111)==4719111)", njet, ww_nozveto_nomet,ww_nozveto_nomet));
+  float Ninee = chData->GetEntries(Form("njets==%i&&((cuts&%i)==%i)&&type==3&&abs(dilep.mass()-91.1876)<7.5&&min(pmet,pTrackMet)>20", njet, ww_nozveto_nomet,ww_nozveto_nomet));
   float NineeE = sqrt(Ninee);
-  float Ninmm = chData->GetEntries(Form("njets==%i&&((cuts&%i)==%i)&&type==0&&abs(dilep.mass()-91.1876)<15&&min(pmet,pTrackMet)>20&&((cuts&4719111)==4719111)", njet, ww_nozveto_nomet,ww_nozveto_nomet));
+  float Ninmm = chData->GetEntries(Form("njets==%i&&((cuts&%i)==%i)&&type==0&&abs(dilep.mass()-91.1876)<7.5&&min(pmet,pTrackMet)>20", njet, ww_nozveto_nomet,ww_nozveto_nomet));
   float NinmmE = sqrt(Ninmm);
 
   k_ee = sqrt(Ninee/Ninmm);
@@ -457,14 +467,18 @@ void fillratioMC(  TChain* & chMC, TFile *& ratioFile, int njet, float lumi,
     
     // Calculate R in MM
     double Nin_mm(0.), Nin_mmE(0.0), Nout_mm(0.0), Nout_mmE(0.0), Rmm(0.), RmmE(0.);
-    mcEstimation(chMC, lumi, 0, c_zmmmc+c_wwloosecut+c_higgsprecut+c_zwindow+c_metcut, Nin_mm, Nin_mmE);
-    mcEstimation(chMC, lumi, 0, c_zmmmc+c_wwloosecut+c_higgsprecut+c_higgsmllcut+c_metcut, Nout_mm, Nout_mmE);
+    // mcEstimation(chMC, lumi, 0, c_zmmmc+c_wwloosecut+c_higgsprecut+c_zwindow+c_metcut, Nin_mm, Nin_mmE);
+    // mcEstimation(chMC, lumi, 0, c_zmmmc+c_wwloosecut+c_higgsprecut+c_higgsmllcut+c_metcut, Nout_mm, Nout_mmE);
+    mcEstimationnonnlo(chMC, lumi, 0, c_zmmmc+c_wwloosecut+c_higgsprecut+c_zwindow+c_metcut, Nin_mm, Nin_mmE);
+    mcEstimationnonnlo(chMC, lumi, 0, c_zmmmc+c_wwloosecut+c_higgsprecut+c_higgsmllcut+c_metcut, Nout_mm, Nout_mmE);
     calcR(Nout_mm, Nout_mmE, Nin_mm, Nin_mmE, Rmm, RmmE);
 
     // Calculate R in EE
     double Nin_ee(0.), Nin_eeE(0.0), Nout_ee(0.0), Nout_eeE(0.0), Ree(0.), ReeE(0.);
-    mcEstimation(chMC, lumi, 3, c_zeemc+c_wwloosecut+c_higgsprecut+c_zwindow+c_metcut, Nin_ee, Nin_eeE);
-    mcEstimation(chMC, lumi, 3, c_zeemc+c_wwloosecut+c_higgsprecut+c_higgsmllcut+c_metcut, Nout_ee, Nout_eeE);
+    // mcEstimation(chMC, lumi, 3, c_zeemc+c_wwloosecut+c_higgsprecut+c_zwindow+c_metcut, Nin_ee, Nin_eeE);
+    // mcEstimation(chMC, lumi, 3, c_zeemc+c_wwloosecut+c_higgsprecut+c_higgsmllcut+c_metcut, Nout_ee, Nout_eeE);
+    mcEstimationnonnlo(chMC, lumi, 3, c_zeemc+c_wwloosecut+c_higgsprecut+c_zwindow+c_metcut, Nin_ee, Nin_eeE);
+    mcEstimationnonnlo(chMC, lumi, 3, c_zeemc+c_wwloosecut+c_higgsprecut+c_higgsmllcut+c_metcut, Nout_ee, Nout_eeE);
     calcR(Nout_ee, Nout_eeE, Nin_ee, Nin_eeE, Ree, ReeE);
     
     // Calculate R in EE+MM
@@ -535,8 +549,8 @@ void fillratioData(  TChain* & chData, TFile *& ratioFile, int njet,
     }
     double Nin_mm(0.), Nin_mmE(0.0), Nin_ee(0.), Nin_eeE(0.0), Nin(0.0), NinE(0.0);
     double Nout_mm(0.), Nout_mmE(0.0), Nout_ee(0.), Nout_eeE(0.0), Nout(0.0), NoutE(0.0);
-    ofsubt_single(chData, c_wwloosecut+c_higgsprecut+c_zwindow+c_metcut, text, k_ee, k_eeE, Nin_ee, Nin_eeE, Nin_mm, Nin_mmE, Nin, NinE, true);
-    ofsubt_single(chData, c_wwloosecut+c_higgsprecut+c_higgsmllcut+c_metcut, text, k_ee, k_eeE, Nout_ee, Nout_eeE, Nout_mm, Nout_mmE, Nout, NoutE,true);
+    ofsubt_single(chData, c_wwloosecut+c_higgsprecut+c_zwindow+c_metcut, text, k_ee, k_eeE, Nin_ee, Nin_eeE, Nin_mm, Nin_mmE, Nin, NinE, true,true);
+    ofsubt_single(chData, c_wwloosecut+c_higgsprecut+c_higgsmllcut+c_metcut, text, k_ee, k_eeE, Nout_ee, Nout_eeE, Nout_mm, Nout_mmE, Nout, NoutE,true,true);
     
     double Rmm(0.), RmmE(0.), Ree(0.), ReeE(0.), R(0.), RE(0.);
     calcR(Nout_mm, Nout_mmE, Nin_mm, Nin_mmE, Rmm, RmmE);
