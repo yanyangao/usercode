@@ -1,6 +1,7 @@
 // Make plots from histograms
 #include "TFile.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TProfile.h"
 #include "TCanvas.h"
 #include "THStack.h"
@@ -8,6 +9,7 @@
 #include <stdlib.h>
 #include "Math/LorentzVector.h"
 #include "TChain.h"
+#include "TMath.h"
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TLegend.h"
@@ -21,16 +23,15 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
 const Double_t jetPtbins[19] = {0,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,100};
 const int nBins = 18;
 
-const Double_t vtxbins[15] = {10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 24, 30, 40};
-const int nvtxBins = 14;
+//const Double_t vtxbins[15] = {10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 24, 30, 40};
+//const int nvtxBins = 14;
 
-//const Double_t vtxbins[7] = {0, 5, 10, 15, 20, 25, 30};
-//const int nvtxBins = 6;
+const Double_t vtxbins[8] = {0, 5, 10, 15, 20, 25, 30, 35};
+const int nvtxBins = 7;
 
+bool withJetMVA = true;
 
-TFile *output_file = new TFile("Zeff_nojetmva.root", "RECREATE");
-
-void createPlot(std::vector<int> samples, std::vector<TString> names,  std::vector<TString> legends, TString x_title, bool logy, float xMin, float xMax, int rebin);
+void createPlot(std::vector<int> samples, std::vector<TString> names, std::vector<TString> legends, TString x_title, TFile *& output_file, TString plotdir);
 void getEff(TH1F*  hist, TH1F* hist_eff);
 void getEff2Hist(TH1F* hist_num, TH1F* hist_denum, TH1F* hist_eff);
 Color_t SetColor(int sample);
@@ -104,20 +105,30 @@ void getZEff()
   names.push_back("madgraph");
   legends.push_back("Madgraph MC");
 
-  std::cout << ww_baseline << "\n";
+  // std::cout << ww_baseline << "\n";
 
-
-  float xMin(10);
-  float xMax(100);
-  int REBIN(1);
+  TString outputFileName = "Zeff_nojetmva.root";
+  TString plotdir = "epsfiles/nojetmva/";
+  if ( withJetMVA) {
+    outputFileName = "Zeff_jetmva.root";
+    plotdir = "epsfiles/jetmva/";
+  }
+  TFile *output_file = new TFile(outputFileName, "RECREATE");
   
-  createPlot(samples, names, legends, "Max PFJet Pt (GeV)", false, xMin, xMax, REBIN);
+  createPlot(samples, names, legends, "Max PFJet Pt (GeV)", output_file, plotdir);
   
 }
 
-void createPlot(std::vector<int> samples, std::vector<TString> names, std::vector<TString> legends, TString x_title, bool logy, float xMin, float xMax, int rebin)
+void createPlot(std::vector<int> samples, std::vector<TString> names, std::vector<TString> legends, TString x_title, TFile *& output_file, TString plotdir)
 {
 
+  // set up the PU reweighting
+  TFile *fPUS4File = TFile::Open("PileUpReweighting_Summer12_2012A.root");
+  TH1D *fhDPUS4 = (TH1D*)(fPUS4File->Get("puWeights"));
+  assert(fhDPUS4);
+  fhDPUS4->SetDirectory(0);
+  delete fPUS4File;
+  
   TString y_title = "Number of Events";
   const int nHist = samples.size();
 
@@ -143,22 +154,34 @@ void createPlot(std::vector<int> samples, std::vector<TString> names, std::vecto
   TH1F *effvsnvtx_ee[nHist];
   TH1F *effvsnvtx_mm[nHist];
 
+  // histograms for jet response
+  TH2F *hJetResponse[nHist];
+  TH2F *hJetResponse_ee[nHist];
+  TH2F *hJetResponse_mm[nHist];
+
   for(int i=0;i<nHist;i++) {
   
     // get the chain
     TChain *chain = new TChain("tree");
-    if ( samples[i] & zdata)
-      chain->Add(TString("data/data_nojetmva.root"));
-    //chain->Add(TString("data/data.root"));
+    if ( samples[i] & zdata) {
+      if ( withJetMVA) 
+	chain->Add(TString("data/data.root"));
+      else
+	chain->Add(TString("data/data_nojetmva.root"));
+    }
+
     if ( samples[i] & zpowheg) {
       chain->Add(TString("data/dyee_mg.root"));
       chain->Add(TString("data/dymm_mg.root"));
 
     }
     if ( samples[i] & zmadgraph) {
-      // chain->Add(TString("data/dyll.root"));
-      chain->Add(TString("data/dyee_mg_52X_nometcut.root"));
-      chain->Add(TString("data/dymm_mg_52X_nometcut.root"));
+      if ( withJetMVA) 
+	chain->Add(TString("data/dyll.root"));
+      else {
+	chain->Add(TString("data/dyee_mg_52X_nometcut.root"));
+	chain->Add(TString("data/dymm_mg_52X_nometcut.root"));
+      }
     }
     assert(chain);
     
@@ -184,18 +207,32 @@ void createPlot(std::vector<int> samples, std::vector<TString> names, std::vecto
     hnvtx[i] = new TH1F(Form("nvtx_%s", names[i].Data()), Form("nvtx_%s", names[i].Data()), nvtxBins, vtxbins);
     hnvtx_ee[i] = new TH1F(Form("nvtx_ee_%s", names[i].Data()), Form("nvtx_ee_%s", names[i].Data()), nvtxBins, vtxbins);
     hnvtx_mm[i] = new TH1F(Form("nvtx_mm_%s", names[i].Data()), Form("nvtx_mm_%s", names[i].Data()), nvtxBins, vtxbins);
+    hnvtx[i]->Sumw2();
+    hnvtx_ee[i]->Sumw2();
+    hnvtx_mm[i]->Sumw2();
 
     hnvtx_0j[i] = new TH1F(Form("nvtx_%s_0j", names[i].Data()), Form("nvtx_%s_0j", names[i].Data()), nvtxBins, vtxbins);
     hnvtx_0j_ee[i] = new TH1F(Form("nvtx_ee_%s_0j", names[i].Data()), Form("nvtx_ee_%s_0j", names[i].Data()), nvtxBins, vtxbins);
     hnvtx_0j_mm[i] = new TH1F(Form("nvtx_mm_%s_0j", names[i].Data()), Form("nvtx_mm_%s_0j", names[i].Data()), nvtxBins, vtxbins);
+    hnvtx_0j[i]->Sumw2();
+    hnvtx_0j_ee[i]->Sumw2();
+    hnvtx_0j_mm[i]->Sumw2();
 
+    
     effvsnvtx[i] = new TH1F(Form("effvsnvtx_%s", names[i].Data()), Form("effvsnvtx_%s", names[i].Data()), nvtxBins, vtxbins);
     effvsnvtx_ee[i] = new TH1F(Form("effvsnvtx_ee_%s", names[i].Data()), Form("effvsnvtx_ee_%s", names[i].Data()), nvtxBins, vtxbins);
     effvsnvtx_mm[i] = new TH1F(Form("effvsnvtx_mm_%s", names[i].Data()), Form("effvsnvtx_mm_%s", names[i].Data()), nvtxBins, vtxbins);
 
+    // histograms for the jet response studies
+    hJetResponse[i] = new TH2F(Form("JetResponse_%s", names[i].Data()), Form("JetResponse_%s", names[i].Data()), 10, 10, 110, 10, 0, 2);
+    hJetResponse_ee[i] = new TH2F(Form("JetResponse_ee_%s", names[i].Data()), Form("JetResponse_ee_%s", names[i].Data()), 10, 10, 110, 10, 0, 2);
+    hJetResponse_mm[i] = new TH2F(Form("JetResponse_mm_%s", names[i].Data()), Form("JetResponse_mm_%s", names[i].Data()), 10, 10, 110, 10, 0, 2);
+    
+
 
     // fill the jet pT histogram 
     LorentzVector*  jet1_ = 0;  
+    LorentzVector*  jet2_ = 0;  
     float scale1fb_ = 1.;
     int type_ = 0;
     LorentzVector*  dilep_ = 0;
@@ -213,6 +250,7 @@ void createPlot(std::vector<int> samples, std::vector<TString> names, std::vecto
     unsigned int njets_ = 0;
 
     chain->SetBranchAddress( "jet1", &jet1_);
+    chain->SetBranchAddress( "jet2", &jet2_);
     chain->SetBranchAddress( "scale1fb",  &scale1fb_);
     chain->SetBranchAddress( "type",  &type_);
     chain->SetBranchAddress( "dilep", &dilep_);
@@ -248,9 +286,10 @@ void createPlot(std::vector<int> samples, std::vector<TString> names, std::vecto
 	if ( ! goodrun(run_, lumi_) ) continue;
 	
       } else {
-	weight *= scale1fb_;
-	weight_ee *= scale1fb_;
-	weight_mm *= scale1fb_;
+	float sfWeightPU = nPUScaleFactor(fhDPUS4, TMath::Min(39, nvtx_));
+	weight = weight * scale1fb_ * sfWeightPU;
+	weight_ee = weight_ee * scale1fb_ * sfWeightPU;
+	weight_mm = weight_mm * scale1fb_ * sfWeightPU;	
       }
       
       // 
@@ -304,6 +343,25 @@ void createPlot(std::vector<int> samples, std::vector<TString> names, std::vecto
 	} else if ( nvtx_ >= 20 && nvtx_ < 30 ) {
 	  hist_ee[i][3]->Fill(jet1_->Pt(), weight_ee);
 	}
+      }
+
+
+      //
+      // fill jet response plots
+      // 
+
+      // select zPlusOneJet events
+      // exactly one jet back to back with the Z
+      bool zPlusOneJet = true;
+      if ( TMath::ACos(-1.0* TMath::Cos(dilep_->phi() - jet1_->phi())) > (15./TMath::Pi()*180) ) zPlusOneJet = false;
+      if ( jet2_->Pt()  > 0.3 * jet1_->Pt() ) zPlusOneJet = false;
+      if ( zPlusOneJet) {
+	float jetresponse = jet1_->Pt() / dilep_->Pt();
+	hJetResponse[i]->Fill(dilep_->Pt(), jetresponse, weight);
+	if ( type_ == 0) 
+	  hJetResponse_mm[i]->Fill(dilep_->Pt(), jetresponse, weight_mm);
+	if ( type_ == 3) 
+	  hJetResponse_ee[i]->Fill(dilep_->Pt(), jetresponse, weight_ee);
       }
     }
     // tidy up
@@ -367,6 +425,22 @@ void createPlot(std::vector<int> samples, std::vector<TString> names, std::vecto
     hnvtx_0j_ee[i]->SetMarkerColor(SetColor(samples[i]));
     hnvtx_0j_mm[i]->SetLineColor(SetColor(samples[i]));
     hnvtx_0j_mm[i]->SetMarkerColor(SetColor(samples[i]));
+
+    hJetResponse[i]->SetLineColor(SetColor(samples[i]));
+    hJetResponse_ee[i]->SetLineColor(SetColor(samples[i]));
+    hJetResponse_mm[i]->SetLineColor(SetColor(samples[i]));
+
+    hJetResponse[i]->SetMarkerColor(SetColor(samples[i]));
+    hJetResponse_ee[i]->SetMarkerColor(SetColor(samples[i]));
+    hJetResponse_mm[i]->SetMarkerColor(SetColor(samples[i]));
+    
+    hJetResponse[i]->SetXTitle("Dilepton pT [GeV]");
+    hJetResponse_ee[i]->SetXTitle("Dilepton pT [GeV]");
+    hJetResponse_mm[i]->SetXTitle("Dilepton pT [GeV]");
+
+    hJetResponse[i]->SetYTitle("Jet pT / Dilepton pT");
+    hJetResponse_ee[i]->SetYTitle("Jet pT / Dilepton pT");
+    hJetResponse_mm[i]->SetYTitle("Jet pT / Dilepton pT");
 
 
 
@@ -443,16 +517,16 @@ void createPlot(std::vector<int> samples, std::vector<TString> names, std::vecto
   for(int i=1;i<nHist;i++)
     hist_ee[i][0]->Draw("sameh");
   leg->Draw("same");
-  c1->Print(TString("epsfiles/ZjetpT_ee.eps"));
-  c1->Print(TString("epsfiles/ZjetpT_ee.png"));
+  c1->Print(Form("%s/ZjetpT_ee.eps", plotdir.Data()));
+  c1->Print(Form("%s/ZjetpT_ee.png", plotdir.Data()));
 
   c1->Clear();
   eff_ee[0][0]->Draw("h");
   for(int i=1;i<nHist;i++)
     eff_ee[i][0]->Draw("sameh");
   leg->Draw("same");
-  c1->Print(TString("epsfiles/Zjetvetoeff_ee.eps"));
-  c1->Print(TString("epsfiles/Zjetvetoeff_ee.png"));
+  c1->Print(Form("%s/Zjetvetoeff_ee.eps", plotdir.Data()));
+  c1->Print(Form("%s/Zjetvetoeff_ee.png", plotdir.Data()));
 
   c1->Clear();
   hist_mm[0][0]->SetMaximum(yMax_mm * 1.1);
@@ -461,8 +535,8 @@ void createPlot(std::vector<int> samples, std::vector<TString> names, std::vecto
   for(int i=1;i<nHist;i++)
     hist_mm[i][0]->Draw("sameh");
   leg->Draw("same");
-  c1->Print(TString("epsfiles/ZjetpT_mm.eps"));
-  c1->Print(TString("epsfiles/ZjetpT_mm.png"));
+  c1->Print(Form("%s/ZjetpT_mm.eps", plotdir.Data()));
+  c1->Print(Form("%s/ZjetpT_mm.png", plotdir.Data()));
 
   
   c1->Clear();
@@ -470,8 +544,8 @@ void createPlot(std::vector<int> samples, std::vector<TString> names, std::vecto
   for(int i=1;i<nHist;i++)
     eff_mm[i][0]->Draw("sameh");
   leg->Draw("same");
-  c1->Print(TString("epsfiles/Zjetvetoeff_mm.eps"));
-  c1->Print(TString("epsfiles/Zjetvetoeff_mm.png"));
+  c1->Print(Form("%s/Zjetvetoeff_mm.eps", plotdir.Data()));
+  c1->Print(Form("%s/Zjetvetoeff_mm.png", plotdir.Data()));
   
   
   c1->Clear();
@@ -479,24 +553,59 @@ void createPlot(std::vector<int> samples, std::vector<TString> names, std::vecto
   for(int i=1;i<nHist;i++)
     effvsnvtx[i]->Draw("samee");
   leg->Draw("same");
-  c1->Print(TString("epsfiles/Zjetvetoeff_vs_nvtx.eps"));
-  c1->Print(TString("epsfiles/Zjetvetoeff_vs_nvtx.png"));
+  c1->Print(Form("%s/Zjetvetoeff_vs_nvtx.eps", plotdir.Data()));
+  c1->Print(Form("%s/Zjetvetoeff_vs_nvtx.png", plotdir.Data()));
 
   c1->Clear();
   effvsnvtx_ee[0]->Draw("h");
   for(int i=1;i<nHist;i++)
     effvsnvtx_ee[i]->Draw("samee");
   leg->Draw("same");
-  c1->Print(TString("epsfiles/Zjetvetoeff_vs_nvtx_ee.eps"));
-  c1->Print(TString("epsfiles/Zjetvetoeff_vs_nvtx_ee.png"));
+  c1->Print(Form("%s/Zjetvetoeff_vs_nvtx_ee.eps", plotdir.Data()));
+  c1->Print(Form("%s/Zjetvetoeff_vs_nvtx_ee.png", plotdir.Data()));
 
   c1->Clear();
   effvsnvtx_mm[0]->Draw("h");
   for(int i=1;i<nHist;i++)
     effvsnvtx_mm[i]->Draw("samee");
   leg->Draw("same");
-  c1->Print(TString("epsfiles/Zjetvetoeff_vs_nvtx_mm.eps"));
-  c1->Print(TString("epsfiles/Zjetvetoeff_vs_nvtx_mm.png"));
+  c1->Print(Form("%s/Zjetvetoeff_vs_nvtx_mm.eps", plotdir.Data()));
+  c1->Print(Form("%s/Zjetvetoeff_vs_nvtx_mm.png", plotdir.Data()));
+
+  c1->Clear();
+  hJetResponse[0]->ProfileX()->SetMaximum(1.5);
+  hJetResponse[0]->ProfileX()->SetMinimum(0.0);
+  hJetResponse[0]->ProfileX()->SetYTitle("Jet pT / Z pT");
+  hJetResponse[0]->ProfileX()->Draw("histe");
+  for(int i=1;i<nHist;i++)
+    hJetResponse[i]->ProfileX()->Draw("samee");
+  leg->Draw("same");
+  c1->Print(Form("%s/jetresponse.eps", plotdir.Data()));
+  c1->Print(Form("%s/jetresponse.png", plotdir.Data()));
+  
+  c1->Clear();
+  hJetResponse_ee[0]->ProfileX()->SetMaximum(1.5);
+  hJetResponse_ee[0]->ProfileX()->SetMinimum(0.0);
+  hJetResponse_ee[0]->ProfileX()->SetYTitle("Jet pT / Z pT");
+  hJetResponse_ee[0]->ProfileX()->Draw("histe");
+  for(int i=1;i<nHist;i++)
+    hJetResponse_ee[i]->ProfileX()->Draw("samee");
+  leg->Draw("same");
+  c1->Print(Form("%s/jetresponse_ee.eps", plotdir.Data()));
+  c1->Print(Form("%s/jetresponse_ee.png", plotdir.Data()));
+
+  
+  c1->Clear();
+  hJetResponse_mm[0]->ProfileX()->SetMaximum(1.5);
+  hJetResponse_mm[0]->ProfileX()->SetMinimum(0.0);
+  hJetResponse_mm[0]->ProfileX()->SetYTitle("Jet pT / Z pT");
+  hJetResponse_mm[0]->ProfileX()->Draw("histe");
+  for(int i=1;i<nHist;i++)
+    hJetResponse_mm[i]->ProfileX()->Draw("samee");
+  leg->Draw("same");
+  c1->Print(Form("%s/jetresponse_mm.eps", plotdir.Data()));
+  c1->Print(Form("%s/jetresponse_mm.png", plotdir.Data()));
+
 
   
   // tidy up
@@ -522,6 +631,9 @@ void createPlot(std::vector<int> samples, std::vector<TString> names, std::vecto
     effvsnvtx[i]->Write();
     effvsnvtx_ee[i]->Write();
     effvsnvtx_mm[i]->Write();
+    hJetResponse[i]->Write();
+    hJetResponse_ee[i]->Write();
+    hJetResponse_mm[i]->Write();
   }
   
 
@@ -535,6 +647,10 @@ void createPlot(std::vector<int> samples, std::vector<TString> names, std::vecto
     delete effvsnvtx[i];
     delete effvsnvtx_ee[i];
     delete effvsnvtx_mm[i];
+    delete hJetResponse[i];
+    delete hJetResponse_ee[i];
+    delete hJetResponse_mm[i];
+    
 
     for ( int j = 0; j < 4; j++) {
       delete hist[i][j];
