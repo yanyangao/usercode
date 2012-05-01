@@ -20,6 +20,8 @@
 
 TGenWGammastarData data;
 
+bool verbose = 1;
+
 //====================================================================================================
 
 void lheGENtupler_Wgammastar(Int_t Option = 0) {
@@ -29,8 +31,8 @@ void lheGENtupler_Wgammastar(Int_t Option = 0) {
   vector<string> fnamev;
   string outfname; 
   if (Option == 0) {
-    outfname = "wz_gentuple_ee_old.root";
-    // fnamev.push_back("test.lhe");
+    outfname = "wz_gentuple_ee_old_test.root";
+    fnamev.push_back("test_old.lhe");
     /*
     fnamev.push_back("/smurf/sixie/MCGenerators/Madgraph/WGammaStar8TeV/EE/gridpack_wgammastarToEE8TeV_1_unweighted_events.lhe");
     fnamev.push_back("/smurf/sixie/MCGenerators/Madgraph/WGammaStar8TeV/EE/gridpack_wgammastarToEE8TeV_2_unweighted_events.lhe");
@@ -42,11 +44,11 @@ void lheGENtupler_Wgammastar(Int_t Option = 0) {
     fnamev.push_back("/smurf/sixie/MCGenerators/Madgraph/WGammaStar8TeV/EE/gridpack_wgammastarToEE8TeV_8_unweighted_events.lhe");
     fnamev.push_back("/smurf/sixie/MCGenerators/Madgraph/WGammaStar8TeV/EE/gridpack_wgammastarToEE8TeV_9_unweighted_events.lhe");
     fnamev.push_back("/smurf/sixie/MCGenerators/Madgraph/WGammaStar8TeV/EE/gridpack_wgammastarToEE8TeV_10_unweighted_events.lhe");
-    */
     
     int nfiles = 76;
     for (int nfile = 1; nfile < nfiles; nfile++) 
       fnamev.push_back(Form("/smurf/sixie/MCGenerators/Madgraph/WGammaStar8TeV/EE_OLD/gridpack_wgammastarToEE8TeV_%i_unweighted_events.lhe", nfile));
+    */
     
   } else if (Option == 1) { 
     outfname = "wz_gentuple_mm.root";
@@ -103,11 +105,15 @@ void lheGENtupler_Wgammastar(Int_t Option = 0) {
     int count = 0;
 
     while(getline(ifs,line)) {
-
-      if ( count%10000 == 0 ) 
-	std::cout << "Processing " << count << " entries...\n"; 
-      
+           
       if(line.compare("<event>")==0) {
+	if ( count%10000 == 0 ) 
+	  std::cout << "Processing " << count << " entries...\n"; 
+	
+	if ( verbose ) {
+	  std::cout << "--------------------------------------\n"; 
+	  std::cout << "Processing " << count << " entries...\n"; 
+	}
         getline(ifs,line);
 	stringstream ss3(line);
 	int nup, idprup;
@@ -121,7 +127,12 @@ void lheGENtupler_Wgammastar(Int_t Option = 0) {
         if (!(nup >= 6 && nup <= 8)) cout << "Error: number of particles is not right \n" 
                                        << nup << " " << idprup << " " << xwgtup 
                                        << " " << scalup << " " << aqedup << " " << aqcdup << endl;
-		
+
+	if ( verbose) 
+	  cout << nup << " " << idprup << " " << xwgtup 
+	       << " " << scalup << " " << aqedup << " " << aqcdup << endl;
+	
+	
 	int idup, istup, mothup1, mothup2, icolup1, icolup2; 
 	double  pup1, pup2, pup3, pup4, pup5, vtimup, spinup;
 	
@@ -160,6 +171,10 @@ void lheGENtupler_Wgammastar(Int_t Option = 0) {
           //two W boson entryies
         }
 
+	if (verbose ) 
+	  std::cout << "w: " <<  idup << " " <<  istup << " " <<  mothup1 << " " <<  mothup2 << " " <<  icolup1 << " " <<  icolup2 
+		    << " " <<  pup1 << " " <<  pup2 << " " <<  pup3 << " " <<  pup4 << " " <<  pup5 << " \n";
+	
 	//get z lepton1 info
         getline(ifs,line);
         stringstream sszlepton1(line);
@@ -171,6 +186,10 @@ void lheGENtupler_Wgammastar(Int_t Option = 0) {
         data.phi_zlepton1  = zlepton1.Phi();
         data.pdgid_zlepton1= idup;
 
+	if (verbose ) 
+	  std::cout << "zlepton1: " <<  idup << " " <<  istup << " " <<  mothup1 << " " <<  mothup2 << " " <<  icolup1 << " " <<  icolup2 
+		    << " " <<  pup1 << " " <<  pup2 << " " <<  pup3 << " " <<  pup4 << " " <<  pup5 << " \n";
+
 	//get z lepton2 info
         getline(ifs,line);
         stringstream sszlepton2(line);
@@ -181,6 +200,10 @@ void lheGENtupler_Wgammastar(Int_t Option = 0) {
         data.eta_zlepton2  = zlepton2.Eta();
         data.phi_zlepton2  = zlepton2.Phi();
         data.pdgid_zlepton2= idup;
+
+	if (verbose ) 
+	  std::cout << "zlepton2: " <<  idup << " " <<  istup << " " <<  mothup1 << " " <<  mothup2 << " " <<  icolup1 << " " <<  icolup2 
+		    << " " <<  pup1 << " " <<  pup2 << " " <<  pup3 << " " <<  pup4 << " " <<  pup5 << " \n";
 
         TLorentzVector zboson = zlepton1 + zlepton2;
         data.zmass = zboson.M();
@@ -200,6 +223,11 @@ void lheGENtupler_Wgammastar(Int_t Option = 0) {
         data.phi_wlepton  = wlepton.Phi();
         data.pdgid_wlepton = idup;
 
+	if (verbose ) 
+	  std::cout << "wlepton: " <<  idup << " " <<  istup << " " <<  mothup1 << " " <<  mothup2 << " " <<  icolup1 << " " <<  icolup2 
+		    << " " <<  pup1 << " " <<  pup2 << " " <<  pup3 << " " <<  pup4 << " " <<  pup5 << " \n";
+
+
 	//get w neutrino info
         getline(ifs,line);
         stringstream sswneutrino(line);
@@ -209,6 +237,10 @@ void lheGENtupler_Wgammastar(Int_t Option = 0) {
         data.pt_wneutrino   = wneutrino.Pt();
         data.eta_wneutrino  = wneutrino.Eta();
         data.phi_wneutrino  = wneutrino.Phi();
+	
+	if (verbose ) 
+	  std::cout << "wneutrino: " <<  idup << " " <<  istup << " " <<  mothup1 << " " <<  mothup2 << " " <<  icolup1 << " " <<  icolup2 
+		    << " " <<  pup1 << " " <<  pup2 << " " <<  pup3 << " " <<  pup4 << " " <<  pup5 << " \n";
 	
 	// dilepton info
         TLorentzVector lep1 = wlepton;
