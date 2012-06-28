@@ -1,28 +1,69 @@
+\subsection{Combine cut-based Analysis 7 TeV and 8 TeV OF}
 
-\subsection{Summary of Results (7+8 TeV) Combing all channels}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!hbtp]
 \centering
-\subfigure[SM Higgs (cut-based) 7 TeV ]{
+\subfigure[SM Higgs (cut-based) 7 TeV 0/1/2-Jets ]{
 \centering
 \label{subfig:sm_cut_7tev}
 \includegraphics[width=.45\textwidth]{figures/limits_nj_cut_7TeV-CLs-asymptotic_log.pdf}}
 \centering
-\subfigure[SM Higgs (cut-based) 8 TeV ]{
+\subfigure[SM Higgs (cut-based) 8 TeV 0/1-Jet OF ]{
 \centering
 \label{subfig:sm_cut_8tev}
-\includegraphics[width=.45\textwidth]{figures/limits_nj_cut_8TeV-CLs-asymptotic_log.pdf}} \\
+\includegraphics[width=.45\textwidth]{figures/limits_njof_cut_8TeV-CLs-asymptotic_log.pdf}} \\
 \subfigure[SM Higgs (cut-based) 7+8 TeV ]{
 \centering
 \label{subfig:sm_cut_comb}
-\includegraphics[width=.45\textwidth]{figures/limits_nj_cut-CLs-asymptotic_log.pdf}} \\ 
+\includegraphics[width=.45\textwidth]{figures/limits_nj_cut_comb8tevof-CLs-asymptotic_log.pdf}} \\ 
 \label{fig:uls_cut}
 \caption{Expected and observed upper limits for SM Higgs using the
-  {\bf cut-based} analysis using 7 TeV, 8 TeV and combined data.}
+  {\bf cut-based} analysis using 7 TeV, 8 TeV and combined data. 
+Note that for the 8 TeV cut-based results, we use only the 
+{\bf OF final state in the 0/1-Jet bin}. }
 \end{figure}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}[hbp!]
+\begin{center}
+\begin{tabular}{c c c c c}
+\hline
+\vspace{-3mm} && \\
+ Higgs Mass & Observed  & Median expected & Expected range for 68\% & Expected range for 95\%   \\
+\hline
+\vspace{-3mm} && \\
+110 & 5.98 & 4.94 & [3.56, 6.88] & [2.65, 9.22] \\
+115 & 2.95 & 2.47 & [1.78, 3.44] & [1.33, 4.61] \\
+120 & 1.91 & 1.49 & [1.07, 2.08] & [0.80, 2.78] \\
+125 & 1.34 & 1.00 & [0.72, 1.40] & [0.54, 1.87] \\
+130 & 0.94 & 0.70 & [0.51, 0.98] & [0.38, 1.31] \\
+135 & 0.69 & 0.54 & [0.39, 0.75] & [0.29, 1.00] \\
+140 & 0.48 & 0.43 & [0.31, 0.59] & [0.23, 0.80] \\
+150 & 0.42 & 0.31 & [0.22, 0.43] & [0.16, 0.57] \\
+160 & 0.24 & 0.19 & [0.13, 0.26] & [0.10, 0.35] \\
+170 & 0.21 & 0.19 & [0.14, 0.27] & [0.10, 0.36] \\
+180 & 0.25 & 0.25 & [0.18, 0.34] & [0.13, 0.46] \\
+190 & 0.33 & 0.37 & [0.27, 0.51] & [0.20, 0.69] \\
+200 & 0.54 & 0.50 & [0.36, 0.70] & [0.27, 0.93] \\
+250 & 1.25 & 0.96 & [0.69, 1.34] & [0.52, 1.80] \\
+300 & 1.59 & 1.14 & [0.82, 1.59] & [0.61, 2.13] \\
+350 & 1.16 & 1.04 & [0.75, 1.44] & [0.56, 1.93] \\
+400 & 1.27 & 1.14 & [0.82, 1.59] & [0.61, 2.14] \\
+450 & 1.33 & 1.39 & [1.00, 1.93] & [0.75, 2.59] \\
+500 & 1.48 & 1.84 & [1.33, 2.56] & [0.99, 3.44] \\
+550 & 2.01 & 2.49 & [1.79, 3.46] & [1.34, 4.64] \\
+600 & 2.67 & 3.53 & [2.54, 4.91] & [1.89, 6.58] \\
+\hline
+\end{tabular}
+\caption{Expected and observed upper limits for SM Higgs using the
+  {\bf cut-based} analysis, corresponding to $\intlumiSevenTeV$ at 7 TeV and $\intlumiEightTeV$ 8 TeV data. 
+Note that for the 8 TeV data, only the {\bf OF final states in the 0/1-Jet bin} are included.}
+\label{tab:cutbase_uls_7and8tevof}
+\end{center}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{table}[hbp!]
@@ -70,89 +111,6 @@
  Higgs Mass & Observed  & Median expected & Expected range for 68\% & Expected range for 95\%   \\
 \vspace{-3mm} && \\
 \hline
-110 & 8.92 & 5.43 & [3.91, 7.56] & [2.91, 10.13] \\
-115 & 4.44 & 2.94 & [2.12, 4.09] & [1.58, 5.49] \\
-120 & 3.17 & 1.79 & [1.29, 2.48] & [0.96, 3.33] \\
-125 & 1.92 & 1.17 & [0.84, 1.63] & [0.63, 2.18] \\
-130 & 1.38 & 0.83 & [0.60, 1.15] & [0.45, 1.55] \\
-135 & 0.98 & 0.64 & [0.46, 0.89] & [0.34, 1.19] \\
-140 & 0.75 & 0.50 & [0.36, 0.70] & [0.27, 0.94] \\
-145 & 0.65 & 0.43 & [0.31, 0.60] & [0.23, 0.81] \\
-150 & 0.67 & 0.35 & [0.25, 0.48] & [0.19, 0.65] \\
-160 & 0.39 & 0.21 & [0.15, 0.30] & [0.11, 0.40] \\
-170 & 0.41 & 0.22 & [0.16, 0.31] & [0.12, 0.42] \\
-180 & 0.52 & 0.30 & [0.21, 0.41] & [0.16, 0.55] \\
-190 & 0.79 & 0.42 & [0.30, 0.59] & [0.23, 0.79] \\
-200 & 1.11 & 0.54 & [0.39, 0.74] & [0.29, 1.00] \\
-250 & 2.28 & 1.05 & [0.76, 1.46] & [0.56, 1.96] \\
-300 & 1.90 & 1.19 & [0.86, 1.65] & [0.64, 2.21] \\
-350 & 1.29 & 1.08 & [0.78, 1.50] & [0.58, 2.02] \\
-400 & 1.26 & 1.25 & [0.90, 1.74] & [0.67, 2.33] \\
-450 & 1.26 & 1.54 & [1.11, 2.15] & [0.83, 2.88] \\
-500 & 1.48 & 2.10 & [1.51, 2.92] & [1.13, 3.91] \\
-550 & 1.99 & 2.73 & [1.97, 3.81] & [1.47, 5.10] \\
-600 & 2.70 & 3.78 & [2.73, 5.26] & [2.03, 7.06] \\
-\hline
-\end{tabular}
-\caption{Expected and observed upper limits for SM Higgs using the
-  {\bf cut-based} analysis with \intlumiEightTeV\ of data at 8 TeV.}
-\label{tab:cutbase_uls_8tev}
-\end{center}
-\end{table}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{table}[hbp!]
-\begin{center}
-\begin{tabular}{c c c c c}
-\hline
-\vspace{-3mm} && \\
- Higgs Mass & Observed  & Median expected & Expected range for 68\% & Expected range for 95\%   \\
-\hline
-\vspace{-3mm} && \\
-110 & 6.47 & 4.58 & [3.30, 6.37] & [2.46, 8.54] \\
-115 & 2.97 & 2.35 & [1.69, 3.27] & [1.26, 4.38] \\
-120 & 2.07 & 1.43 & [1.03, 1.99] & [0.77, 2.67] \\
-125 & 1.39 & 0.96 & [0.69, 1.34] & [0.52, 1.80] \\
-130 & 1.00 & 0.67 & [0.48, 0.93] & [0.36, 1.25] \\
-135 & 0.73 & 0.52 & [0.37, 0.72] & [0.28, 0.97] \\
-140 & 0.51 & 0.41 & [0.29, 0.57] & [0.22, 0.76] \\
-150 & 0.49 & 0.29 & [0.21, 0.41] & [0.16, 0.55] \\
-160 & 0.26 & 0.18 & [0.13, 0.25] & [0.10, 0.34] \\
-170 & 0.24 & 0.19 & [0.13, 0.26] & [0.10, 0.35] \\
-180 & 0.28 & 0.24 & [0.17, 0.33] & [0.13, 0.44] \\
-190 & 0.40 & 0.34 & [0.25, 0.48] & [0.18, 0.64] \\
-200 & 0.73 & 0.46 & [0.33, 0.64] & [0.25, 0.86] \\
-250 & 1.47 & 0.89 & [0.64, 1.23] & [0.48, 1.65] \\
-300 & 1.55 & 1.02 & [0.74, 1.43] & [0.55, 1.91] \\
-350 & 1.16 & 0.95 & [0.68, 1.32] & [0.51, 1.77] \\
-400 & 1.20 & 1.07 & [0.77, 1.49] & [0.57, 1.99] \\
-450 & 1.16 & 1.29 & [0.93, 1.79] & [0.69, 2.40] \\
-500 & 1.35 & 1.72 & [1.24, 2.39] & [0.92, 3.21] \\
-550 & 1.84 & 2.27 & [1.64, 3.16] & [1.22, 4.24] \\
-600 & 2.44 & 3.14 & [2.26, 4.37] & [1.69, 5.86] \\
-\hline
-\end{tabular}
-\caption{Expected and observed upper limits for SM Higgs using the
-  {\bf cut-based} analysis, corresponding to $\intlumiSevenTeV$ at 7 TeV and $\intlumiEightTeV$ 8 TeV data.}
-\label{tab:cutbase_uls_7and8tev}
-\end{center}
-\end{table}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\clearpage
-
-
-\subsection{Combine 7 TeV and 8 TeV OF}
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{table}[hbp!]
-\begin{center}
-\begin{tabular}{c c c c c}
-\hline
-\vspace{-3mm} && \\
- Higgs Mass & Observed  & Median expected & Expected range for 68\% & Expected range for 95\%   \\
-\hline
-\vspace{-3mm} && \\
 110 & 8.81 & 6.25 & [4.50, 8.70] & [3.35, 11.66] \\
 115 & 4.76 & 3.29 & [2.37, 4.58] & [1.77, 6.14] \\
 120 & 3.14 & 1.98 & [1.43, 2.75] & [1.06, 3.69] \\
@@ -178,76 +136,11 @@
 \hline
 \end{tabular}
 \caption{Expected and observed upper limits for SM Higgs using the
-  {\bf cut-based} analysis, using the OF channels in the 0/1-Jet bin in the 8 TeV data ($\intlumiEightTeV$). }
-\label{tab:bdtbase_uls_7tev_8tevof}
-\end{center}
-%\end{table}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\begin{table}[hbp!]
-\begin{center}
-\begin{tabular}{c c c c c}
-\hline
-\vspace{-3mm} && \\
- Higgs Mass & Observed  & Median expected & Expected range for 68\% & Expected range for 95\%   \\
-\hline
-\vspace{-3mm} && \\
-
-
-\hline
-\end{tabular}
-\caption{Expected and observed upper limits for SM Higgs using the
-  {\bf shape-based} analysis using the OF channels in the 0/1-Jet bin in the 8 TeV data ($\intlumiEightTeV$). }
-\label{tab:bdtbase_uls_8tevof}
+  {\bf cut-based} analysis with \intlumiEightTeV\ of data at 8 TeV. 
+Note that we include only the {\bf OF final states in the 0/1-Jet bins}.}
+\label{tab:cutbase_uls_8tev_of}
 \end{center}
 \end{table}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{table}[hbp!]
-\begin{center}
-\begin{tabular}{c c c c c}
-\hline
-\vspace{-3mm} && \\
- Higgs Mass & Observed  & Median expected & Expected range for 68\% & Expected range for 95\%   \\
-\hline
-\vspace{-3mm} && \\
-
-
-\hline
-\end{tabular}
-\caption{Expected and observed upper limits for SM Higgs using the
-  {\bf cut-based} analysis, combining the 7 TeV data using all channels ($\intlumiSevenTeV$) 
-and the OF channels in the 0/1-Jet bin in the 8 TeV data ($\intlumiEightTeV$). }
-\label{tab:cutbase_uls_7tev_8tevof}
-\end{center}
-%\end{table}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\begin{table}[hbp!]
-\begin{center}
-\begin{tabular}{c c c c c}
-\hline
-\vspace{-3mm} && \\
- Higgs Mass & Observed  & Median expected & Expected range for 68\% & Expected range for 95\%   \\
-\hline
-\vspace{-3mm} && \\
-
-
-\hline
-\end{tabular}
-\caption{Expected and observed upper limits for SM Higgs using the
-  {\bf shape-based} analysis, combining the 7 TeV data using all channels ($\intlumiSevenTeV$) 
-and the OF channels in the 0/1-Jet bin in the 8 TeV data ($\intlumiEightTeV$). }
-\label{tab:bdtbase_uls_7tev_8tevof}
-\end{center}
-\end{table}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \clearpage
 
 \subsection{Detailed Results at 8 TeV}
