@@ -1,10 +1,10 @@
 #!/bin/bash     
 
-export landsdir="../../../../LandS/test/"
-export ntoys=10
-export model0="hwwof_0j_shape_8TeV.txt"
+export landsdir="../"
+export ntoys=1000
+export model0="xww_SMHiggsWW_10fb.txt"
 export model0name="SMHiggsWW"
-export model1="xwwof_0j_shape_8TeV.txt"
+export model1="xww_TWW_2mplus_10fb.txt"
 export model1name="TWW_2mplus"
 
 #
