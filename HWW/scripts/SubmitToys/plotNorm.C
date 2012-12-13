@@ -4,14 +4,16 @@ void plotNorm() {
   TString inj = "125";
   TString dir_result = "~/scratch0/ana_PostHCP_2D_19fb/";
   TString ana = "hww";
-  plotNormSingle("qqWW",inj,0,mH,dir_result,ana);
-  plotNormSingle("ggH" ,inj,0,mH,dir_result,ana);
-  plotNormSingle("Wjets" ,inj,0,mH,dir_result,ana);
-  plotNormSingle("Wgamma" ,inj,0,mH,dir_result,ana);
-  plotNormSingle("Wg3l" ,inj,0,mH,dir_result,ana);
-  plotNormSingle("Top" ,inj,0,mH,dir_result,ana);
-  plotNormSingle("VV" ,inj,0,mH,dir_result,ana);
-  plotNormSingle("Ztt" ,inj,0,mH,dir_result,ana);
+  int njet = 0;
+  plotNormSingle("qqWW",inj,njet,mH,dir_result,ana);
+  plotNormSingle("ggH" ,inj,njet,mH,dir_result,ana);
+  plotNormSingle("WjetsE" ,inj,njet,mH,dir_result,ana);
+  plotNormSingle("WjetsM" ,inj,njet,mH,dir_result,ana);
+  plotNormSingle("Wgamma" ,inj,njet,mH,dir_result,ana);
+  plotNormSingle("Wg3l" ,inj,njet,mH,dir_result,ana);
+  plotNormSingle("Top" ,inj,njet,mH,dir_result,ana);
+  plotNormSingle("VV" ,inj,njet,mH,dir_result,ana);
+  plotNormSingle("Ztt" ,inj,njet,mH,dir_result,ana);
 }
 
 void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TString ana) {
@@ -31,7 +33,7 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
     if (proc=="ZH")          { input = 0.0     ; maxx=1.0; }
     else if (proc=="WH")     { input = 5.447   ; maxx=1.0; }
     else if (proc=="qqH")    { input = 2.805   ; maxx=1.0; }
-    else if (proc=="ggH")    { input = 224.724 ; maxx=3.0; }
+    else if (proc=="ggH")    { input = 224.724 ; maxx=1.0; }
     else if (proc=="qqWW")   { input = 3749.844; maxx=1.0; }
     else if (proc=="ggWW")   { input = 197.973 ; maxx=1.0; }
     else if (proc=="VV")     { input = 128.573 ; maxx=1.0; }
@@ -46,8 +48,6 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
   }
 
   gSystem->Exec(Form("grep -h %s %s/logsNorm/%i/logNorm_%s_%i_%sof_%ij_shape_8TeV_*.log >& tmp.txt",proc.Data(),dir.Data(),mH,inj.Data(),mH,ana.Data(),jet));
-  std::cout << Form("grep -h %s %s/logsNorm/%i/logNorm_%s_%i_%sof_%ij_shape_8TeV_*.log >& tmp.txt",proc.Data(),dir.Data(),mH,inj.Data(),mH,ana.Data(),jet) << "\n";
-
   gStyle->SetOptStat(1);
   gStyle->SetOptFit(1);
 
