@@ -15,11 +15,11 @@ using namespace std;
 
 // directory of the cards where you have the original cards 
 // make sure there is no hard coded locations of the input root files since we will use combine
-TString dir_cards = "/afs/cern.ch/user/y/yygao/CMSSW_5_2_5/src/Smurf/LimitCalc/SubmitToys/ana_PostHCP_2D_19fb/";
+TString dir_cards = "/afs/cern.ch/user/y/yygao/CMSSW_5_2_5/src/Smurf/LimitCalc/ana_PostHCP_2D_19fb/";
 // location of the histograms from the toy creation 
 // from this command done with lands
 // lands.exe -d card.txt -M Hybrid  -m 125 --minuitSTRATEGY 0 --bWriteToys 1 -n Name --nToysForCLsb 1000 --nToysForCLb 1 --singlePoint 1 --seed 12344  -rMin 0 -rMax 5
-TString dir_toys  = "/afs/cern.ch/user/y/yygao/CMSSW_5_2_5/src/Smurf/LimitCalc/SubmitToys/ana_PostHCP_2D_19fb/";
+TString dir_toys  = "/afs/cern.ch/user/y/yygao/CMSSW_5_2_5/src/Smurf/LimitCalc/ana_PostHCP_2D_19fb/";
   
 // ----------------------------
 

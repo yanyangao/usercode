@@ -14,7 +14,10 @@ INJ=$1
 MIN=$2
 MAX=$3
 ANA=$4
+
 OUTPUTDIR=/afs/cern.ch/user/y/yygao/scratch0/ana_PostHCP_2D_19fb/
+mkdir -p $OUTPUTDIR/ 
+
 
 if [ ! $# -eq 4 ]; then
     echo " USAGE: ./gcRunNormTest.sh inj min max ana outdir

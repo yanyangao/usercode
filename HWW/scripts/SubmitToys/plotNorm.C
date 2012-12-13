@@ -2,7 +2,7 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
 void plotNorm() {
   int mH = 125; 
   TString inj = "125";
-  TString dir_result = "~/scratch0/HCP_Injection/";
+  TString dir_result = "~/scratch0/ana_PostHCP_2D_19fb/";
   TString ana = "hww";
   plotNormSingle("qqWW",inj,0,mH,dir_result,ana);
   plotNormSingle("ggH" ,inj,0,mH,dir_result,ana);
@@ -16,8 +16,9 @@ void plotNorm() {
 
 void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TString ana) {
 
-  // process                            ZH    WH   qqH   ggH      qqWW    ggWW      VV    Top     Zjets Wjets    Wgamma Wg3l	Ztt	
-  // rate                             1.471 5.123 2.622 210.631 3616.214 190.711 120.761 390.807 0.000 831.409 100.719 164.744 39.078
+  // process ZH      WH      qqH     ggH     qqWW       ggWW      VV      Top      Zjets  WjetsE   Wgamma    Wg3l    Ztt    WjetsM
+  // rate   0.000   5.447   2.805  224.727  3749.844  197.973  128.573  453.141   0.000  334.868  108.992  178.605  40.347  497.622
+
 
   gROOT->Reset();
   float input = 0;
@@ -27,19 +28,20 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
   
   //THIS IS FOR 0J mH=125
   if (jet==0 && mH==125) {
-    if (proc=="ZH")          { input = 1.471   ; maxx=1.0; }
-    else if (proc=="WH")     { input = 5.123   ; maxx=1.0; }
-    else if (proc=="qqH")    { input = 2.622   ; maxx=1.0; }
-    else if (proc=="ggH")    { input = 210.631 ; maxx=3.0; }
-    else if (proc=="qqWW")   { input = 3616.214; maxx=1.0; }
-    else if (proc=="ggWW")   { input = 190.711 ; maxx=1.0; }
-    else if (proc=="VV")     { input = 120.761 ; maxx=1.0; }
-    else if (proc=="Top")    { input = 390.807 ; maxx=1.0; }
+    if (proc=="ZH")          { input = 0.0     ; maxx=1.0; }
+    else if (proc=="WH")     { input = 5.447   ; maxx=1.0; }
+    else if (proc=="qqH")    { input = 2.805   ; maxx=1.0; }
+    else if (proc=="ggH")    { input = 224.724 ; maxx=3.0; }
+    else if (proc=="qqWW")   { input = 3749.844; maxx=1.0; }
+    else if (proc=="ggWW")   { input = 197.973 ; maxx=1.0; }
+    else if (proc=="VV")     { input = 128.573 ; maxx=1.0; }
+    else if (proc=="Top")    { input = 453.141 ; maxx=1.0; }
     else if (proc=="Zjets")  { input = 0.0     ; maxx=1.0; }
-    else if (proc=="Wjets")  { input = 831.409 ; maxx=1.0; }
-    else if (proc=="Wgamma") { input = 100.719 ; maxx=1.0; }
-    else if (proc=="Wg3l")   { input = 164.744 ; maxx=1.0; }
-    else if (proc=="Ztt")    { input = 39.078  ; maxx=1.0; }
+    else if (proc=="WjetsE") { input = 334.868 ; maxx=1.0; }
+    else if (proc=="WjetsM") { input = 492.622 ; maxx=1.0; }
+    else if (proc=="Wgamma") { input = 108.992 ; maxx=1.0; }
+    else if (proc=="Wg3l")   { input = 178.605 ; maxx=1.0; }
+    else if (proc=="Ztt")    { input = 40.347  ; maxx=1.0; }
     else return;
   }
 
