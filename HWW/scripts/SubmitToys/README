@@ -1,0 +1,117 @@
+
+------------------------------------------------------------------------------------------
+This package documents the procedure to analyze the fit bias from 
+doing toyMC experiments. This is a slimmed version of Giuseppe's original code, 
+http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/GCerati/HWWScripts/SubmitToys/ 
+------------------------------------------------------------------------------------------
+Important notes
+-  If you want to use the LSF to process toys, make sure you run this from lxplus 
+-  Since this study is using combine, make sure you do not have hard coded location of the  
+   input .root files, i.e. do not do fixpath.pl
+------------------------------------------------------------------------------------------
+
+Here is the explicit instructions. 
+
+1. The inputs are datacards, assumed to be in the smurf format, i.e. card/125/ structure. 
+The below examples are based on the exisiting cards from /smurf/ceballos/inputLimits/ana_PostHCP_2D/
+
+2. Checking out LandS and the Smurf/LimitCalc
+
+------------------
+cmsrel CMSSW_5_2_5
+cd CMSSW_5_2_5/src
+cmsenv
+cvs co -d Smurf/LimitCalc UserCode/Smurf/LimitCalc
+cvs co -d LandS UserCode/mschen/LandS
+cvs co -d Smurf/cards UserCode/Smurf/cards
+cd LandS
+make
+cd ../
+cvs co -d Smurf/LimitCalc UserCode/Smurf/LimitCalc
+cd Smurf/LimitCalc
+mkdir -p ana_PostHCP_2D_19fb/125
+cd ana_PostHCP_2D_19fb/125
+cp /smurf/ceballos/inputLimits/ana_PostHCP_2D/125/*  .
+cvs co -d SubmitToys/ UserCode/YGao/HWW/scripts/SubmitToys
+------------------
+
+
+3. Here are the detailed steps to do the fit bias studies
+The conceptual step is that based on an existing datacards, we perform toy studies. In each 
+toy, we create a toy data (histo_Data) based on the S+B expectations. This toy data is created in 
+such a way that it samples over all the nusiance parameters to account for both the systematical 
+and statistical uncertainties. Then we create toy card for each toy experiment, in which we use the 
+same data cards as the inputs except that we replace the Data information with the toy data. 
+The fit bias, (n_fit-n_in)/nin, information is then plotted for all the toy results. 
+
+1) Create toys 
+
+------------------
+cp SubmitToys/createtoydata.sh .
+chmod u+x createtoydata.sh
+./createtoydata.sh hwwof_0j_shape_8TeV
+------------------
+
+2) Edit the macro to create the toy data cards (getPseudoData.C)
+
+You need to change these two arguments,
+- dir_cards
+- dir_toys
+
+3) Run script (gcRunNormTest.sh) to do the ML fit by combine and extract the final yield
+
+- You need to edit the output directions where we keep the post fit yields and also later the plots, 
+
+OUTPUTDIR=/afs/cern.ch/user/y/yygao/scratch0/ana_PostHCP_2D_19fb/
+
+- Run a single test do
+
+------------------
+./gcRunNormTest.sh 125 0 0 hww
+------------------
+
+- Submit 1000 toys in 10 jobs in LSF, 
+
+------------------
+for j in {0,100,200,300,400,500,600,700,800,900}; do ./gcRunNormTest.sh 125 $(($j+1)) $(($j+100)) hww; done
+------------------
+
+
+4) EDIT and run macro plotNorm.C to plot the fit bias, 
+
+Make sure you change the following in the macro,
+
+- Location of the output of the normalization
+
+TString dir_result = "~/scratch0/HCP_Injection/";
+
+- The input yields in the following blocks
+
+ //THIS IS FOR 0J mH=125
+  if (jet==0 && mH==125) {
+    if (proc=="ZH")          { input = 1.471   ; maxx=1.0; }
+    else if (proc=="WH")     { input = 5.123   ; maxx=1.0; }
+    else if (proc=="qqH")    { input = 2.622   ; maxx=1.0; }
+    else if (proc=="ggH")    { input = 210.631 ; maxx=3.0; }
+    else if (proc=="qqWW")   { input = 3616.214; maxx=1.0; }
+    else if (proc=="ggWW")   { input = 190.711 ; maxx=1.0; }
+    else if (proc=="VV")     { input = 120.761 ; maxx=1.0; }
+    else if (proc=="Top")    { input = 390.807 ; maxx=1.0; }
+    else if (proc=="Zjets")  { input = 0.0     ; maxx=1.0; }
+    else if (proc=="Wjets")  { input = 831.409 ; maxx=1.0; }
+    else if (proc=="Wgamma") { input = 100.719 ; maxx=1.0; }
+    else if (proc=="Wg3l")   { input = 164.744 ; maxx=1.0; }
+    else if (proc=="Ztt")    { input = 39.078  ; maxx=1.0; }
+    else return;
+  }
+
+
+
+
+
+
+
+
+
+
+
