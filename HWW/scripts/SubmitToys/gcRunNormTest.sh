@@ -18,7 +18,7 @@ NJETS=$5
 
 
 OUTPUTDIR=/afs/cern.ch/user/y/yygao/scratch0/ana_PostHCP_2D_19fb/
-mkdir -p $OUTPUTDIR/ 
+mkdir -p $OUTPUTDIR/logsNorm/
 
 
 if [ ! $# -eq 5 ]; then

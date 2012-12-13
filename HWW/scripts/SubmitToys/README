@@ -54,6 +54,11 @@ chmod u+x createtoydata.sh
 
 2) Edit the macro to create the toy data cards (getPseudoData.C)
 
+Note, now we are going to do the rest in the SumitToys/ directory 
+------------------
+cd SubmitToys/
+------------------
+
 You need to change these two arguments,
 - dir_cards
 - dir_toys
@@ -64,16 +69,16 @@ You need to change these two arguments,
 
 OUTPUTDIR=/afs/cern.ch/user/y/yygao/scratch0/ana_PostHCP_2D_19fb/
 
-- Run a single test do
+- Run a single test using 0-jet bin do
 
 ------------------
-./gcRunNormTest.sh 125 0 0 hww
+./gcRunNormTest.sh 125 0 0 hww 0
 ------------------
 
-- Submit 1000 toys in 10 jobs in LSF, 
+- Submit 1000 toys in 10 jobs in LSF using 0-Jet bin, 
 
 ------------------
-for j in {0,100,200,300,400,500,600,700,800,900}; do ./gcRunNormTest.sh 125 $(($j+1)) $(($j+100)) hww; done
+for j in {0,100,200,300,400,500,600,700,800,900}; do ./gcRunNormTest.sh 125 $(($j+1)) $(($j+100)) hww 0; done
 ------------------
 
 
