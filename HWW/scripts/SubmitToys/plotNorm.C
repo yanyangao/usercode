@@ -4,23 +4,20 @@ void plotNorm() {
   TString inj = "125";
   TString dir_result = "~/scratch0/ana_PostHCP_2D_19fb/";
   TString ana = "hww";
-  int njet = 0;
-  plotNormSingle("qqWW",inj,njet,mH,dir_result,ana);
-  plotNormSingle("ggH" ,inj,njet,mH,dir_result,ana);
-  plotNormSingle("WjetsE" ,inj,njet,mH,dir_result,ana);
-  plotNormSingle("WjetsM" ,inj,njet,mH,dir_result,ana);
-  plotNormSingle("Wgamma" ,inj,njet,mH,dir_result,ana);
-  plotNormSingle("Wg3l" ,inj,njet,mH,dir_result,ana);
-  plotNormSingle("Top" ,inj,njet,mH,dir_result,ana);
-  plotNormSingle("VV" ,inj,njet,mH,dir_result,ana);
-  plotNormSingle("Ztt" ,inj,njet,mH,dir_result,ana);
+  for ( int njet = 0; njet < 1; njet ++ ) {
+    plotNormSingle("qqWW",inj,njet,mH,dir_result,ana);
+    plotNormSingle("ggH" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("WjetsE" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("WjetsM" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("Wgamma" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("Wg3l" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("Top" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("VV" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("Ztt" ,inj,njet,mH,dir_result,ana);
+  }
 }
 
 void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TString ana) {
-
-  // process ZH      WH      qqH     ggH     qqWW       ggWW      VV      Top      Zjets  WjetsE   Wgamma    Wg3l    Ztt    WjetsM
-  // rate   0.000   5.447   2.805  224.727  3749.844  197.973  128.573  453.141   0.000  334.868  108.992  178.605  40.347  497.622
-
 
   gROOT->Reset();
   float input = 0;
@@ -30,6 +27,8 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
   
   //THIS IS FOR 0J mH=125
   if (jet==0 && mH==125) {
+    // process ZH      WH      qqH     ggH     qqWW       ggWW      VV      Top      Zjets  WjetsE   Wgamma    Wg3l    Ztt    WjetsM
+    // rate   0.000   5.447   2.805  224.727  3749.844  197.973  128.573  453.141   0.000  334.868  108.992  178.605  40.347  497.622
     if (proc=="ZH")          { input = 0.0     ; maxx=1.0; }
     else if (proc=="WH")     { input = 5.447   ; maxx=1.0; }
     else if (proc=="qqH")    { input = 2.805   ; maxx=1.0; }
@@ -40,10 +39,31 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
     else if (proc=="Top")    { input = 453.141 ; maxx=1.0; }
     else if (proc=="Zjets")  { input = 0.0     ; maxx=1.0; }
     else if (proc=="WjetsE") { input = 334.868 ; maxx=1.0; }
-    else if (proc=="WjetsM") { input = 492.622 ; maxx=1.0; }
     else if (proc=="Wgamma") { input = 108.992 ; maxx=1.0; }
     else if (proc=="Wg3l")   { input = 178.605 ; maxx=1.0; }
     else if (proc=="Ztt")    { input = 40.347  ; maxx=1.0; }
+    else if (proc=="WjetsM") { input = 492.622 ; maxx=1.0; }
+    else return;
+  }
+
+  //THIS IS FOR 1J mH=125
+  if (jet==1 && mH==125) {
+    // process ZH      WH      qqH    ggH      qqWW     ggWW     VV       Top      Zjets  WjetsE    Wgamma Wg3l     Ztt    WjetsM
+    // rate   0.000   6.797  10.828  88.974  1128.722  65.711  115.082  1370.905   0.000  158.203  28.190  27.770  69.111  220.397
+    if (proc=="ZH")          { input = 0.0     ; maxx=1.0; }
+    else if (proc=="WH")     { input = 6.797   ; maxx=1.0; }
+    else if (proc=="qqH")    { input = 10.828   ; maxx=1.0; }
+    else if (proc=="ggH")    { input = 88.974  ; maxx=1.0; }
+    else if (proc=="qqWW")   { input = 1128.722; maxx=1.0; }
+    else if (proc=="ggWW")   { input = 65.711  ; maxx=1.0; }
+    else if (proc=="VV")     { input = 115.082 ; maxx=1.0; }
+    else if (proc=="Top")    { input = 1370.905; maxx=1.0; }
+    else if (proc=="Zjets")  { input = 0.0     ; maxx=1.0; }
+    else if (proc=="WjetsE") { input = 158.203 ; maxx=1.0; }
+    else if (proc=="Wgamma") { input = 28.190  ; maxx=1.0; }
+    else if (proc=="Wg3l")   { input = 27.770  ; maxx=1.0; }
+    else if (proc=="Ztt")    { input = 69.111  ; maxx=1.0; }
+    else if (proc=="WjetsM") { input = 220.397 ; maxx=1.0; }
     else return;
   }
 
@@ -104,7 +124,7 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
   line_s.Draw("same");
   */
   gPad->Update();
-  if (gPad->GetFrame()->GetY2()>1000) h_proc_s->GetYaxis()->SetRangeUser(0,1000);
+  // if (gPad->GetFrame()->GetY2()>10000) h_proc_s->GetYaxis()->SetRangeUser(0,1000);
   c1.SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_%s_%s.png",dir.Data(),inj.Data(),jet,mH,proc.Data(),ana.Data()));
   c1.SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_%s_%s.eps",dir.Data(),inj.Data(),jet,mH,proc.Data(),ana.Data()));
   
