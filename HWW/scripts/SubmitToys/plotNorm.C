@@ -2,10 +2,11 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
 void plotNorm() {
   int mH = 125; 
   TString inj = "125";
-  TString dir_result = "~/scratch0/ana_PostHCP_2D_19fb/";
+  TString dir_result = "~/scratch0/hwwjcp_19fb/";
   TString ana = "hww";
   for ( int njet = 0; njet < 1; njet ++ ) {
     plotNormSingle("qqWW",inj,njet,mH,dir_result,ana);
+    plotNormSingle("ggWW",inj,njet,mH,dir_result,ana);
     plotNormSingle("ggH" ,inj,njet,mH,dir_result,ana);
     plotNormSingle("WjetsE" ,inj,njet,mH,dir_result,ana);
     plotNormSingle("WjetsM" ,inj,njet,mH,dir_result,ana);
@@ -24,48 +25,60 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
   float maxx  = 0;
   float hcp_s = 0;
   float hcp_b = 0;
-  
-  //THIS IS FOR 0J mH=125
-  if (jet==0 && mH==125) {
-    // process ZH      WH      qqH     ggH     qqWW       ggWW      VV      Top      Zjets  WjetsE   Wgamma    Wg3l    Ztt    WjetsM
-    // rate   0.000   5.447   2.805  224.727  3749.844  197.973  128.573  453.141   0.000  334.868  108.992  178.605  40.347  497.622
-    if (proc=="ZH")          { input = 0.0     ; maxx=1.0; }
-    else if (proc=="WH")     { input = 5.447   ; maxx=1.0; }
-    else if (proc=="qqH")    { input = 2.805   ; maxx=1.0; }
-    else if (proc=="ggH")    { input = 224.724 ; maxx=1.0; }
-    else if (proc=="qqWW")   { input = 3749.844; maxx=1.0; }
-    else if (proc=="ggWW")   { input = 197.973 ; maxx=1.0; }
-    else if (proc=="VV")     { input = 128.573 ; maxx=1.0; }
-    else if (proc=="Top")    { input = 453.141 ; maxx=1.0; }
-    else if (proc=="Zjets")  { input = 0.0     ; maxx=1.0; }
-    else if (proc=="WjetsE") { input = 334.868 ; maxx=1.0; }
-    else if (proc=="Wgamma") { input = 108.992 ; maxx=1.0; }
-    else if (proc=="Wg3l")   { input = 178.605 ; maxx=1.0; }
-    else if (proc=="Ztt")    { input = 40.347  ; maxx=1.0; }
-    else if (proc=="WjetsM") { input = 492.622 ; maxx=1.0; }
-    else return;
-  }
 
-  //THIS IS FOR 1J mH=125
-  if (jet==1 && mH==125) {
-    // process ZH      WH      qqH    ggH      qqWW     ggWW     VV       Top      Zjets  WjetsE    Wgamma Wg3l     Ztt    WjetsM
-    // rate   0.000   6.797  10.828  88.974  1128.722  65.711  115.082  1370.905   0.000  158.203  28.190  27.770  69.111  220.397
-    if (proc=="ZH")          { input = 0.0     ; maxx=1.0; }
-    else if (proc=="WH")     { input = 6.797   ; maxx=1.0; }
-    else if (proc=="qqH")    { input = 10.828   ; maxx=1.0; }
-    else if (proc=="ggH")    { input = 88.974  ; maxx=1.0; }
-    else if (proc=="qqWW")   { input = 1128.722; maxx=1.0; }
-    else if (proc=="ggWW")   { input = 65.711  ; maxx=1.0; }
-    else if (proc=="VV")     { input = 115.082 ; maxx=1.0; }
-    else if (proc=="Top")    { input = 1370.905; maxx=1.0; }
-    else if (proc=="Zjets")  { input = 0.0     ; maxx=1.0; }
-    else if (proc=="WjetsE") { input = 158.203 ; maxx=1.0; }
-    else if (proc=="Wgamma") { input = 28.190  ; maxx=1.0; }
-    else if (proc=="Wg3l")   { input = 27.770  ; maxx=1.0; }
-    else if (proc=="Ztt")    { input = 69.111  ; maxx=1.0; }
-    else if (proc=="WjetsM") { input = 220.397 ; maxx=1.0; }
-    else return;
+  float yield_ZH(0.), yield_WH(0.), yield_qqH(0.), yield_ggH(0.);
+  float yield_qqWW(0.), yield_ggWW(0.), yield_VV(0.), yield_Top(0.0), yield_Zjets(0.0), yield_WjetsE(0.), yield_Wgamma(0.0), yield_Wg3l(0.0), yield_Ztt(0.), yield_WjetsM(0.); 
+  
+  TString dir_cards="../../";
+  TString datacardName = Form("%s/%i/%sof_%ij_shape_8TeV.txt",dir_cards.Data(),mH,ana.Data(),jet);
+  // std::cout << datacardName << "\n";
+  ifstream incard (datacardName);
+  string line;
+  
+  if (incard.is_open()) {
+    while ( incard.good() ) {
+      getline (incard,line);
+      size_t found=line.find("rate");
+      if (found!=string::npos) {
+	// std::cout << line << std::endl;
+	stringstream stream(line);
+	string rate;
+	stream >> rate ;
+	stream >> yield_ZH; 
+	stream >> yield_WH;
+	stream >> yield_qqH;
+	stream >> yield_ggH;
+	stream >> yield_qqWW;
+	stream >> yield_ggWW;
+	stream >> yield_VV;    
+	stream >> yield_Top;
+	stream >> yield_Zjets;
+	stream >> yield_WjetsE;
+	stream >> yield_Wgamma;
+	stream >> yield_Wg3l;
+	stream >> yield_Ztt;
+	stream >> yield_WjetsM;
+      }
+    }
+    incard.close();
   }
+  
+  if (proc=="ZH")            { input = yield_ZH     ; maxx=1.0; }
+    else if (proc=="WH")     { input = yield_WH     ; maxx=1.0; }
+    else if (proc=="qqH")    { input = yield_qqH    ; maxx=1.0; }
+    else if (proc=="ggH")    { input = yield_ggH    ; maxx=1.0; }
+    else if (proc=="qqWW")   { input = yield_qqWW   ; maxx=1.0; }
+    else if (proc=="ggWW")   { input = yield_ggWW   ; maxx=1.0; }
+    else if (proc=="VV")     { input = yield_VV     ; maxx=1.0; }
+    else if (proc=="Top")    { input = yield_Top    ; maxx=1.0; }
+    else if (proc=="Zjets")  { input = yield_Zjets  ; maxx=1.0; }
+    else if (proc=="WjetsE") { input = yield_WjetsE ; maxx=1.0; }
+    else if (proc=="Wgamma") { input = yield_Wgamma ; maxx=1.0; }
+    else if (proc=="Wg3l")   { input = yield_Wg3l   ; maxx=1.0; }
+    else if (proc=="Ztt")    { input = yield_Ztt    ; maxx=1.0; }
+    else if (proc=="WjetsM") { input = yield_WjetsM ; maxx=1.0; }
+    else return;
+  
 
   gSystem->Exec(Form("grep -h %s %s/logsNorm/%i/logNorm_%s_%i_%sof_%ij_shape_8TeV_*.log >& tmp.txt",proc.Data(),dir.Data(),mH,inj.Data(),mH,ana.Data(),jet));
   gStyle->SetOptStat(1);
@@ -103,12 +116,12 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
   h_proc_b->GetYaxis()->SetTitle("toys/bin");
   h_proc_b->Draw();
   h_proc_b->Fit("gaus");
-  /*
+/*
   TLine line_b((hcp_b-input)/input,0,(hcp_b-input)/input,h_proc_b->GetBinContent(h_proc_b->GetMaximumBin()));
   line_b.SetLineColor(kMagenta);
   line_b.SetLineWidth(2);
   line_b.Draw("same");
-  */
+*/
   c1.SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_bfit_%s_%s.png",dir.Data(),inj.Data(),jet,mH,proc.Data(),ana.Data()));
   c1.SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_bfit_%s_%s.eps",dir.Data(),inj.Data(),jet,mH,proc.Data(),ana.Data()));
 
@@ -117,17 +130,17 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
   h_proc_s->GetYaxis()->SetTitle("toys/bin");
   h_proc_s->Draw();
   h_proc_s->Fit("gaus");
-  /*
+/*
   TLine line_s((hcp_s-input)/input,0,(hcp_s-input)/input,h_proc_s->GetBinContent(h_proc_s->GetMaximumBin()));
   line_s.SetLineColor(kMagenta);
   line_s.SetLineWidth(2);
   line_s.Draw("same");
-  */
+*/
   gPad->Update();
   // if (gPad->GetFrame()->GetY2()>10000) h_proc_s->GetYaxis()->SetRangeUser(0,1000);
   c1.SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_%s_%s.png",dir.Data(),inj.Data(),jet,mH,proc.Data(),ana.Data()));
   c1.SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_%s_%s.eps",dir.Data(),inj.Data(),jet,mH,proc.Data(),ana.Data()));
-  
+
   
 }
  
