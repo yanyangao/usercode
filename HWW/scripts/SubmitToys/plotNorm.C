@@ -2,19 +2,20 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
 void plotNorm() {
   int mH = 125; 
   TString inj = "125";
-  TString dir_result = "~/scratch0/hwwjcp_19fb/";
+  TString dir_result = "/afs/cern.ch/user/j/jaehyeok/CMSSW_5_2_3_patch4/src/Smurf/LimitCalc/ana_PostHCP_2D_19fb/";
   TString ana = "hww";
   for ( int njet = 0; njet < 1; njet ++ ) {
-    plotNormSingle("qqWW",inj,njet,mH,dir_result,ana);
-    plotNormSingle("ggWW",inj,njet,mH,dir_result,ana);
-    plotNormSingle("ggH" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("WjetsE" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("WjetsM" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("Wgamma" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("Wg3l" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("Top" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("VV" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("Ztt" ,inj,njet,mH,dir_result,ana);
+//    plotNormSingle("qqWW",inj,njet,mH,dir_result,ana);
+//    plotNormSingle("ggWW",inj,njet,mH,dir_result,ana);
+//    plotNormSingle("ggH" ,inj,njet,mH,dir_result,ana);
+//    plotNormSingle("WjetsE" ,inj,njet,mH,dir_result,ana);
+//    plotNormSingle("WjetsM" ,inj,njet,mH,dir_result,ana);
+//    plotNormSingle("Wgamma" ,inj,njet,mH,dir_result,ana);
+//    plotNormSingle("Wg3l" ,inj,njet,mH,dir_result,ana);
+//    plotNormSingle("Top" ,inj,njet,mH,dir_result,ana);
+//    plotNormSingle("VV" ,inj,njet,mH,dir_result,ana);
+//    plotNormSingle("Ztt" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("PullMu",     inj, njet, mH, dir_result, ana);
   }
 }
 
@@ -77,6 +78,7 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
     else if (proc=="Wg3l")   { input = yield_Wg3l   ; maxx=1.0; }
     else if (proc=="Ztt")    { input = yield_Ztt    ; maxx=1.0; }
     else if (proc=="WjetsM") { input = yield_WjetsM ; maxx=1.0; }
+    else if (proc=="PullMu") { input = yield_ZH+yield_WH+yield_qqH+yield_ggH; maxx=5.0; }
     else return;
   
 
@@ -111,6 +113,19 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
   gSystem->Exec(Form("mkdir -p %s/plots",dir.Data()));
   gSystem->Exec("rm tmp.txt");
 
+
+  //Pull for Mu
+  if(proc=="PullMu") { 
+    for(int i=0; i<1000; i++) {
+      TFile *File = TFile::Open(Form("%s/logsNorm/%i/mlfit_injm%s_m%i_%ij_id%i.root", dir.Data(), mH, inj.Data(), mH, jet, i), "READ");
+      if(!fit_s)  continue;
+      RooRealVar *r = (RooRealVar*) fit_s->floatParsFinal()->find("r");
+      h_proc_s->Fill( ( r->getVal() - 1. ) / r->getError() ); 
+      //cout <<  r->getVal() << " +/- " <<  r->getError() << " ==> " <<  ( r->getVal() - 1. ) / r->getError() << endl;  
+      File->Close();
+    }
+  }
+
   h_proc_b->SetTitle("");
   h_proc_b->GetXaxis()->SetTitle("(N_{fit,b}-N_{in})/N_{in}");
   h_proc_b->GetYaxis()->SetTitle("toys/bin");
@@ -126,7 +141,8 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
   c1.SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_bfit_%s_%s.eps",dir.Data(),inj.Data(),jet,mH,proc.Data(),ana.Data()));
 
   h_proc_s->SetTitle("");
-  h_proc_s->GetXaxis()->SetTitle("(N_{fit,s}-N_{in})/N_{in}");
+  if(proc != "PullMu") h_proc_s->GetXaxis()->SetTitle("(N_{fit,s}-N_{in})/N_{in}");
+  else h_proc_s->GetXaxis()->SetTitle("(fitted #mu - 1)/#sigma_{fitted #mu}");
   h_proc_s->GetYaxis()->SetTitle("toys/bin");
   h_proc_s->Draw();
   h_proc_s->Fit("gaus");
