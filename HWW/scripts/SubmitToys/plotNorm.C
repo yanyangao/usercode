@@ -5,16 +5,16 @@ void plotNorm() {
   TString dir_result = "/afs/cern.ch/user/j/jaehyeok/CMSSW_5_2_3_patch4/src/Smurf/LimitCalc/ana_PostHCP_2D_19fb/";
   TString ana = "hww";
   for ( int njet = 0; njet < 1; njet ++ ) {
-//    plotNormSingle("qqWW",inj,njet,mH,dir_result,ana);
-//    plotNormSingle("ggWW",inj,njet,mH,dir_result,ana);
-//    plotNormSingle("ggH" ,inj,njet,mH,dir_result,ana);
-//    plotNormSingle("WjetsE" ,inj,njet,mH,dir_result,ana);
-//    plotNormSingle("WjetsM" ,inj,njet,mH,dir_result,ana);
-//    plotNormSingle("Wgamma" ,inj,njet,mH,dir_result,ana);
-//    plotNormSingle("Wg3l" ,inj,njet,mH,dir_result,ana);
-//    plotNormSingle("Top" ,inj,njet,mH,dir_result,ana);
-//    plotNormSingle("VV" ,inj,njet,mH,dir_result,ana);
-//    plotNormSingle("Ztt" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("qqWW",inj,njet,mH,dir_result,ana);
+    plotNormSingle("ggWW",inj,njet,mH,dir_result,ana);
+    plotNormSingle("ggH" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("WjetsE" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("WjetsM" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("Wgamma" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("Wg3l" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("Top" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("VV" ,inj,njet,mH,dir_result,ana);
+    plotNormSingle("Ztt" ,inj,njet,mH,dir_result,ana);
     plotNormSingle("PullMu",     inj, njet, mH, dir_result, ana);
   }
 }
