@@ -2,8 +2,8 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
 void plotNorm() {
   int mH = 125; 
   TString inj = "125";
-  TString dir_result = "/afs/cern.ch/user/j/jaehyeok/CMSSW_5_2_3_patch4/src/Smurf/LimitCalc/ana_PostHCP_2D_19fb/";
-  TString ana = "hww";
+  TString dir_result = "/afs/cern.ch/user/y/yygao/scratch0/hwwjcp_19fb_normtoy/";
+  TString ana = "xww";
   for ( int njet = 0; njet < 1; njet ++ ) {
     plotNormSingle("qqWW",inj,njet,mH,dir_result,ana);
     plotNormSingle("ggWW",inj,njet,mH,dir_result,ana);
@@ -32,7 +32,7 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
   
   TString dir_cards="../../";
   TString datacardName = Form("%s/%i/%sof_%ij_shape_8TeV.txt",dir_cards.Data(),mH,ana.Data(),jet);
-  // std::cout << datacardName << "\n";
+  std::cout << datacardName << "\n";
   ifstream incard (datacardName);
   string line;
   
@@ -41,7 +41,7 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
       getline (incard,line);
       size_t found=line.find("rate");
       if (found!=string::npos) {
-	// std::cout << line << std::endl;
+	std::cout << line << std::endl;
 	stringstream stream(line);
 	string rate;
 	stream >> rate ;
@@ -116,8 +116,8 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
 
   //Pull for Mu
   if(proc=="PullMu") { 
-    for(int i=0; i<1000; i++) {
-      TFile *File = TFile::Open(Form("%s/logsNorm/%i/mlfit_injm%s_m%i_%ij_id%i.root", dir.Data(), mH, inj.Data(), mH, jet, i), "READ");
+    for(int i=1; i<1000; i++) {
+      TFile *File = TFile::Open(Form("%s/logsNorm/%i/mlfit_injm%s_m%i_%sof_%ij_id%i.root", dir.Data(), mH, inj.Data(), mH, ana.Data(), jet, i), "READ");
       if(!fit_s)  continue;
       RooRealVar *r = (RooRealVar*) fit_s->floatParsFinal()->find("r");
       h_proc_s->Fill( ( r->getVal() - 1. ) / r->getError() ); 
