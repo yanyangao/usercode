@@ -2,7 +2,7 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
 void plotNorm() {
   int mH = 125; 
   TString inj = "125";
-  TString dir_result = "/afs/cern.ch/user/y/yygao/scratch0/hwwjcp_19fb_stattoy/";
+  TString dir_result = "/afs/cern.ch/user/y/yygao/scratch0/hwwjcp_19fb_nosiginstshapesyst/";
   TString ana = "xww";
   for ( int njet = 0; njet < 1; njet ++ ) {
     plotNormSingle("qqWW",inj,njet,mH,dir_result,ana);
@@ -121,7 +121,7 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
       RooFitResult *fit_s = (RooFitResult*) File->Get("fit_s");
       if(!fit_s)  { File->Close(); continue; }
       if(fit_s->status() != 0) { File->Close(); continue; } // fit status == 0 : requires fit quality
-      RooRealVar *r = (RooRealVar*) fit_s->floatParsFinal()->find("r");
+      RooRealVar *r = (RooRealVar*) fit_s->floatParsFinal().find("r");
       h_proc_s->Fill( ( r->getVal() - 1. ) / r->getError() ); 
       //cout <<  r->getVal() << " +/- " <<  r->getError() << " ==> " <<  ( r->getVal() - 1. ) / r->getError() << endl;  
       File->Close();
