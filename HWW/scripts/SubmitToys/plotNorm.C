@@ -2,7 +2,7 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
 void plotNorm() {
   int mH = 125; 
   TString inj = "125";
-  TString dir_result = "/afs/cern.ch/user/y/yygao/scratch0/hwwjcp_19fb_nosiginstshapesyst/";
+  TString dir_result = "/afs/cern.ch/user/y/yygao/scratch0/hwwjcp_19fb/";
   TString ana = "xww";
   for ( int njet = 0; njet < 1; njet ++ ) {
     plotNormSingle("qqWW",inj,njet,mH,dir_result,ana);
@@ -21,6 +21,7 @@ void plotNorm() {
 
 void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TString ana) {
 
+  int ntoys = 1000;
   gROOT->Reset();
   float input = 0;
   float maxx  = 0;
@@ -116,8 +117,9 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
 
   //Pull for Mu
   if(proc=="PullMu") { 
-    for(int i=1; i<1000; i++) {
+    for(int i=0; i<ntoys; i++) {
       TFile *File = TFile::Open(Form("%s/logsNorm/%i/mlfit_injm%s_m%i_%sof_%ij_id%i.root", dir.Data(), mH, inj.Data(), mH, ana.Data(), jet, i), "READ");
+      if ( !File ) continue;
       RooFitResult *fit_s = (RooFitResult*) File->Get("fit_s");
       if(!fit_s)  { File->Close(); continue; }
       if(fit_s->status() != 0) { File->Close(); continue; } // fit status == 0 : requires fit quality
