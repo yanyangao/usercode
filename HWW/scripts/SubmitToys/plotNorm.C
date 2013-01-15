@@ -1,33 +1,27 @@
-void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TString ana);
+// 
+// RUN BY root -b -q plotNorm.C
+// 
 void plotNorm() {
   int mH = 125; 
   TString inj = "125";
   TString dir_result = "/afs/cern.ch/user/y/yygao/scratch0/hwwjcp_19fb/";
-  TString ana = "xww";
+  gSystem->Exec(Form("mkdir -p %s/plots",dir_result.Data()));
+  
+  TString ana = "hww";
+  int ntoys = 10000; 
   for ( int njet = 0; njet < 1; njet ++ ) {
-    plotNormSingle("qqWW",inj,njet,mH,dir_result,ana);
-    plotNormSingle("ggWW",inj,njet,mH,dir_result,ana);
-    plotNormSingle("ggH" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("WjetsE" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("WjetsM" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("Wgamma" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("Wg3l" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("Top" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("VV" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("Ztt" ,inj,njet,mH,dir_result,ana);
-    plotNormSingle("PullMu",     inj, njet, mH, dir_result, ana);
+    plotNormSingle(inj,njet,mH,dir_result,ana,ntoys);
   }
 }
 
-void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TString ana) {
-
-  int ntoys = 1000;
+void plotNormSingle(TString inj,int jet, int mH, TString dir, TString ana, int ntoys) {
+  
   gROOT->Reset();
-  float input = 0;
-  float maxx  = 0;
-  float hcp_s = 0;
-  float hcp_b = 0;
+  gStyle->SetOptStat(1);
+  gStyle->SetOptFit(1);
+  bool debug = false;
 
+  // prefit yields
   float yield_ZH(0.), yield_WH(0.), yield_qqH(0.), yield_ggH(0.);
   float yield_qqWW(0.), yield_ggWW(0.), yield_VV(0.), yield_Top(0.0), yield_Zjets(0.0), yield_WjetsE(0.), yield_Wgamma(0.0), yield_Wg3l(0.0), yield_Ztt(0.), yield_WjetsM(0.); 
   
@@ -65,108 +59,282 @@ void plotNormSingle(TString proc,TString inj,int jet, int mH, TString dir, TStri
     incard.close();
   }
   
-  if (proc=="ZH")            { input = yield_ZH     ; maxx=1.0; }
-    else if (proc=="WH")     { input = yield_WH     ; maxx=1.0; }
-    else if (proc=="qqH")    { input = yield_qqH    ; maxx=1.0; }
-    else if (proc=="ggH")    { input = yield_ggH    ; maxx=1.0; }
-    else if (proc=="qqWW")   { input = yield_qqWW   ; maxx=1.0; }
-    else if (proc=="ggWW")   { input = yield_ggWW   ; maxx=1.0; }
-    else if (proc=="VV")     { input = yield_VV     ; maxx=1.0; }
-    else if (proc=="Top")    { input = yield_Top    ; maxx=1.0; }
-    else if (proc=="Zjets")  { input = yield_Zjets  ; maxx=1.0; }
-    else if (proc=="WjetsE") { input = yield_WjetsE ; maxx=1.0; }
-    else if (proc=="Wgamma") { input = yield_Wgamma ; maxx=1.0; }
-    else if (proc=="Wg3l")   { input = yield_Wg3l   ; maxx=1.0; }
-    else if (proc=="Ztt")    { input = yield_Ztt    ; maxx=1.0; }
-    else if (proc=="WjetsM") { input = yield_WjetsM ; maxx=1.0; }
-    else if (proc=="PullMu") { input = yield_ZH+yield_WH+yield_qqH+yield_ggH; maxx=5.0; }
-    else return;
+  // after fit yields
+
+  // for PullMu
+  TH1F* h_PullMu_s = new TH1F("PullMu_sig_fit","PullMu",50,-4,4);
+  TH1F* h_ggH_s = new TH1F("ggH_sig_fit","ggH",50,-2,2);
+  TH1F* h_qqWW_s = new TH1F("qqWW_sig_fit","qqWW",50,-0.5,0.5);
+  TH1F* h_ggWW_s = new TH1F("ggWW_sig_fit","ggWW",50,-0.5,0.5);
+  TH1F* h_Top_s = new TH1F("Top_sig_fit","Top",50,-1,1);
+  TH1F* h_WjetsE_s = new TH1F("WjetsE_sig_fit","WjetsE",50,-1,1);
+  TH1F* h_WjetsM_s = new TH1F("WjetsM_sig_fit","WjetsM",50,-1,1);
+  TH1F* h_Wgamma_s = new TH1F("Wgamma_sig_fit","Wgamma",50,-1,1);
+  TH1F* h_Wg3l_s = new TH1F("Wg3l_sig_fit","Wg3l",50,-1,1);
+  TH1F* h_VV_s = new TH1F("VV_sig_fit","VV",50,-0.2,0.2);
+  TH1F* h_Ztt_s = new TH1F("Ztt_sig_fit","Ztt",50,-0.2,0.2);
   
-
-  gSystem->Exec(Form("grep -h %s %s/logsNorm/%i/logNorm_%s_%i_%sof_%ij_shape_8TeV_*.log >& tmp.txt",proc.Data(),dir.Data(),mH,inj.Data(),mH,ana.Data(),jet));
-  gStyle->SetOptStat(1);
-  gStyle->SetOptFit(1);
-
-  TCanvas c1;
-  TH1F* h_proc_b = new TH1F(proc+"_bkg_fit",proc,50,-1.*maxx,maxx);
-  TH1F* h_proc_s = new TH1F(proc+"_sig_fit",proc,50,-1.*maxx,maxx);
-
-  ifstream in;
-  in.open("tmp.txt");
-
-  Float_t nbfit,nsfit;
-  TString s1,s2;
-  Int_t nlines = 0;
+  Float_t yield_ggH_sfit, yield_qqWW_sfit, yield_ggWW_sfit, yield_Top_sfit, yield_WjetsE_sfit, yield_WjetsM_sfit, yield_Wgamma_sfit, yield_Wg3l_sfit, yield_VV_sfit, yield_Ztt_sfit;
   
-  cout << "input=" << input << endl;
-  while (1) {
-    in >> s1 >> s2 >> nsfit >> nbfit;
-    if (nlines < 5) printf("s1=%s s2=%s nbfit=%.3f, nsfit=%.3f\n",s1.Data(),s2.Data(),nbfit,nsfit);
-    if (!in.good()) break;
-    //cout << (nsfit-input)/input << endl;
-    h_proc_b->Fill( (nbfit-input)/input );
-    h_proc_s->Fill( (nsfit-input)/input );
-    nlines++;
-  }
-  printf(" found %d points\n",nlines);
-  
-  in.close();
-  gSystem->Exec(Form("mkdir -p %s/plots",dir.Data()));
-  gSystem->Exec("rm tmp.txt");
+  for(int i=0; i<ntoys; i++) {
+    TString fitresults= Form("%s/logsNorm/%i/mlfit_injm%s_m%i_%sof_%ij_id%i.root", dir.Data(), mH, inj.Data(), mH, ana.Data(), jet, i); 
+    if ( debug ) 
+      std::cout << "Opening " << fitresults << "\n";
+    TFile *File = TFile::Open(fitresults, "READ");
+    if ( File == 0x0  ) { continue; }
+    RooFitResult *fit_s = (RooFitResult*) File->Get("fit_s");
+    if( fit_s == 0x0 )  { File->Close(); continue; }
+    if(fit_s->status() != 0) { delete fit_s; File->Close(); continue; } // fit status == 0 : requires fit quality
+    
+    //
+    // get signal fit strength
+    // 
+    RooRealVar *r = (RooRealVar*) fit_s->floatParsFinal().find("r");
+    h_PullMu_s->Fill( ( r->getVal() - 1. ) / r->getError() ); 
+    if ( debug ) 
+      std::cout <<  r->getVal() << " +/- " <<  r->getError() << " ==> " <<  ( r->getVal() - 1. ) / r->getError() << "\n";
+    
+    // 
+    // getting the signal fit yield
+    // 
+    RooArgSet *norm_fit_s = (RooArgSet*) File->Get("norm_fit_s");
+    if ( norm_fit_s ) {
+      
+      // ggH 
+      RooRealVar* yield_sfit_ggH; 
+      yield_sfit_ggH = (RooRealVar*) norm_fit_s->find(Form("n_exp_final_binj%iof_proc_ggH", jet)); 
+      if ( yield_sfit_ggH != 0x0 ) {
+	yield_ggH_sfit = yield_sfit_ggH->getVal();  
+	if ( debug ) 
+	  std::cout << "yield_ggH_sfit = " << yield_ggH_sfit << "\n";
+	h_ggH_s->Fill( (yield_ggH_sfit-yield_ggH)/yield_ggH );
+      }
+      
+      // qqWW 
+      RooRealVar* yield_sfit_qqWW; 
+      yield_sfit_qqWW = (RooRealVar*) norm_fit_s->find(Form("n_exp_final_binj%iof_proc_qqWW", jet)); 
+      if ( yield_sfit_qqWW != 0x0 ) {
+	yield_qqWW_sfit = yield_sfit_qqWW->getVal();  
+	if ( debug ) 
+	  std::cout << "yield_qqWW_sfit = " << yield_qqWW_sfit << "\n";
+	h_qqWW_s->Fill( (yield_qqWW_sfit-yield_qqWW)/yield_qqWW );
+      }
+      
+      // ggWW 
+      RooRealVar* yield_sfit_ggWW; 
+      yield_sfit_ggWW = (RooRealVar*) norm_fit_s->find(Form("n_exp_final_binj%iof_proc_ggWW", jet)); 
+      if ( yield_sfit_ggWW != 0x0 ) {
+	yield_ggWW_sfit = yield_sfit_ggWW->getVal();  
+	if ( debug ) 
+	  std::cout << "yield_ggWW_sfit = " << yield_ggWW_sfit << "\n";
+	h_ggWW_s->Fill( (yield_ggWW_sfit-yield_ggWW)/yield_ggWW );
+      }
 
+      // Top 
+      RooRealVar* yield_sfit_Top; 
+      yield_sfit_Top = (RooRealVar*) norm_fit_s->find(Form("n_exp_final_binj%iof_proc_Top", jet)); 
+      if ( yield_sfit_Top != 0x0 ) {
+	yield_Top_sfit = yield_sfit_Top->getVal();  
+	if ( debug ) 
+	  std::cout << "yield_Top_sfit = " << yield_Top_sfit << "\n";
+	h_Top_s->Fill( (yield_Top_sfit-yield_Top)/yield_Top );
+      }
 
-  //Pull for Mu
-  if(proc=="PullMu") { 
-    for(int i=0; i<ntoys; i++) {
-      TFile *File = TFile::Open(Form("%s/logsNorm/%i/mlfit_injm%s_m%i_%sof_%ij_id%i.root", dir.Data(), mH, inj.Data(), mH, ana.Data(), jet, i), "READ");
-      if ( !File ) continue;
-      RooFitResult *fit_s = (RooFitResult*) File->Get("fit_s");
-      if(!fit_s)  { File->Close(); continue; }
-      if(fit_s->status() != 0) { File->Close(); continue; } // fit status == 0 : requires fit quality
-      RooRealVar *r = (RooRealVar*) fit_s->floatParsFinal().find("r");
-      h_proc_s->Fill( ( r->getVal() - 1. ) / r->getError() ); 
-      //cout <<  r->getVal() << " +/- " <<  r->getError() << " ==> " <<  ( r->getVal() - 1. ) / r->getError() << endl;  
-      File->Close();
+      // WjetsE 
+      RooRealVar* yield_sfit_WjetsE; 
+      yield_sfit_WjetsE = (RooRealVar*) norm_fit_s->find(Form("n_exp_final_binj%iof_proc_WjetsE", jet)); 
+      if ( yield_sfit_WjetsE != 0x0 ) {
+	yield_WjetsE_sfit = yield_sfit_WjetsE->getVal();  
+	if ( debug ) 
+	  std::cout << "yield_WjetsE_sfit = " << yield_WjetsE_sfit << "\n";
+	h_WjetsE_s->Fill( (yield_WjetsE_sfit-yield_WjetsE)/yield_WjetsE );
+      }
+      
+      // WjetsM 
+      RooRealVar* yield_sfit_WjetsM; 
+      yield_sfit_WjetsM = (RooRealVar*) norm_fit_s->find(Form("n_exp_final_binj%iof_proc_WjetsM", jet)); 
+      if ( yield_sfit_WjetsM != 0x0 ) {
+	yield_WjetsM_sfit = yield_sfit_WjetsM->getVal();  
+	if ( debug ) 
+	  std::cout << "yield_WjetsM_sfit = " << yield_WjetsM_sfit << "\n";
+	h_WjetsM_s->Fill( (yield_WjetsM_sfit-yield_WjetsM)/yield_WjetsM );
+      }
+
+      // Wg3l 
+      RooRealVar* yield_sfit_Wg3l; 
+      yield_sfit_Wg3l = (RooRealVar*) norm_fit_s->find(Form("n_exp_final_binj%iof_proc_Wg3l", jet)); 
+      if ( yield_sfit_Wg3l != 0x0 ) {
+	yield_Wg3l_sfit = yield_sfit_Wg3l->getVal();  
+	if ( debug ) 
+	  std::cout << "yield_Wg3l_sfit = " << yield_Wg3l_sfit << "\n";
+	h_Wg3l_s->Fill( (yield_Wg3l_sfit-yield_Wg3l)/yield_Wg3l );
+      }
+
+      // Wgamma 
+      RooRealVar* yield_sfit_Wgamma; 
+      yield_sfit_Wgamma = (RooRealVar*) norm_fit_s->find(Form("n_exp_final_binj%iof_proc_Wgamma", jet)); 
+      if ( yield_sfit_Wgamma != 0x0 ) {
+	yield_Wgamma_sfit = yield_sfit_Wgamma->getVal();  
+	if ( debug ) 
+	  std::cout << "yield_Wgamma_sfit = " << yield_Wgamma_sfit << "\n";
+	h_Wgamma_s->Fill( (yield_Wgamma_sfit-yield_Wgamma)/yield_Wgamma );
+      }
+
+      // VV 
+      RooRealVar* yield_sfit_VV; 
+      yield_sfit_VV = (RooRealVar*) norm_fit_s->find(Form("n_exp_final_binj%iof_proc_VV", jet)); 
+      if ( yield_sfit_VV != 0x0 ) {
+	yield_VV_sfit = yield_sfit_VV->getVal();  
+	if ( debug ) 
+	  std::cout << "yield_VV_sfit = " << yield_VV_sfit << "\n";
+	h_VV_s->Fill( (yield_VV_sfit-yield_VV)/yield_VV );
+      }
+      
+      // Ztt 
+      RooRealVar* yield_sfit_Ztt; 
+      yield_sfit_Ztt = (RooRealVar*) norm_fit_s->find(Form("n_exp_final_binj%iof_proc_Ztt", jet)); 
+      if ( yield_sfit_Ztt != 0x0 ) {
+	yield_Ztt_sfit = yield_sfit_Ztt->getVal();  
+	if ( debug ) 
+	  std::cout << "yield_Ztt_sfit = " << yield_Ztt_sfit << "\n";
+	h_Ztt_s->Fill( (yield_Ztt_sfit-yield_Ztt)/yield_Ztt );
+      }
+      
     }
+    delete fit_s;
+    File->Close();
   }
-
-  h_proc_b->SetTitle("");
-  h_proc_b->GetXaxis()->SetTitle("(N_{fit,b}-N_{in})/N_{in}");
-  h_proc_b->GetYaxis()->SetTitle("toys/bin");
-  h_proc_b->Draw();
-  h_proc_b->Fit("gaus");
-/*
-  TLine line_b((hcp_b-input)/input,0,(hcp_b-input)/input,h_proc_b->GetBinContent(h_proc_b->GetMaximumBin()));
-  line_b.SetLineColor(kMagenta);
-  line_b.SetLineWidth(2);
-  line_b.Draw("same");
-*/
-  c1.SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_bfit_%s_%s.png",dir.Data(),inj.Data(),jet,mH,proc.Data(),ana.Data()));
-  c1.SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_bfit_%s_%s.eps",dir.Data(),inj.Data(),jet,mH,proc.Data(),ana.Data()));
-
-  h_proc_s->SetTitle("");
-  if(proc != "PullMu") h_proc_s->GetXaxis()->SetTitle("(N_{fit,s}-N_{in})/N_{in}");
-  else h_proc_s->GetXaxis()->SetTitle("(fitted #mu - 1)/#sigma_{fitted #mu}");
-  h_proc_s->GetYaxis()->SetTitle("toys/bin");
-  h_proc_s->Draw();
-  h_proc_s->Fit("gaus");
-/*
-  TLine line_s((hcp_s-input)/input,0,(hcp_s-input)/input,h_proc_s->GetBinContent(h_proc_s->GetMaximumBin()));
-  line_s.SetLineColor(kMagenta);
-  line_s.SetLineWidth(2);
-  line_s.Draw("same");
-*/
+  
+  TCanvas* c1 = new TCanvas();
+  // plotting PullMu
+  h_PullMu_s->SetTitle("");
+  h_PullMu_s->GetXaxis()->SetTitle("(fitted #mu - 1)/#sigma_{fitted #mu}");
+  h_PullMu_s->GetYaxis()->SetTitle("toys/bin");
+  h_PullMu_s->Draw();
+  h_PullMu_s->Fit("gaus");
   gPad->Update();
-  // if (gPad->GetFrame()->GetY2()>10000) h_proc_s->GetYaxis()->SetRangeUser(0,1000);
-  c1.SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_%s_%s.png",dir.Data(),inj.Data(),jet,mH,proc.Data(),ana.Data()));
-  c1.SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_%s_%s.eps",dir.Data(),inj.Data(),jet,mH,proc.Data(),ana.Data()));
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_PullMu_%s.png",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_PullMu_%s.eps",dir.Data(),inj.Data(),jet,mH,ana.Data()));
 
+
+  // plot ggH yield 
+  h_ggH_s->SetTitle("");
+  h_ggH_s->GetXaxis()->SetTitle("(N_{fit,s}-N_{in})/N_{in}");
+  h_ggH_s->GetYaxis()->SetTitle("toys/bin");
+  h_ggH_s->Draw();
+  h_ggH_s->Fit("gaus");
+  gPad->Update();
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_ggH_%s.png",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_ggH_%s.eps",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+
+  // plot qqWW yield 
+  h_qqWW_s->SetTitle("");
+  h_qqWW_s->GetXaxis()->SetTitle("(N_{fit,s}-N_{in})/N_{in}");
+  h_qqWW_s->GetYaxis()->SetTitle("toys/bin");
+  h_qqWW_s->Draw();
+  h_qqWW_s->Fit("gaus");
+  gPad->Update();
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_qqWW_%s.png",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_qqWW_%s.eps",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+  
+
+  // plot ggWW yield 
+  h_ggWW_s->SetTitle("");
+  h_ggWW_s->GetXaxis()->SetTitle("(N_{fit,s}-N_{in})/N_{in}");
+  h_ggWW_s->GetYaxis()->SetTitle("toys/bin");
+  h_ggWW_s->Draw();
+  h_ggWW_s->Fit("gaus");
+  gPad->Update();
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_ggWW_%s.png",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_ggWW_%s.eps",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+  
+  // plot Top yield 
+  h_Top_s->SetTitle("");
+  h_Top_s->GetXaxis()->SetTitle("(N_{fit,s}-N_{in})/N_{in}");
+  h_Top_s->GetYaxis()->SetTitle("toys/bin");
+  h_Top_s->Draw();
+  h_Top_s->Fit("gaus");
+  gPad->Update();
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_Top_%s.png",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_Top_%s.eps",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+
+  // plot WjetsE yield 
+  h_WjetsE_s->SetTitle("");
+  h_WjetsE_s->GetXaxis()->SetTitle("(N_{fit,s}-N_{in})/N_{in}");
+  h_WjetsE_s->GetYaxis()->SetTitle("toys/bin");
+  h_WjetsE_s->Draw();
+  h_WjetsE_s->Fit("gaus");
+  gPad->Update();
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_WjetsE_%s.png",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_WjetsE_%s.eps",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+
+
+  // plot WjetsM yield 
+  h_WjetsM_s->SetTitle("");
+  h_WjetsM_s->GetXaxis()->SetTitle("(N_{fit,s}-N_{in})/N_{in}");
+  h_WjetsM_s->GetYaxis()->SetTitle("toys/bin");
+  h_WjetsM_s->Draw();
+  h_WjetsM_s->Fit("gaus");
+  gPad->Update();
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_WjetsM_%s.png",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_WjetsM_%s.eps",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+
+  // plot Wgamma yield 
+  h_Wgamma_s->SetTitle("");
+  h_Wgamma_s->GetXaxis()->SetTitle("(N_{fit,s}-N_{in})/N_{in}");
+  h_Wgamma_s->GetYaxis()->SetTitle("toys/bin");
+  h_Wgamma_s->Draw();
+  h_Wgamma_s->Fit("gaus");
+  gPad->Update();
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_Wgamma_%s.png",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_Wgamma_%s.eps",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+
+  // plot Wg3l yield 
+  h_Wg3l_s->SetTitle("");
+  h_Wg3l_s->GetXaxis()->SetTitle("(N_{fit,s}-N_{in})/N_{in}");
+  h_Wg3l_s->GetYaxis()->SetTitle("toys/bin");
+  h_Wg3l_s->Draw();
+  h_Wg3l_s->Fit("gaus");
+  gPad->Update();
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_Wg3l_%s.png",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_Wg3l_%s.eps",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+
+  // plot Ztt yield 
+  h_Ztt_s->SetTitle("");
+  h_Ztt_s->GetXaxis()->SetTitle("(N_{fit,s}-N_{in})/N_{in}");
+  h_Ztt_s->GetYaxis()->SetTitle("toys/bin");
+  h_Ztt_s->Draw();
+  h_Ztt_s->Fit("gaus");
+  gPad->Update();
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_Ztt_%s.png",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_Ztt_%s.eps",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+
+  // plot VV yield 
+  h_VV_s->SetTitle("");
+  h_VV_s->GetXaxis()->SetTitle("(N_{fit,s}-N_{in})/N_{in}");
+  h_VV_s->GetYaxis()->SetTitle("toys/bin");
+  h_VV_s->Draw();
+  h_VV_s->Fit("gaus");
+  gPad->Update();
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_VV_%s.png",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+  c1->SaveAs(Form("%s/plots/norm_inj%s_%ij_%i_sfit_VV_%s.eps",dir.Data(),inj.Data(),jet,mH,ana.Data()));
+
+  // delete 
+  delete h_PullMu_s;
+  delete h_ggH_s;
+  delete h_qqWW_s;
+  delete h_ggWW_s;
+  delete h_Top_s;
+  delete h_WjetsE_s;
+  delete h_WjetsM_s;
+  delete h_Wgamma_s;
+  delete h_Wg3l_s;
+  delete h_VV_s;
+  delete h_Ztt_s;
+  delete c1; 
   
 }
  
 /*
-root -b -q plotNorm.C\(\"qqWW\",\"125\",0,125\)
-for proc in ggH qqWW ggWW Top Wjets Wgamma; do root -b -q plotNorm.C\(\"${proc}\",\"125\",0,125\); done
-for inj in def 125 200; do for proc in ggH qqWW ggWW Top Wjets Wgamma; do root -b -q plotNorm.C\(\"${proc}\",\"${inj}\",0,125\); done; done
-for nj in {0,1}; do for proc in ggH qqWW ggWW Top Wjets Wgamma; do root -b -q plotNorm.C\(\"${proc}\",\"125\",${nj},125\); done; done
+
 */
