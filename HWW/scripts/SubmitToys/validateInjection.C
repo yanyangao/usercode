@@ -3,7 +3,7 @@
 // http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/GCerati/HWWScripts/validateInjection.C
 // 
 
-void validateInjection(TString inputcarddir = "../../", TString toydatadir="../../", TString ana="xww", int njet = 0)
+void validateInjection(TString inputcarddir = "../../", TString toydatadir="../../", TString ana="hww", int njet = 1)
 {
 
   gROOT->Reset();
@@ -97,7 +97,7 @@ void validateInjection(TString inputcarddir = "../../", TString toydatadir="../.
   TH1F* hinj = new TH1F("hinj","hinj", ggH->GetNbinsX(), ggH->GetXaxis()->GetXmin(), ggH->GetXaxis()->GetXmax()); 
   for (int i=0;i<1000;++i) {
     TFile *_file_inj = TFile::Open(Form("%s/125/%sof_%ij_shape_8TeV_PseudoData_sb_seed12344.root", toydatadir.Data(), ana.Data(), njet));
-    TH1F* h = (TH1F*) _file_inj->Get(Form("j0of_%i",i));
+    TH1F* h = (TH1F*) _file_inj->Get(Form("j%iof_%i",njet,i));
     hinj->Add(h);
     _file_inj->Close();
   }
