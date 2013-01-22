@@ -3,7 +3,17 @@
 // http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/GCerati/HWWScripts/validateInjection.C
 // 
 
-void validateInjection(TString inputcarddir = "../../", TString toydatadir="../../", TString ana="hww", int njet = 1)
+void validateInjection() {
+  
+  TString inputcarddir = "../../";
+  TString toydatadir="../../";
+
+  for ( int njet = 0 ; njet < 2 ; njet ++ ) {
+    validateInjectionSingle(inputcarddir, toydatadir, "hww", njet);
+    validateInjectionSingle(inputcarddir, toydatadir, "xww", njet);
+  }
+}
+void validateInjectionSingle(TString inputcarddir = "../../", TString toydatadir="../../", TString ana="hww", int njet = 0)
 {
 
   gROOT->Reset();
