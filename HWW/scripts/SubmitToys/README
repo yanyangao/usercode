@@ -46,10 +46,12 @@ The fit bias, (n_fit-n_in)/nin, information is then plotted for all the toy resu
 
 1) Create toys 
 
+Check the code to have the right input files. 
+
 ------------------
 cp SubmitToys/createtoydata.sh .
 chmod u+x createtoydata.sh
-./createtoydata.sh hwwof_0j_shape_8TeV
+./createtoydata.sh
 ------------------
 
 2) Edit the macro to create the toy data cards (getPseudoData.C)
